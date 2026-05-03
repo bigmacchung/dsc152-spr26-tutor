@@ -1,0 +1,383 @@
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(dev = 'pdf')
+  def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+  knitr::knit_hooks$set(chunk = function(x, options) {
+    x <- def.chunk.hook(x, options)
+    ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+  })
+```
+
+## Example \#1: FEV {.t}
+Researchers are studying the impact of smoking on lung function:
+
+ - Data were collected at a children's hospital in Boston in the 1970s
+ 
+\vspace{3mm}
+
+ - Study subjects ranged in age from 3 to 19 years old
+ 
+\vspace{3mm}
+
+ - The outcome variable of interest is "forced expiratory volume" (FEV)
+ 
+\vspace{3mm}
+
+ - The predictor variable of interest is their smoking status, which was simply coded as:
+   - 0 if the child does not smoke
+   - 1 if the child self-reports that they "smoke regularly"
+
+
+## Example \#1: FEV {.t}
+\framesubtitle{FEV in children from ages 3-19}
+
+```{r, echo=FALSE, message=FALSE}
+library(readr)
+FEV <- read_delim("FEV.txt", delim = "\t", escape_double = FALSE, trim_ws = TRUE)
+
+knitr::kable(FEV[1:8, c(1,2,3,5)])
+```
+
+ - This continues on; the total sample size is 654
+ - `fev` is measured in liters, and represents the amount of air blown out in 1 second
+
+
+## Example \#1: FEV {.t}
+\framesubtitle{FEV in children from ages 3-19: The naive analysis}
+```{r, size="footnotesize"}
+t.test(fev ~ smoke, data=FEV)
+```
+
+\pause
+
+### What's wrong with this?
+\vspace{-2mm}
+Why do the smokers have a higher FEV??
+
+## Example \#1: FEV {.t}
+\framesubtitle{FEV in children from ages 3-19: The naive analysis}
+```{r, warning=FALSE, echo=FALSE, out.width="95%"}
+library(ggplot2)
+ggplot(data=FEV, mapping = aes(x=factor(smoke), y=fev)) + 
+  geom_boxplot() + theme(text=element_text(size=20)) + 
+  labs(x="Smoking Status", y="FEV", title="Lung Function vs. Smoking Status")
+```
+
+## Example \#1: FEV {.t}
+\framesubtitle{Let's do a little better}
+```{r, echo=FALSE, out.width="95%"}
+ggplot(data=FEV, mapping = aes(x = age, y=fev, color=factor(smoke))) + 
+  geom_jitter(aes(shape=factor(smoke)), size=3) + 
+  theme(text=element_text(size=20)) + 
+  labs(y="FEV", title="Lung Function vs. Smoking Status with Age", shape="smoke", color="smoke")
+```
+
+
+## Example \#1: FEV {.t}
+\label{scatter}
+\framesubtitle{Let's do a little better}
+For your reference, here is the code that made the plot on the previous slide:
+```{r, eval=FALSE}
+ggplot(data=FEV, mapping = aes(x = age, y=fev)) + 
+  geom_jitter(aes(shape=factor(smoke), 
+                  color=factor(smoke)), 
+              size=3) + 
+  theme(text=element_text(size=20)) + 
+  labs(y="FEV", title="Lung Function vs. Smoking Status 
+       with Age", shape="smoke", color="smoke")
+```
+
+
+
+## Example \#1: FEV {.t}
+So let's start to fix the analysis. The framework of linear models will be useful.
+
+ - First we note that the original t-Test could have been performed as a linear model:
+ 
+$$
+\widehat{FEV} = \hat{\beta}_0 + \hat{\beta}_1 \cdot smoke
+$$
+
+What would be the interpretations of $\hat{\beta}_0$ and $\hat{\beta}_1$ in this context?
+https://pollev.com/chi
+
+
+
+## Example \#1: FEV {.t} 
+\label{slr}
+```{r, size="footnotesize"}
+model1 <- lm(fev ~ smoke, data=FEV)
+summary(model1)
+```
+ 
+## Example \#1: FEV {.t} 
+\framesubtitle{Sidenote: is it really identical?}
+Note that the p-value from the two-sample t-Test was:
+```{r}
+t.test(fev ~ smoke, data=FEV)$p.value
+```
+
+and from the linear model was:
+```{r}
+summary(model1)$coefficients[2,4]
+```
+
+So they aren't exactly equal. But...
+
+```{r, size="footnotesize", message=FALSE, warning=FALSE, echo=FALSE}
+# Stata's robust standard errors
+# from https://grodri.github.io/glms/r/robust
+#library(haven)
+#library(lmtest)
+#library(sandwich)
+#coeftest(model1, vcov = vcovHC(model1, type="HC1"))
+```
+ 
+## Example \#1: FEV {.t} 
+\framesubtitle{Sidenote: is it really identical?}
+
+Recall that linear regression has the condition of equal variances, whereas the version of the t-Test that we do doesn't. But what if we do the equal variance version of the t-Test?
+
+```{r}
+t.test(fev ~ smoke, data=FEV, var.equal=TRUE)$p.value
+```
+
+and from the linear model again:
+```{r}
+summary(model1)$coefficients[2,4]
+```
+
+So the point is that a t-Test can be formulated as a linear regression question, with a single binary predictor variable.
+
+## Example \#1: FEV {.t} 
+Then, under this linear model formulation, we can add additional predictor variables!
+
+
+$$
+\widehat{FEV} = \hat{\beta}_0 + \hat{\beta}_1 \cdot smoke
+$$
+becomes 
+
+$$
+\widehat{FEV} = \hat{\beta}_0 + \hat{\beta}_1 \cdot smoke + \hat{\beta}_2 \cdot age
+$$
+
+### How does this help us?
+\vspace{-2mm}
+Let's work backwards. First, running the analysis in R is easy:
+
+```{r}
+model2 <- lm(fev ~ smoke + age, data=FEV)
+```
+
+## Example \#1: FEV {.t} 
+And instead of just printing the summary (like I did on Slide \ref{slr}) we can easily clean up the presentation of the output using the `kable` function:
+```{r, warning=FALSE}
+library(knitr)
+kable(summary(model2)$coefficients)
+```
+
+### A couple of questions...
+\vspace{-2mm}
+https://pollev.com/chi
+
+## Example \#1: FEV {.t} 
+\label{dc}
+
+### Two Daily Check Questions:
+\vspace{-2mm}
+ - Which p-value(s) from this output do we care about? What is $H_0$ for each one that we do care about?
+
+\vspace{2mm}
+
+ - What is the interpretation of the output value of -0.2089949, in the context of this scenario?
+
+## Example \#1: FEV {.t} 
+(more space for notes if needed)
+
+
+## Example \#1: FEV {.t} 
+
+### Important note
+\vspace{-2mm}
+The decision of whether to include `age` in the model should NOT be driven by whether its p-value is statistically significant. 
+
+ - It is a common approach in data science (and even in applied statistics) to do that -- that is, to build a model based on p-values (or any other metric such as MSE or $R^2$).
+   - This is OK if the end goal from that dataset is simply to build that model, or to do prediction. 
+   - It is NOT ok if the end goal from that dataset is statistical inference. 
+ 
+\vspace{3mm}
+
+Simply put, to do this is asking too much of your data. We will explain this concept in more detail in Lecture \#14. 
+
+
+## Example \#1: FEV {.t} 
+
+::: {.t}
+### Conclusions
+\vspace{-2mm}
+
+We find that there is statistically significant evidence at the $\alpha=0.05$ level that smoking status is associated with lung function, while adjusting for age (p=`r round(summary(model2)$coefficients[2,4], 4)`). Specifically, we estimate that smoking is associated with an average decrease in FEV of `r abs(round(summary(model2)$coefficients[2,1], 4))` liters when comparing children of the same age, with 95\% CI: (`r round(confint(model2, 'smoke')[1], 4)`, `r round(confint(model2, 'smoke')[2], 4)`).
+
+:::
+
+
+\pause
+\vspace{3mm}
+
+::: {.t}
+### Note \#1: the text above was written with inline R code
+![](markdown.png)
+:::
+
+
+## Example \#1: FEV {.t} 
+
+::: {.t}
+### Conclusions
+\vspace{-2mm}
+
+We find that there is statistically significant evidence at the $\alpha=0.05$ level that smoking status is associated with lung function, while adjusting for age (p=`r round(summary(model2)$coefficients[2,4], 4)`). Specifically, we estimate that smoking is associated with an average decrease in FEV of `r abs(round(summary(model2)$coefficients[2,1], 4))` liters when comparing children of the same age, with 95\% CI: (`r round(confint(model2, 'smoke')[1], 4)`, `r round(confint(model2, 'smoke')[2], 4)`).
+
+:::
+
+
+\vspace{3mm}
+
+::: {.t}
+### Note \#2: what are some key features of this written conclusion?
+\vspace{-2mm}
+
+ - "while adjusting for age"
+
+\vspace{3mm} 
+
+ - "smoking is associated with an average decrease in FEV of..."
+   - Why wouldn't it be correct to say "smoking decreases FEV by..."?
+
+
+\vspace{5mm}
+:::
+
+
+## Example \#1: FEV {.t} 
+\label{dc2}
+
+### Daily Check Questions
+\vspace{-2mm}
+ - What is the role of age in these data? 
+ - If we run an analysis that adjusts for age (as we just did), why can we still not infer a \underline{causal} relationship between smoking and lung function?
+
+
+## Example \#2: Penguin Beak Dimensions {.t}
+An ecologist is studying penguin beaks, and for reasons of conservation and understanding the penguins' dietary habits, is specifically interested in the relationship between:
+
+ - The depth of a penguin's beak
+ - The length of the penguin's beak
+ 
+Data were collected at Palmer Station in Antarctica, with a total sample size of 344 penguins.
+
+
+## Example \#2: Penguin Beak Dimensions {.t}
+\label{penguin}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(palmerpenguins)
+
+ggplot(data=penguins, mapping=aes(x=bill_length_mm, y=bill_depth_mm)) + 
+  geom_point(size=2) + 
+  labs(x="length (mm)", y="depth (mm)", title="Antarctic Penguins' Beak Length and Depth") + 
+  theme(text=element_text(size=20))
+
+# summary(lm(bill_depth_mm ~ bill_length_mm, data=penguins))
+#summary(lm(bill_depth_mm ~ bill_length_mm + species, data=penguins))
+
+
+#summary(lm(bill_length_mm ~ bill_depth_mm, data=penguins))
+#summary(lm(bill_length_mm ~ bill_depth_mm + species, data=penguins))
+
+```
+
+## Example \#2: Penguin Beak Dimensions {.t}
+
+::: {.t}
+### What do we observe?
+\vspace{-2mm}
+It's kind of weird that there appears to be a negative relationship between beak length and beak depth
+:::
+
+Is this another example of...
+![](simpsons.png){width=80%}
+
+???
+
+
+## Example \#2: Penguin Beak Dimensions {.t}
+Yes it is! The confounding variable here is `species`:
+```{r}
+table(penguins$species)
+```
+
+(these are just the counts of how many of each species there are in the dataset)
+
+
+## Your Turn {.t}
+
+ - Load the dataset into your R Markdown document:
+   - First, in the **R Console**, type `install.packages("palmerpenguins")` (do NOT put this in your Rmd file!!)
+   - Then, **in your Rmd file**, put `library(palmerpenguins)` in a code chunk (you can also do this in your R Console if you want to view and work with the dataframe interactively)
+   - The dataframe will then be loaded as `penguins`
+
+\vspace{3mm}
+
+ - Create a scatterplot of the data as in Slide \ref{penguin}, but add the following:
+   - Color the points by `species` (see code in Slide \ref{scatter}) -- but note that `species` is already coded as a `factor` variable so you do not need to include the `factor()` part
+   - Add regression lines for each group (you can do this by adding `+ geom_smooth(method="lm", se=FALSE)` to your plotting code)
+   
+
+ 
+<!-- https://rstudio-pubs-static.s3.amazonaws.com/654384_402a3562b1704b6b8e99610bc71b9a80.html -->
+
+## Your Turn {.t}
+
+ - Run linear models:
+   - One with just `y=depth`, `x=length`
+   - Then add `species` as an additional covariate
+   - Include explanations of the following:
+     - Why the second model is probably the correct one
+     - Which p-value(s) we care about from that output
+     - Interpretation(s) of the regression coefficients that we care about
+     - Your conclusions 
+   
+
+\vspace{8mm}
+
+### Summary of today's Daily Check:
+\vspace{-2mm}
+1. Answers to the questions on Slide \ref{dc}
+2. Answers to the questions on Slide \ref{dc2}
+3. All of the Your Turn
+
+
+## Recap and Looking Ahead {.t}
+
+::: {.t}
+### Recap
+\vspace{-2mm}
+ - In the context of statistical inference, the purpose of multiple linear regression models is to adjust for potential confounders
+ - Here, we explored two examples:
+   - Binary primary covariate with quantitative confounder
+   - Quantitative primary covariate with categorical confounder
+ - We only care about the p-value for the primary covariate!
+ 
+:::
+
+\vspace{4mm}
+
+### Looking Ahead
+\vspace{-2mm}
+
+ - What if our primary covariate is categorical (with more than two categories, so it's not just binary)? How do we get a proper p-value for inference in that situation?
+ 
+ - Model diagnostics for checking required conditions for valid inference

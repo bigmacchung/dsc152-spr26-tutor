@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSC 152 → Uber APM Bridge</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: #0b0e14;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.7;
+  font-size: 16px;
+  min-height: 100vh;
+}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0b0e14; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+.header {
+  background: linear-gradient(135deg, #141821 0%, #1c2030 100%);
+  border-bottom: 2px solid #22d3ee33;
+  padding: 24px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header h1 { color: #e2e8f0; font-size: 1.6rem; margin-bottom: 4px; }
+.header h1 .accent { background: linear-gradient(135deg, #22d3ee, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.header .subtitle { color: #94a3b8; font-size: 0.9rem; }
+.header .back-btn {
+  display: inline-block; margin-top: 10px; padding: 6px 14px;
+  background: #1e293b; color: #22d3ee; border-radius: 6px;
+  text-decoration: none; font-size: 0.85rem; font-weight: 600;
+  border: 1px solid #334155;
+}
+.header .back-btn:hover { background: #334155; }
+
+.main { max-width: 1080px; margin: 0 auto; padding: 24px; }
+
+.section {
+  background: #141821;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.section-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #1c2030 0%, #141821 100%);
+  border-bottom: 1px solid #22d3ee33;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-header .num {
+  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  color: #0b0e14; font-weight: 800; font-size: 0.85rem;
+  padding: 4px 10px; border-radius: 999px;
+}
+.section-header h2 { color: #e2e8f0; font-size: 1.15rem; }
+.section-body { padding: 20px; }
+
+.box {
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  border-left: 3px solid #334155;
+  background: #1c2030;
+}
+.box-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.box-uber { border-left-color: #22d3ee; }
+.box-uber .box-label { color: #22d3ee; }
+.box-stat { border-left-color: #c084fc; }
+.box-stat .box-label { color: #c084fc; }
+.box-warning { border-left-color: #f87171; }
+.box-warning .box-label { color: #f87171; }
+.box-mock { border-left-color: #fbbf24; }
+.box-mock .box-label { color: #fbbf24; }
+.box-good { border-left-color: #4ade80; }
+.box-good .box-label { color: #4ade80; }
+
+p { margin: 8px 0; }
+h3 { color: #e2e8f0; margin: 18px 0 8px; font-size: 1.05rem; }
+h4 { color: #94a3b8; margin: 12px 0 6px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; }
+ul, ol { margin: 8px 0 8px 24px; }
+li { margin: 4px 0; }
+strong { color: #e2e8f0; }
+em { color: #cbd5e1; }
+code {
+  background: #0f172a; padding: 2px 6px; border-radius: 4px;
+  font-family: 'SF Mono', Consolas, monospace; font-size: 0.88rem; color: #22d3ee;
+}
+pre {
+  background: #0f172a; padding: 12px 14px; border-radius: 8px;
+  font-family: 'SF Mono', Consolas, monospace; font-size: 0.85rem; color: #e2e8f0;
+  overflow-x: auto; margin: 10px 0; line-height: 1.5;
+}
+
+table {
+  width: 100%; border-collapse: collapse; margin: 12px 0;
+  background: #0f172a; border-radius: 8px; overflow: hidden;
+}
+th, td {
+  padding: 10px 12px; text-align: left; border-bottom: 1px solid #1e293b;
+  font-size: 0.92rem;
+}
+th { background: #1c2030; color: #c084fc; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; }
+tr:last-child td { border-bottom: none; }
+
+.calc-box {
+  background: #0f172a; padding: 16px; border-radius: 8px;
+  border: 1px solid #22d3ee44; margin: 14px 0;
+}
+.calc-box label { color: #e2e8f0; display: block; margin: 8px 0; font-size: 0.92rem; }
+.calc-box input {
+  background: #1e293b; color: #22d3ee; border: 1px solid #334155;
+  padding: 6px 10px; border-radius: 6px; margin-left: 6px;
+  font-family: 'SF Mono', Consolas, monospace; width: 100px;
+}
+.calc-box button {
+  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  color: #0b0e14; font-weight: 700; border: none;
+  padding: 8px 18px; border-radius: 6px; cursor: pointer; margin-top: 10px;
+}
+.calc-result {
+  margin-top: 12px; padding: 12px; background: #1c2030;
+  border-radius: 6px; border-left: 3px solid #22d3ee;
+}
+
+.scenario-quiz { background: #0f172a; border: 1px solid #fbbf2444; border-radius: 8px; padding: 16px; margin: 14px 0; }
+.scenario-quiz .q { color: #fbbf24; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; }
+.scenario-quiz .opt {
+  background: #1c2030; padding: 10px 14px; margin: 6px 0; border-radius: 6px;
+  cursor: pointer; transition: background 0.2s; font-size: 0.92rem;
+}
+.scenario-quiz .opt:hover { background: #2a3142; }
+.scenario-quiz .opt.correct { background: #14532d; border-left: 3px solid #4ade80; }
+.scenario-quiz .opt.wrong { background: #4c1d24; border-left: 3px solid #f87171; }
+.scenario-quiz .explain { display: none; margin-top: 10px; padding: 10px; background: #1c2030; border-left: 3px solid #fbbf24; border-radius: 4px; font-size: 0.9rem; }
+.scenario-quiz.answered .explain { display: block; }
+
+.toc { background: #1c2030; padding: 14px 20px; border-radius: 10px; margin-bottom: 24px; }
+.toc h3 { color: #22d3ee; margin-bottom: 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.toc a { color: #e2e8f0; text-decoration: none; padding: 4px 0; display: block; font-size: 0.92rem; }
+.toc a:hover { color: #22d3ee; }
+.toc .toc-num { display: inline-block; width: 28px; color: #818cf8; font-weight: 700; }
+
+.callout-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.callout-row .pill {
+  background: #1c2030; border-left: 3px solid #22d3ee;
+  padding: 8px 12px; border-radius: 6px; font-size: 0.88rem;
+  flex: 1 1 220px;
+}
+
+footer {
+  margin-top: 40px; padding: 20px; text-align: center;
+  color: #94a3b8; font-size: 0.85rem; border-top: 1px solid #1e293b;
+}
+footer a { color: #22d3ee; text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>DSC 152 <span class="accent">→ Uber APM Interview Bridge</span></h1>
+  <div class="subtitle">Translate every statistical inference concept into a marketplace product question. Built for Maxime.</div>
+  <a class="back-btn" href="DSC152-companion.html">← Back to study guide</a>
+</div>
+
+<div class="main">
+
+<div class="toc">
+  <h3>What you'll get on this page</h3>
+  <a href="#s1"><span class="toc-num">1.</span> Why Uber is a unique A/B testing playground (the marketplace problem)</a>
+  <a href="#s2"><span class="toc-num">2.</span> The metrics the interviewer expects you to know cold</a>
+  <a href="#s3"><span class="toc-num">3.</span> Case walkthrough — the "25% off in San Diego" prompt</a>
+  <a href="#s4"><span class="toc-num">4.</span> Case walkthrough — driver-side experiment (acceptance rate)</a>
+  <a href="#s5"><span class="toc-num">5.</span> Case walkthrough — ETA accuracy improvement</a>
+  <a href="#s6"><span class="toc-num">6.</span> Concept map — DSC 152 stats ↔ APM interview language</a>
+  <a href="#s7"><span class="toc-num">7.</span> Interactive — sample size calculator (your DSC 152 power formula)</a>
+  <a href="#s8"><span class="toc-num">8.</span> Five common pitfalls (extra credit answers)</a>
+  <a href="#s9"><span class="toc-num">9.</span> Mock prompts to practice out loud</a>
+  <a href="#s10"><span class="toc-num">10.</span> Sources &amp; further reading</a>
+</div>
+
+<!-- ========== SECTION 1 ========== -->
+<div class="section" id="s1">
+  <div class="section-header"><span class="num">01</span><h2>Why Uber Is a Unique A/B Testing Playground</h2></div>
+  <div class="section-body">
+
+  <p>Most stats classes teach A/B testing as if you have one population: <em>"some users see version A, others see version B, look at the means."</em> Uber breaks this because it is a <strong>three-sided marketplace</strong> with two distinct user populations whose actions affect each other in real time.</p>
+
+  <div class="box box-uber">
+    <div class="box-label">The Three Sides You Must Mention</div>
+    <ul>
+      <li><strong>Riders</strong> (demand) — care about price, ETA, ride quality.</li>
+      <li><strong>Drivers</strong> (supply) — care about earnings per hour, downtime, surge predictability.</li>
+      <li><strong>Uber as the platform</strong> — cares about contribution margin per trip, retention on both sides, marketplace efficiency (how often a request gets matched).</li>
+    </ul>
+    <p>If the interviewer asks "would you launch X?", your structured answer must show how X affects EACH of the three sides. Andy Walner's Medium piece calls this out explicitly: <em>"address specifically how a change would affect supply (drivers), demand (riders), and Uber's bottom-line."</em></p>
+  </div>
+
+  <div class="box box-stat">
+    <div class="box-label">Why Vanilla A/B Tests Break Here — and Where Your DSC 152 Knowledge Wins</div>
+    <p>Three things make Uber's experimentation harder than a textbook A/B test:</p>
+    <ol>
+      <li><strong>SUTVA violation.</strong> If you give 50% of riders in San Diego a discount, you bid drivers AWAY from the control 50%. Treatment leaks into control through shared driver supply. Your DSC 152 hypothesis test ASSUMES independent samples — that breaks. Mention this and you sound senior.</li>
+      <li><strong>Highly skewed metrics.</strong> Trips per user, revenue per user, surge revenue — all heavy-tailed. A few power users move the mean. This is exactly why Lab 2 had you compare the t-test to the sign test and bootstrap CI on Gamma data. You already KNOW the t-test misbehaves on small-n skewed data.</li>
+      <li><strong>Network effects.</strong> A change that increases bookings can DEGRADE the experience because surge fires more often. Looking at one metric (bookings) without a guardrail (ETA, surge frequency) is rookie behavior.</li>
+    </ol>
+  </div>
+
+  <p>Translation: every concept you are studying for Quiz 1 has a marketplace-shaped twin in this interview. Sections 3-6 walk through the mapping concretely.</p>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 2 ========== -->
+<div class="section" id="s2">
+  <div class="section-header"><span class="num">02</span><h2>The Metrics Interviewers Expect You to Know Cold</h2></div>
+  <div class="section-body">
+
+  <p>Memorize the four CATEGORIES — North Star, input, guardrail, counter — and have one Uber example for each. When you are asked "what would you measure?", structure your answer around these four buckets and you instantly look prepared.</p>
+
+  <table>
+    <tr><th>Bucket</th><th>What it does</th><th>Rider-side example</th><th>Driver-side example</th></tr>
+    <tr><td><strong>North Star</strong></td><td>The single metric the team is judged on.</td><td>Weekly active riders × trips per rider</td><td>Driver hours online × earnings per hour</td></tr>
+    <tr><td><strong>Input metric</strong></td><td>The lever that moves the North Star.</td><td>Conversion rate on app open → request</td><td>Acceptance rate on incoming requests</td></tr>
+    <tr><td><strong>Guardrail</strong></td><td>Must NOT get worse, even if North Star moves.</td><td>p95 ETA, cancellation rate, support contacts</td><td>Earnings per hour, downtime between trips</td></tr>
+    <tr><td><strong>Counter metric</strong></td><td>Catches gaming the North Star.</td><td>Trips/rider can rise via fraudulent micro-trips → counter with avg trip distance</td><td>Acceptance can rise via accept-then-cancel → counter with cancellation rate</td></tr>
+  </table>
+
+  <div class="box box-uber">
+    <div class="box-label">Uber-Specific Metrics to Drop By Name</div>
+    <div class="callout-row">
+      <div class="pill"><strong>Match rate</strong> — % of requests matched within X seconds.</div>
+      <div class="pill"><strong>p50 / p95 ETA</strong> — median and tail of pickup time.</div>
+      <div class="pill"><strong>Surge frequency</strong> — % of sessions in surge.</div>
+      <div class="pill"><strong>Cancellation rate</strong> — by rider and by driver.</div>
+      <div class="pill"><strong>Driver utilization</strong> — % of online time spent on a trip.</div>
+      <div class="pill"><strong>Take rate</strong> — Uber's cut of gross bookings.</div>
+      <div class="pill"><strong>Contribution margin per trip</strong> — revenue minus variable cost.</div>
+      <div class="pill"><strong>Repeat rate</strong> — % of new riders who take a 2nd trip in 30 days.</div>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 3 ========== -->
+<div class="section" id="s3">
+  <div class="section-header"><span class="num">03</span><h2>Case Walkthrough: "Should Uber Roll Out a 25% Discount in San Diego?"</h2></div>
+  <div class="section-body">
+
+  <p>This is the canonical Uber APM analytical case — pulled directly from Andy Walner's article. Below is how you walk an interviewer through it using your DSC 152 toolkit.</p>
+
+  <div class="box box-mock">
+    <div class="box-label">Prompt</div>
+    <p><em>"Uber wants to release a 25% discount to attract new riders in San Diego. How would you decide whether to roll it out?"</em></p>
+  </div>
+
+  <h3>Step 1 — Clarify the goal (always do this first)</h3>
+  <p>Ask: <em>"Are we optimizing for new-rider acquisition only, or for total contribution margin? Over what time horizon — 30 days or 90 days?"</em>  This single question shows the interviewer you are not racing to numbers.</p>
+
+  <h3>Step 2 — Hypotheses (the DSC 152 Level 3 move)</h3>
+  <pre>H0: 25% discount has NO effect on the chosen North Star (e.g., 30-day repeat rate of new riders).
+H1: 25% discount changes the 30-day repeat rate.</pre>
+  <p>Two-sided is fine — "no effect" includes "discount cannibalizes margin without lifting repeat." If the interviewer presses, switch to one-sided ("we expect lift &gt; 0") to maximize power.</p>
+
+  <h3>Step 3 — Pick a unit of randomization (the SUTVA fix)</h3>
+  <p>Do <strong>not</strong> randomize at the rider level — drivers are shared supply. Two cleaner options:</p>
+  <ul>
+    <li><strong>Geo split.</strong> Randomize at the city or neighborhood level — San Diego ZIP codes A/B/A/B. Pro: clean SUTVA. Con: tiny sample (you might have ~30 ZIPs).</li>
+    <li><strong>Switchback experiment.</strong> Run discount for an hour, off for an hour, alternating. Pro: city is its own control. Con: carryover bias (drivers who came online for the discount hour stay around).</li>
+  </ul>
+  <p>This is exactly the "two-sample / paired" decision you learned in Level 5 of the companion — but with a marketplace twist.</p>
+
+  <h3>Step 4 — Pick a primary metric and guardrails</h3>
+  <table>
+    <tr><th>Role</th><th>Metric</th><th>Why</th></tr>
+    <tr><td>Primary</td><td>Contribution margin per acquired rider over 30 days</td><td>Discounts only earn back if those riders stick around.</td></tr>
+    <tr><td>Guardrail 1</td><td>p95 ETA</td><td>If demand spikes, supply shortfall hurts ETA — bad rider experience.</td></tr>
+    <tr><td>Guardrail 2</td><td>Driver earnings per hour</td><td>If discount lowers gross bookings per trip without volume offset, drivers earn less.</td></tr>
+    <tr><td>Counter</td><td>% of "new" riders who are returning churned riders gaming the offer</td><td>Catches a known abuse pattern.</td></tr>
+  </table>
+
+  <h3>Step 5 — Sample size and power (use the calculator below)</h3>
+  <p>Suppose baseline 30-day repeat rate is 40%, and you want to detect a 2-percentage-point lift (40% → 42%). You need a LOT of riders because the lift is small relative to the noise. Your DSC 152 power formula gives you the answer — Section 7 has an interactive calculator.</p>
+
+  <h3>Step 6 — Read the result like a statistician, decide like a PM</h3>
+  <p>If the test returns a 95% CI of [+1.2 pp, +2.8 pp] for repeat rate AND no guardrail breach AND positive contribution margin, ship it. If the CI straddles zero, do NOT ship — even if the point estimate is positive. This is the connection to Level 6: a CI that contains the null IS "fail to reject."</p>
+
+  <div class="box box-good">
+    <div class="box-label">Pro Move — Tie Back to Quiz 1 Concepts Out Loud</div>
+    <p>"Because contribution margin per rider is heavy-tailed — a few high-value riders dominate — I'd want to also report a bootstrap CI alongside the t-test, exactly because the t-test can have inflated Type I error on small-n skewed data, like we saw in Lab 2."</p>
+    <p>That single sentence shows them you understand the WHY behind A/B testing, not just the mechanics.</p>
+  </div>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 4 ========== -->
+<div class="section" id="s4">
+  <div class="section-header"><span class="num">04</span><h2>Case Walkthrough: Driver-Side Experiment — Lifting Acceptance Rate</h2></div>
+  <div class="section-body">
+
+  <div class="box box-mock">
+    <div class="box-label">Prompt</div>
+    <p><em>"Drivers in Chicago accept only 65% of incoming requests. The product team wants to redesign the request screen to push that to 75%. Design the experiment."</em></p>
+  </div>
+
+  <h3>Where DSC 152 lights up</h3>
+  <ul>
+    <li><strong>Hypothesis (Level 3):</strong> H0: p = 0.65, H1: p &gt; 0.65 (one-sided — we are not interested in the redesign making things worse).</li>
+    <li><strong>Discrete data (Level 7c):</strong> Each request is a 0/1 — Bernoulli. Acceptance count is Binomial. The "rejection cutoff" intuition transfers directly.</li>
+    <li><strong>Sample size:</strong> Use a two-proportion z-test. Alternatively, simulate it (your <code>rbinom()</code> + <code>prop.test()</code> skill from Lab 2).</li>
+  </ul>
+
+  <h3>Marketplace-specific traps to call out</h3>
+  <ul>
+    <li><strong>Acceptance can rise without driver welfare rising.</strong> A driver might accept a long pickup, realize it, then cancel. Add a <em>cancellation</em> counter metric.</li>
+    <li><strong>Selection bias on who is exposed.</strong> If only newly-onboarded drivers see the new screen, you measure novelty effect, not the redesign.</li>
+    <li><strong>Heterogeneous treatment effect.</strong> The redesign might help low-tenure drivers and hurt high-tenure drivers. Slice the analysis by tenure buckets.</li>
+  </ul>
+
+  <h3>If you have time — the bandit angle</h3>
+  <p>Mention that for high-frequency ranking-style decisions (which UI variant to show), Uber sometimes uses contextual multi-armed bandits instead of a fixed A/B. You probably won't be asked to design one; just naming the option signals breadth.</p>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 5 ========== -->
+<div class="section" id="s5">
+  <div class="section-header"><span class="num">05</span><h2>Case Walkthrough: ETA Accuracy Improvement</h2></div>
+  <div class="section-body">
+
+  <div class="box box-mock">
+    <div class="box-label">Prompt</div>
+    <p><em>"The ETA we show riders is off by 2 minutes on average. The ML team has a new model that should fix it. How do you know if it actually worked?"</em></p>
+  </div>
+
+  <h3>Reframe the metric</h3>
+  <p>"Off by 2 minutes" can mean (a) systematic bias — we always under-promise, or (b) high variance — sometimes 0, sometimes 8. Your inference toolkit answers different questions for each:</p>
+  <table>
+    <tr><th>Concern</th><th>Stat tool from DSC 152</th><th>Decision</th></tr>
+    <tr><td>Bias (mean of error ≠ 0)</td><td>One-sample t-test on (predicted − actual). H0: mean = 0.</td><td>Reject H0 → there IS systematic bias.</td></tr>
+    <tr><td>Variance / tail risk</td><td>Compare p95 of |error| before vs after. Bootstrap CI for the difference.</td><td>p95 dropped → tail risk improved.</td></tr>
+    <tr><td>Skew (errors are not symmetric)</td><td>Sign test on (predicted − actual) — does the median equal 0?</td><td>If the median is positive, you systematically over-promise.</td></tr>
+  </table>
+
+  <p>Notice you used THREE different DSC 152 ideas — t-test, bootstrap CI, sign test — to triangulate one product question. That is the level of nuance that separates "knows A/B testing" from "thinks like a PM."</p>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 6 ========== -->
+<div class="section" id="s6">
+  <div class="section-header"><span class="num">06</span><h2>Concept Map: DSC 152 ↔ APM Interview Language</h2></div>
+  <div class="section-body">
+
+  <p>This is the cheat sheet to glance at the night before. Left column = the term in your textbook. Right column = how a PM would say the same thing.</p>
+
+  <table>
+    <tr><th>DSC 152 term</th><th>Uber APM phrasing</th><th>Where it shows up in the interview</th></tr>
+    <tr><td>H0 / Ha</td><td>"What's the null story we'd believe if the data is boring?"</td><td>Every analytical case prompt.</td></tr>
+    <tr><td>p-value</td><td>"How surprising is this result if our change did nothing?"</td><td>Reading an A/B test readout.</td></tr>
+    <tr><td>α (significance level)</td><td>"How often are we OK shipping a useless feature?"</td><td>Justifying 0.05 vs 0.01 for high-stakes launches.</td></tr>
+    <tr><td>Type I error</td><td>"Shipped a thing that didn't actually help — wasted eng cycles."</td><td>Pricing changes, big UI redesigns.</td></tr>
+    <tr><td>Type II error</td><td>"Killed a real winner because the test was underpowered."</td><td>Small-team experiments, niche segments.</td></tr>
+    <tr><td>β / Power</td><td>"Will we even SEE the lift we expect?"</td><td>Sample-size and runtime conversations.</td></tr>
+    <tr><td>Confidence interval</td><td>"Plausible range of the lift."</td><td>Always quote a CI alongside a point estimate.</td></tr>
+    <tr><td>One-sample t-test</td><td>"Is the new metric different from a known benchmark?"</td><td>"Did our average ETA drop below 4 minutes?"</td></tr>
+    <tr><td>Two-sample / paired</td><td>"A vs B comparison" or "before/after on the same user."</td><td>Most experiments.</td></tr>
+    <tr><td>Sign test</td><td>"Robust check when the metric has whales."</td><td>Revenue per rider, GMV per session.</td></tr>
+    <tr><td>Bootstrap CI</td><td>"Distribution-free CI for a heavy-tailed metric."</td><td>Earnings per driver, surge revenue.</td></tr>
+    <tr><td>SUTVA</td><td>"Network effects between treatment and control."</td><td>Geo splits, switchback designs.</td></tr>
+    <tr><td>CLT</td><td>"Why means stabilize at large N."</td><td>Justifying t-tests on non-normal data.</td></tr>
+    <tr><td>Skewness inflation of Type I</td><td>"Why we use bootstrap or sign test on small-n skewed metrics."</td><td>Pilot tests, niche markets.</td></tr>
+  </table>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 7 ========== -->
+<div class="section" id="s7">
+  <div class="section-header"><span class="num">07</span><h2>Interactive — Sample Size Calculator (Two-Proportion A/B)</h2></div>
+  <div class="section-body">
+
+  <p>Use this in interviews when you say <em>"we'd need about N users per arm to detect this lift with 80% power."</em> The formula is from the same power family you're learning in Level 12.</p>
+
+  <div class="calc-box">
+    <label>Baseline conversion rate (p₁, e.g. current acceptance rate as decimal):
+      <input type="number" id="ss-p1" value="0.40" step="0.01" min="0.01" max="0.99">
+    </label>
+    <label>Minimum detectable effect (absolute lift, e.g. 0.02 = 2 percentage points):
+      <input type="number" id="ss-mde" value="0.02" step="0.005" min="0.001" max="0.5">
+    </label>
+    <label>α (significance level, two-sided):
+      <input type="number" id="ss-alpha" value="0.05" step="0.01" min="0.001" max="0.2">
+    </label>
+    <label>Power (1 − β):
+      <input type="number" id="ss-power" value="0.80" step="0.05" min="0.5" max="0.99">
+    </label>
+    <button onclick="calcSampleSize()">Compute sample size</button>
+    <div class="calc-result" id="ss-result">Enter values and click Compute.</div>
+  </div>
+
+  <div class="box box-stat">
+    <div class="box-label">What's Going On Under the Hood (DSC 152 Connection)</div>
+    <p>For a two-proportion z-test, sample size per arm is:</p>
+    <pre>n = (z_{α/2} + z_{β})²  ·  [p₁(1−p₁) + p₂(1−p₂)]  /  (p₂ − p₁)²</pre>
+    <p>where p₂ = p₁ + MDE. The z's come from <code>qnorm()</code> — the same family as the <code>qt()</code> you used to get critical values in Level 7b. Smaller MDE → bigger n. Higher power → bigger n. Higher baseline near 0.5 → bigger n (Bernoulli variance is maximized at p = 0.5).</p>
+  </div>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 8 ========== -->
+<div class="section" id="s8">
+  <div class="section-header"><span class="num">08</span><h2>Five Pitfalls That Win You "Senior-Sounding" Points</h2></div>
+  <div class="section-body">
+
+  <ol>
+    <li><strong>Peeking.</strong> Checking the test daily and stopping when significant inflates Type I error. Mention "I'd lock the sample size up front and not look until we hit it" — or use sequential methods like alpha-spending.</li>
+    <li><strong>Multiple comparisons.</strong> If you check 20 metrics, one will look significant by chance even if nothing happened. Bonferroni or pre-register your primary metric.</li>
+    <li><strong>Novelty / primacy effects.</strong> A new UI gets a temporary lift just because it's novel; an old one gets a temporary dip during the change. Run experiments long enough to wash this out (usually 14+ days).</li>
+    <li><strong>Heterogeneous treatment effects.</strong> A change can help one segment and hurt another while the overall mean looks flat. Always slice by city, tenure, platform, and trip type.</li>
+    <li><strong>Short-term vs long-term metric divergence.</strong> Discounts boost trips this week and tank LTV next quarter. Pair every short-term primary metric with a long-term guardrail.</li>
+  </ol>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 9 ========== -->
+<div class="section" id="s9">
+  <div class="section-header"><span class="num">09</span><h2>Mock Prompts — Practice Out Loud, Time-Boxed</h2></div>
+  <div class="section-body">
+
+  <p>Pick three. Set a 12-minute timer for each. Your goal: clarify → hypothesize → metrics → experiment design → decision rule. Click each scenario to reveal the "what good looks like" answer.</p>
+
+  <div class="scenario-quiz" onclick="this.classList.add('answered')">
+    <div class="q">Mock 1 — Pricing</div>
+    <p><strong>"Should Uber raise base fares 10% in Phoenix?"</strong></p>
+    <div class="explain">
+      Clarify: "permanently or trial?", "preserve driver pay or take more margin?". Primary: contribution margin per trip × volume = total contribution. Guardrails: rider cancellation rate, churn (rides per rider over 30 days), competitor share. Design: geo holdout — keep one comparable city as control. Watch for elasticity asymmetry: small fare hikes can disproportionately affect price-sensitive riders.
+    </div>
+  </div>
+
+  <div class="scenario-quiz" onclick="this.classList.add('answered')">
+    <div class="q">Mock 2 — Driver experience</div>
+    <p><strong>"How would you measure success of a new driver onboarding flow?"</strong></p>
+    <div class="explain">
+      Define "success" = lifetime trips per driver in first 30 days × eventual retention to day 90. Input metric = % of drivers who complete onboarding. Guardrail = quality (rider rating, cancellation rate). Counter = drivers who complete onboarding but never go online. Run cohort comparison; if you A/B, randomize at the driver-applicant level (no SUTVA issue here because applicants don't share supply).
+    </div>
+  </div>
+
+  <div class="scenario-quiz" onclick="this.classList.add('answered')">
+    <div class="q">Mock 3 — Engagement</div>
+    <p><strong>"Trips per active rider dropped 4% week over week. Diagnose."</strong></p>
+    <div class="explain">
+      Walk the funnel: app opens → trip requests → matches → completed trips. Where did it drop? Slice by city, platform, new vs returning. Check exogenous factors (weather, holidays, competitor promo). Confirm the drop is statistically significant — a 4% week-over-week move could be noise; bootstrap CI for trips-per-rider tells you. Tie back: "I'd compute a 95% CI for the WoW change to confirm we're not chasing noise."
+    </div>
+  </div>
+
+  <div class="scenario-quiz" onclick="this.classList.add('answered')">
+    <div class="q">Mock 4 — Safety</div>
+    <p><strong>"How would you decide whether to launch a 'verify rider photo' feature?"</strong></p>
+    <div class="explain">
+      This is a risk-asymmetric launch — Type II error (missing a real safety improvement) is far more expensive than Type I (small UX friction). Pre-register a higher α (e.g., 0.10) so you have more power. Primary: incident rate per 10K trips. Guardrail: friction (request abandonment). Counter: riders gaming photo requirements. Phased rollout — small geo first, watch for unintended consequences in low-light regions.
+    </div>
+  </div>
+
+  <div class="scenario-quiz" onclick="this.classList.add('answered')">
+    <div class="q">Mock 5 — ETA prediction</div>
+    <p><strong>"Our ETA model predicts 5 min but the actual is 7 min on average. Is the model broken?"</strong></p>
+    <div class="explain">
+      Don't say "yes" — first ask: "is this bias persistent, or just a recent shift?" Compare distributions, not just means. Run a one-sample t-test on (predicted − actual) per trip. If the mean is significantly negative, the model systematically under-promises. But the better PM answer: "even if it's biased, fixing the bias may not improve booking conversion — riders might prefer a slight under-promise. I'd A/B the corrected vs uncorrected ETA on conversion."
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<!-- ========== SECTION 10 ========== -->
+<div class="section" id="s10">
+  <div class="section-header"><span class="num">10</span><h2>Sources &amp; Further Reading</h2></div>
+  <div class="section-body">
+
+  <ul>
+    <li><a href="https://medium.com/@andywalner/cracking-the-uber-associate-product-manager-apm-interview-b08c240e4ec" style="color:#22d3ee;">Andy Walner — "Cracking the Uber APM Interview" (the prompt that inspired this page)</a></li>
+    <li><a href="https://www.tryexponent.com/guides/uber-pm-interview" style="color:#22d3ee;">Exponent — Uber PM Interview Guide (full process, 2026 questions)</a></li>
+    <li><a href="https://igotanoffer.com/blogs/product-manager/uber-product-manager-interview" style="color:#22d3ee;">IGotAnOffer — Uber PM Interview (rounds &amp; "Jam" exercise)</a></li>
+    <li><a href="https://www.tryexponent.com/blog/how-to-ace-ab-testing-interview-questions" style="color:#22d3ee;">Exponent — How to Ace A/B Testing Interview Questions</a></li>
+    <li><a href="https://www.glassdoor.com/Interview/Uber-Associate-Product-Manager-Interview-Questions-EI_IE575263.0,4_KO5,30.htm" style="color:#22d3ee;">Glassdoor — Uber APM interview questions (crowdsourced, recent)</a></li>
+    <li><a href="https://www.productmanagementexercises.com/interview-questions/uber" style="color:#22d3ee;">PM Exercises — Uber PM interview question bank</a></li>
+    <li><a href="DSC152-companion.html" style="color:#22d3ee;">← Back to your DSC 152 study guide</a></li>
+  </ul>
+
+  </div>
+</div>
+
+<footer>
+  Built as a companion to <a href="DSC152-companion.html">DSC 152 Quiz 1 Study Guide</a>. Use this to bridge classroom statistics into Uber product-manager interview language.
+</footer>
+
+</div>
+
+<script>
+function calcSampleSize() {
+  var p1 = parseFloat(document.getElementById('ss-p1').value);
+  var mde = parseFloat(document.getElementById('ss-mde').value);
+  var alpha = parseFloat(document.getElementById('ss-alpha').value);
+  var power = parseFloat(document.getElementById('ss-power').value);
+  var out = document.getElementById('ss-result');
+  if (isNaN(p1) || isNaN(mde) || isNaN(alpha) || isNaN(power)) {
+    out.innerHTML = '<span style="color:#f87171;">All four inputs must be numbers.</span>'; return;
+  }
+  if (p1 <= 0 || p1 >= 1 || p1 + mde >= 1) {
+    out.innerHTML = '<span style="color:#f87171;">p1 must be in (0,1) and p1 + MDE must be &lt; 1.</span>'; return;
+  }
+  // Inverse normal via Beasley-Springer-Moro approximation (good to ~6 decimals)
+  function qnorm(p) {
+    var a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
+             1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    var b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
+             6.680131188771972e+01, -1.328068155288572e+01];
+    var c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00,
+             -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    var d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+    var pl = 0.02425, ph = 1 - pl, q, r;
+    if (p < pl) {
+      q = Math.sqrt(-2*Math.log(p));
+      return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+             ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+    } else if (p <= ph) {
+      q = p - 0.5; r = q*q;
+      return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
+             (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+    } else {
+      q = Math.sqrt(-2*Math.log(1-p));
+      return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
+              ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+    }
+  }
+  var z_alpha = qnorm(1 - alpha/2);
+  var z_beta  = qnorm(power);
+  var p2 = p1 + mde;
+  var num = Math.pow(z_alpha + z_beta, 2) * (p1*(1-p1) + p2*(1-p2));
+  var den = Math.pow(p2 - p1, 2);
+  var n = Math.ceil(num / den);
+  out.innerHTML =
+    '<div style="font-size:1.05rem; color:#22d3ee; font-weight:700;">≈ ' + n.toLocaleString() + ' users PER ARM</div>' +
+    '<div style="margin-top:6px;">Total exposure: <strong>' + (2*n).toLocaleString() + '</strong> users.</div>' +
+    '<div style="margin-top:6px; color:#94a3b8; font-size:0.88rem;">' +
+      'z<sub>α/2</sub> = ' + z_alpha.toFixed(3) + ', z<sub>β</sub> = ' + z_beta.toFixed(3) +
+      ', p₂ = ' + p2.toFixed(3) + '</div>' +
+    '<div style="margin-top:6px; color:#cbd5e1; font-size:0.88rem;">' +
+      'In R: <code>power.prop.test(p1=' + p1 + ', p2=' + p2 + ', sig.level=' + alpha + ', power=' + power + ')</code></div>';
+}
+</script>
+
+</body>
+</html>

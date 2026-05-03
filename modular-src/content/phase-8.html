@@ -1,0 +1,315 @@
+<div class="phase-content" id="phase-8">
+
+<!-- ==================== LEVEL 39 ==================== -->
+<div class="level-card" id="level-39">
+<div class="level-header" onclick="toggleLevel(39)">
+  <span class="level-title"><span class="num">Level 39</span> — Why Diagnostics Matter (ML vs Stats)</span>
+  <span class="level-xp">+40 XP</span>
+</div>
+<div class="level-body" id="level-body-39">
+
+<div class="box box-story">
+  <div class="box-label">Quote of the Day — Brian Ripley</div>
+  <p style="font-style:italic; color:#c084fc;">"Machine learning is statistics minus any checking of models and conditions."</p>
+  <p style="font-size:0.85rem; color:#94a3b8;">— Dr. Brian Ripley, R Core Team, Professor of Applied Statistics (retired), Oxford</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Two Different Goals, Two Different Hygiene Standards</div>
+  <table class="cmp-table">
+    <tr><th>Setting</th><th>Goal</th><th>Diagnostic step?</th></tr>
+    <tr><td>Statistical inference (this class)</td><td>Make a calibrated probabilistic claim about the population (p-value, CI)</td><td><strong>YES — required</strong>. p-values and CIs are only valid if conditions hold.</td></tr>
+    <tr><td>Machine learning</td><td>Minimize prediction error on held-out data</td><td>Mostly NO. Cross-validation already measures what you care about.</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — The Speedometer vs the Stopwatch</div>
+  <p>ML is a stopwatch: "did I get there fast?" You time the run; if it's good, you're done — you don't need to inspect the engine. Stats inference is a speedometer + odometer + map: you're claiming "I will arrive at 60 ± 5 mph." That claim is only meaningful if the instruments are calibrated. Diagnostics are calibration checks.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Failing Diagnostics ≠ Failing the Class</div>
+  <p>"Failure" of a LINE check doesn't mean throw the model out. It means: (1) you can't trust the p-values/CIs as-is, and (2) you should report what you tried — transformations, robust SE, switching to non-parametric. The point is honesty about what your test is licensed to claim.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">Your DSC 40A friend says "I never check diagnostics on my random forest, why are you wasting time on this?" What's the right response?</div>
+  <div class="quiz-opt" data-i="0">"You're right, diagnostics are old-school."</div>
+  <div class="quiz-opt" data-i="1">"Random forests need diagnostics too."</div>
+  <div class="quiz-opt" data-i="2">"Different goal. You optimize prediction error and validate via cross-validation. I'm publishing a p-value, which has no meaning unless the test's conditions are satisfied. Diagnostics are how I check that."</div>
+  <div class="quiz-opt" data-i="3">"Diagnostics are required by law."</div>
+  <div class="quiz-result" data-explain="The split is exactly Ripley's quote. When prediction is the goal, conditions matter only insofar as they affect prediction error — which CV will catch. When inference is the goal, the formal statement (p, CI) is only valid under the model assumptions."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(39)">Mark Level 39 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 40 ==================== -->
+<div class="level-card" id="level-40">
+<div class="level-header" onclick="toggleLevel(40)">
+  <span class="level-title"><span class="num">Level 40</span> — Residuals: the diagnostic tool</span>
+  <span class="level-xp">+45 XP</span>
+</div>
+<div class="level-body" id="level-body-40">
+
+<div class="box box-formula">
+  <div class="box-label">Definition</div>
+  <p>For each data point \(i\):</p>
+  <p style="text-align:center;">$$\epsilon_i = y_i - \hat y_i$$</p>
+  <p>where \(\hat y_i = \hat\beta_0 + \hat\beta_1 x_i\) (or with more terms for MLR). Residuals are the <strong>observed minus predicted</strong> values. They're the empirical proxy for the error term in the LINE model.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Why Residuals?</div>
+  <p>The LINE conditions are written about the unobservable noise \(\epsilon_i \sim N(0, \sigma^2)\). We can't see ε directly, but the residuals are our best estimate of it. So we plot/test the residuals to check what we hope is true about ε.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — extract residuals + fitted values</div>
+<pre class="r-code">model1 &lt;- <span class="fn">lm</span>(bracket_score ~ knowledge, data=march_madness)
+
+<span class="fn">names</span>(model1)
+<span class="cm"># [1] "coefficients"  "residuals"     "effects"</span>
+<span class="cm"># [4] "rank"          "fitted.values" "assign" ...</span>
+
+res &lt;- model1$residuals
+fit &lt;- model1$fitted.values
+
+<span class="cm"># Cross-check (first 3 points):</span>
+<span class="fn">head</span>(march_madness$bracket_score - fit, <span class="nb">3</span>)
+<span class="fn">head</span>(res, <span class="nb">3</span>)   <span class="cm"># identical</span>
+</pre>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — The Echo</div>
+  <p>If you fit the right line, the residuals should look like white noise — random, centered at 0, evenly spread, no patterns. Any pattern in the residuals is an "echo" of something the model failed to capture: a curve, an outlier, a trend over time, a heteroskedastic fan.</p>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">A residual is positive. What does that tell you?</div>
+  <div class="quiz-opt" data-i="0">The actual y is above the fitted line for that point — the model under-predicted.</div>
+  <div class="quiz-opt" data-i="1">The actual y is below the fitted line — the model over-predicted.</div>
+  <div class="quiz-opt" data-i="2">The slope is positive.</div>
+  <div class="quiz-opt" data-i="3">The data is non-normal.</div>
+  <div class="quiz-result" data-explain="ε_i = y_i − ŷ_i. If the difference is positive, y is bigger than ŷ — the actual data point sits above the line; the line under-predicted that y."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(40)">Mark Level 40 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 41 ==================== -->
+<div class="level-card" id="level-41">
+<div class="level-header" onclick="toggleLevel(41)">
+  <span class="level-title"><span class="num">Level 41</span> — LINE Diagnostic Gallery (interactive: name the violation)</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-41">
+
+<div class="box box-concept">
+  <div class="box-label">The Diagnostic Plots, Letter by Letter</div>
+  <table class="cmp-table">
+    <tr><th>LINE letter</th><th>Plot to make</th><th>What you want to see</th><th>Symptom of violation</th></tr>
+    <tr><td><strong>L</strong>inear</td><td>residuals vs fitted (or vs x)</td><td>Flat band centered on 0</td><td>Curved/U-shaped band</td></tr>
+    <tr><td><strong>I</strong>ndependent</td><td>residuals vs ORDER (time/sequence)</td><td>No trend or cycle</td><td>Trend, cycle, or autocorrelation</td></tr>
+    <tr><td><strong>N</strong>ormal</td><td>QQ plot of residuals (or histogram)</td><td>Points on the diagonal line</td><td>S-curve, banana, fat tails</td></tr>
+    <tr><td><strong>E</strong>qual var.</td><td>residuals vs fitted (or vs x)</td><td>Constant width band</td><td>Fan / megaphone shape</td></tr>
+  </table>
+</div>
+
+<!-- ============== INTERACTIVE: DIAGNOSTIC GALLERY ============== -->
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">🎮 Interactive — Name That Violation</div>
+  <p>Each panel below is a residual plot from a different "broken" model. Click a panel to reveal which LINE letter is violated. Train your eye — quizzes love these.</p>
+  <div id="diag-gallery" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:10px;"></div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — full LINE check on a fitted model</div>
+<pre class="r-code">model &lt;- <span class="fn">lm</span>(y ~ x, data=df)
+res &lt;- model$residuals
+fit &lt;- model$fitted.values
+
+<span class="cm"># L &amp; E: residuals vs fitted</span>
+<span class="fn">plot</span>(res ~ fit,
+     xlab=<span class="st">"Fitted values"</span>, ylab=<span class="st">"Residuals"</span>)
+<span class="fn">abline</span>(h=<span class="nb">0</span>, lty=<span class="nb">2</span>, col=<span class="st">"red"</span>)
+
+<span class="cm"># N: histogram + QQ plot</span>
+<span class="fn">hist</span>(res, breaks=<span class="nb">20</span>)
+<span class="fn">qqnorm</span>(res); <span class="fn">qqline</span>(res, col=<span class="st">"red"</span>)
+<span class="fn">shapiro.test</span>(res)        <span class="cm"># formal normality test</span>
+
+<span class="cm"># I: residuals vs index (assumes data sorted by collection order)</span>
+<span class="fn">plot</span>(res ~ <span class="fn">seq_along</span>(res),
+     xlab=<span class="st">"Order"</span>, ylab=<span class="st">"Residuals"</span>)
+<span class="fn">abline</span>(h=<span class="nb">0</span>, lty=<span class="nb">2</span>)
+</pre>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ I (Independence) Cannot Be Diagnosed From Data Alone</div>
+  <p>You cannot tell if observations are independent just by looking at residuals. You need to know <em>how the data was collected</em>: were measurements taken on the same subject over time? Were students in the same classroom (cluster)? Were trials adjacent in time (autocorrelation)? The "residuals vs order" plot only catches independence violations that produce visible time-ordered patterns. Cluster/grouped non-independence is invisible to that plot.</p>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">A QQ plot of residuals shows the points curving up at both ends ("fat tails" — way above the diagonal in the upper-right, way below in the lower-left). Which LINE letter is broken, and what's the practical impact?</div>
+  <div class="quiz-opt" data-i="0">L broken; fix by transforming x.</div>
+  <div class="quiz-opt" data-i="1">N broken (non-normal residuals with fat tails). For small n, p-values from t-tests and CIs may be off; for large n, CLT helps. Consider bootstrap or a robust alternative.</div>
+  <div class="quiz-opt" data-i="2">E broken; use weighted least squares.</div>
+  <div class="quiz-opt" data-i="3">I broken; use time-series methods.</div>
+  <div class="quiz-result" data-explain="Departures from the diagonal in a QQ plot directly indicate non-normal residuals. Both ends curving away (fat tails) is the classic 'distribution has more extreme values than a normal' picture. CLT can rescue β̂₁'s normality at large n, so this is most worrying for small-sample regressions."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(41)">Mark Level 41 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 42 ==================== -->
+<div class="level-card" id="level-42">
+<div class="level-header" onclick="toggleLevel(42)">
+  <span class="level-title"><span class="num">Level 42</span> — Q-Q Plots & Shapiro-Wilk (reading normality)</span>
+  <span class="level-xp">+45 XP</span>
+</div>
+<div class="level-body" id="level-body-42">
+
+<div class="box box-concept">
+  <div class="box-label">What a Q-Q Plot Actually Plots</div>
+  <p>For each residual, plot:</p>
+  <ul>
+    <li><strong>x-axis</strong>: the quantile that residual would have under a perfect normal distribution</li>
+    <li><strong>y-axis</strong>: the empirical quantile (the residual's actual rank-based position)</li>
+  </ul>
+  <p>If your residuals were perfectly normal, the points would lie exactly on a straight line. Departures from the diagonal map to specific distributional sins.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">Reading the Curves</div>
+  <table class="cmp-table">
+    <tr><th>Q-Q shape</th><th>Diagnosis</th></tr>
+    <tr><td>Points hug the diagonal</td><td>Normal residuals ✓</td></tr>
+    <tr><td>S-shape (curves both ways)</td><td>Heavy tails (more extreme values than normal)</td></tr>
+    <tr><td>Reverse-S (sags both ways)</td><td>Light tails (fewer extreme values than normal)</td></tr>
+    <tr><td>Curves up on right + flat on left</td><td>Right-skewed residuals</td></tr>
+    <tr><td>Curves down on left + flat on right</td><td>Left-skewed residuals</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — make and read</div>
+<pre class="r-code">model &lt;- <span class="fn">lm</span>(y ~ x, data=df)
+<span class="fn">qqnorm</span>(model$residuals)
+<span class="fn">qqline</span>(model$residuals, col=<span class="st">"red"</span>)
+
+<span class="cm"># Formal test: H0 = residuals are normal</span>
+<span class="fn">shapiro.test</span>(model$residuals)
+<span class="cm">#   Shapiro-Wilk normality test</span>
+<span class="cm">#   W = 0.991, p-value = 0.34</span>
+<span class="cm"># Big p (no evidence against H0): "looks normal enough"</span>
+</pre>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Shapiro-Wilk Has the Opposite Problem of Most Tests</div>
+  <p>With LARGE n, Shapiro-Wilk will reject normality for tiny, practically irrelevant deviations (Lec 5's Big Data Trap, again!). With SMALL n, it has poor power and rarely rejects. The honest practice: <strong>use the QQ plot as your primary tool</strong>, treat the formal test as a secondary check. Visual inspection scales better than the test in both directions.</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Lining Up at a Carnival</div>
+  <p>Imagine your residuals lining up by height. The QQ plot asks: "if your residuals had the heights they'd have <em>under a normal distribution</em>, would the line of people look the same?" Each person's actual height plotted against their predicted-normal height. If everyone's where the normal would put them, you get a straight diagonal. If a few people in the back row are unusually tall, the upper-right curls upward.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">You have n=2000 and Shapiro-Wilk gives p = 0.001. Your QQ plot looks <em>almost</em> straight, with a tiny wiggle in the very middle. What do you do?</div>
+  <div class="quiz-opt" data-i="0">Throw out the model — N is broken.</div>
+  <div class="quiz-opt" data-i="1">Bootstrap everything.</div>
+  <div class="quiz-opt" data-i="2">Trust the QQ plot. Shapiro-Wilk almost always rejects at large n; the visual shows residuals are essentially normal. With n=2000, CLT also makes β̂₁ approximately normal regardless. Proceed.</div>
+  <div class="quiz-opt" data-i="3">Drop predictors until p > 0.05.</div>
+  <div class="quiz-result" data-explain="Same logic as Lec 5: with huge n, even microscopic deviations from normality reach 'significance.' At n=2000 the CLT fully covers you. Your priority should be the visual + the inferential conditions of the test you actually care about."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(42)">Mark Level 42 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 43 ==================== -->
+<div class="level-card" id="level-43">
+<div class="level-header" onclick="toggleLevel(43)">
+  <span class="level-title"><span class="num">Level 43</span> — Quiz 2 Practice: full workflow on a fresh dataset</span>
+  <span class="level-xp">+80 XP</span>
+</div>
+<div class="level-body" id="level-body-43">
+
+<div class="box box-story">
+  <div class="box-label">Scenario</div>
+  <p>You're given a dataset of n=120 employees. Outcome: <code>productivity</code> (score 0–100). Predictors: <code>training_hours</code> (continuous), <code>department</code> (3 levels: Eng, Sales, Ops), <code>tenure_years</code> (continuous). Your manager asks: <em>"Does training help productivity, after we account for department and tenure?"</em></p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Step-by-Step Plan</div>
+  <ol>
+    <li><strong>Frame</strong>: H₀: β_training_hours = 0 in the model with all three predictors. H_A: ≠ 0.</li>
+    <li><strong>Visualize</strong>: scatterplot of productivity vs training_hours, colored by department. Boxplot of productivity by department.</li>
+    <li><strong>Fit the full model</strong>: <code>lm(productivity ~ training_hours + department + tenure_years, data=df)</code>.</li>
+    <li><strong>Read off the t-test</strong> for training_hours from <code>summary()$coefficients[2,4]</code>.</li>
+    <li><strong>If you wanted "is department relevant overall?"</strong>: partial F via <code>anova(lm(productivity ~ training_hours + tenure_years), full_model)</code>.</li>
+    <li><strong>Diagnostics</strong>: residuals vs fitted (L+E), QQ plot (N), residuals vs order (I).</li>
+    <li><strong>Conclusion</strong>: report estimate + 95% CI + p-value + diagnostic verdict, in plain English.</li>
+  </ol>
+</div>
+
+<button class="step-reveal-btn" onclick="document.getElementById('q2-step1').classList.toggle('show')">Reveal Step 1: Framing</button>
+<div id="q2-step1" class="step-hidden">
+<div class="box box-formula">
+  <p><strong>H₀:</strong> \(\beta_{\text{training\_hours}} = 0\) in the model that adjusts for department and tenure_years.<br>
+  <strong>H_A:</strong> \(\beta_{\text{training\_hours}} \neq 0\).</p>
+  <p>Why this null and not the simpler one? Because the manager's question is <strong>after accounting for department and tenure</strong>. We need both confounders in the model.</p>
+</div>
+</div>
+
+<button class="step-reveal-btn" onclick="document.getElementById('q2-step2').classList.toggle('show')">Reveal Step 2: Code</button>
+<div id="q2-step2" class="step-hidden">
+<div class="box box-rcode">
+<pre class="r-code">full &lt;- <span class="fn">lm</span>(productivity ~ training_hours + department + tenure_years, data=df)
+<span class="fn">library</span>(knitr)
+<span class="fn">kable</span>(<span class="fn">summary</span>(full)$coefficients)
+<span class="fn">confint</span>(full, <span class="st">"training_hours"</span>)
+
+<span class="cm"># Optional: omnibus test that department matters at all</span>
+no_dept &lt;- <span class="fn">lm</span>(productivity ~ training_hours + tenure_years, data=df)
+<span class="fn">anova</span>(no_dept, full)
+
+<span class="cm"># Diagnostics</span>
+res &lt;- full$residuals; fit &lt;- full$fitted.values
+<span class="fn">par</span>(mfrow=<span class="fn">c</span>(<span class="nb">1</span>,<span class="nb">3</span>))
+<span class="fn">plot</span>(res ~ fit, main=<span class="st">"L &amp; E"</span>); <span class="fn">abline</span>(h=<span class="nb">0</span>)
+<span class="fn">qqnorm</span>(res, main=<span class="st">"N"</span>); <span class="fn">qqline</span>(res)
+<span class="fn">plot</span>(res ~ <span class="fn">seq_along</span>(res), main=<span class="st">"I"</span>); <span class="fn">abline</span>(h=<span class="nb">0</span>)
+</pre>
+</div>
+</div>
+
+<button class="step-reveal-btn" onclick="document.getElementById('q2-step3').classList.toggle('show')">Reveal Step 3: Conclusion Template</button>
+<div id="q2-step3" class="step-hidden">
+<div class="box box-formula">
+  <p style="font-size:0.92rem; line-height:1.7;"><em>"After adjusting for department and tenure, training_hours was [significantly / not significantly] associated with productivity (β̂ = X.XX, 95% CI: [a.aa, b.bb], p = 0.0XX). Specifically, comparing employees in the same department with the same tenure, each additional hour of training is associated with an estimated X.XX-point change in productivity. Diagnostic plots showed [no concerning patterns / a slight fan in residuals vs fitted suggesting mild heteroskedasticity / etc.] These results are observational; we cannot infer that training causes productivity gains."</em></p>
+</div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — full integration</div>
+  <div class="quiz-q">Your QQ plot is curved and the residual-vs-fitted plot has a slight fan. n=120. What's the most defensible move?</div>
+  <div class="quiz-opt" data-i="0">Drop the predictors that are non-significant.</div>
+  <div class="quiz-opt" data-i="1">Bootstrap the slope and ignore the lm summary.</div>
+  <div class="quiz-opt" data-i="2">Report the result, flag the diagnostic concerns explicitly, and provide a robustness check (e.g., bootstrap CI for training_hours, or a permutation test, or robust standard errors). With n=120 CLT helps but the heteroskedasticity bias in the SE is real.</div>
+  <div class="quiz-opt" data-i="3">Throw out the analysis.</div>
+  <div class="quiz-result" data-explain="Honesty about what your numbers can claim is the whole point of diagnostics. You don't need to abandon the analysis — you need to (1) tell the reader what you saw, (2) present the result, (3) show that a less-assumption-heavy method (bootstrap, robust SE, permutation) gives a similar answer. If they all agree, you're well-positioned."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(43)">Mark Level 43 Complete</button>
+</div></div>
+
+</div> <!-- end phase-8 -->

@@ -1,0 +1,307 @@
+Unknown Speaker  0:00  
+Okay, then let's get into today's lecture. So nonparametric tests and more on type one error rates.
+
+Unknown Speaker  0:07  
+Okay, so where have we been
+
+Unknown Speaker  0:09  
+last time we talked about running the t test on data laid off, I think, on data that are not normal. So specifically, the gamma distribution is what we use for simulation, and
+
+Unknown Speaker  0:21  
+we showed that in that particular case, with that one gamma distribution that we simulated under, when we expected a type one error rate of about point 05 we actually got a type one error rate of like point 1.11,
+
+Unknown Speaker  0:32  
+something like that. And so conceptually, that's one thing that we learned last time. And then just in terms of figuring out how to estimate that type of thing, we learned how to simulate new simulations under the null hypothesis being true, but with a different distribution that doesn't follow what the t test requires. That gamma distribution, in particular, towards the end of class, I had this bit in the slides right here about things still to come, and I mentioned that, okay, we can investigate particular so called non parametric tests. And by definition, what we mean by non parametric is that it does not rely on a closed form null distribution like the t test does. The T test relies on that test statistic following that so called T distribution that William Gossett, the Guinness Brewer, developed that came up with, all right, and so, like I
+
+Unknown Speaker  1:18  
+mentioned on Thursday last week, everything that you learn for hypothesis testing in DSC 10 and DSC 80 are all what we would call non parametric tests. Now, specifically in those classes, you learn simulation based non parametric tests. Simulation is one type of a non parametric test, but there are other ways to not non parametric tests as well, and we'll learn one of them today. The other thing, what about statistical power? So I'm leaving out there just as a kind of teaser, we're not going to get to power today. We'll get to power on Thursday.
+
+Unknown Speaker  1:41  
+And so we're specifically going to focus on these so called non nonparametric tests, and then estimate their type one error rates. Okay,
+
+Unknown Speaker  1:47  
+so we talked about this on Thursday. The T test relies on your sample mean following a normal distribution. Technically, we need the data values themselves to follow a normal distribution, but if your sample mean follows a normal distribution, you get really close to the t statistic following the t distribution, and you're more or less good to go. But the question, first question for today is, how might we perform a so called non parametric test for testing the mean? So again, what we mean by non parametric is that there is no closed form null distribution, and a consequence of that is that it does not have any distributional conditions on the data themselves. So in other words, in Thursday's class. Everything we were talking about was saying, Okay, we must have the distribution of the hours of sleep in that particular example to follow a normal distribution in order for the t test to be valid, in order for it to have a proper type one error rate. The question now is, okay, how are we going to get away from that? How might what kind of statistical test might we do that will not rely on the hours of sleep following a normal distribution or any other distribution or any other distribution whatsoever, a test that is going to not care what the distribution of those values is, all right, so before I think about this, and I gotta pull everyone up in a second here. So if we think about like, what, what types of things might be true for our null hypothesis to be true here, so we're sending null hypothesis that mu equals mu naught, so mu is just the true population mean of your data. And in this particular example, the hours of sleep, we were saying our null hypothesis is that the true population means equal to six hours of sleep. And so that's our null hypothesis, right there. And the question is,
+
+Unknown Speaker  3:11  
+what type of things, what might our data look like in order to make our null hypothesis true? So one possibility, and I say in some sense here, the most true that null that null that null hypothesis could possibly be is if every single data value equaled that null hypothesis value, every single UCSD student got exactly six hours of sleep every single night. Well, of course, our null hypothesis would be true in that case. That's obviously not the only way that our null hypothesis can be true. The null hypothesis is just talking about the mean, right? So some of some of you could get more than six hours. Some of you could get less than six hours, as long as the average, the population average of all those values is equal to six. Our null hypothesis would be true, right? But I think we can all agree that this would be one particular instance that would make our null hypothesis true. It's just way, way, way, way stronger than it needs to be. So what I want us to think about right now in terms of then getting us towards performing a non parametric test, is how else might the data look and still be in line with the null hypothesis? Let's pop this Poll Everywhere open right now, and I don't have it live yet. So give me a second here. Second.
+
+Unknown Speaker  4:05  
+Here go. Okay, so the
+
+Unknown Speaker  4:07  
+question is sort of asking us, in a negative way, which of the following cannot possibly be consistent with the null hypothesis that your mean is equal to the null hypothesis value, be it six in this particular case, all right, select as many options as you think are true. This is not
+
+Unknown Speaker  4:24  
+a trick question. This really is just like making sure we're awake and on board with what's happening here.
+
+Unknown Speaker  4:42  
+You again, watch the negative, which is fine, cannot possibly be consistent with the null hypothesis that the true mean is equal to some null hypothesis
+
+Unknown Speaker  4:56  
+value. All right, so
+
+Unknown Speaker  4:59  
+the obvious.
+
+Unknown Speaker  5:00  
+Ones are the first two.
+
+Unknown Speaker  5:01  
+If all your values are above the null hypothesis value, again, in our particular case, it's six. If all the data values are above that, then there's no way that your your null hypothesis can actually be true. If all your values are below that, there's no way that your null hypothesis can be true in that case as well. The one that obviously can be consistent with your null hypothesis is that if you got half the values above half the values below, well, then yes, they can certainly average out to whatever that null hypothesis value is, right? These two are slightly more tricky, but most of you were able to avoid that all the data values, except for one of them, are above the null hypothesis value. Well, yes, it seems like that's going to pull you above that null hypothesis value. But if your one value that's below is like way, way below, that could make you right on your population mean as well, or your null hypothesis value of the mean as well, and all the way around for this one right here, right? So the point of this is just to get us to think like or be thinking about like, okay, in what ways might our null hypothesis be true. The one we're gonna focus on for the specific non parametric test that we're talking about in this particular case is the bottom one right here, where half of the data values are above the null hypothesis value of the mean. Half the value data values are below the null
+
+Unknown Speaker  5:53  
+hypothesis value of the mean. Okay, so this brings us to one common example of a one sample non parametric test that's known as the sign test. Just curious, has anyone seen this before? Seen this before? Didn't think it was quite likely, except for our staff over there, of course. But, but how does this work? So what are we doing when we do a so called sign test? So the way that this works is we take each data value and subtract off that null hypothesis value of the mean. I've got triple asterisks here, almost right here. We're gonna correct that in a minute here, but just for the sake of argument, right now, let's say we're gonna subtract that null hypothesis of the mean. So for example, with our hours of sleep, we've got our data values of how much sleep everybody got. It was like three and one, seven and two and two, I think so take each other value. Subtract off the value of six if the difference is positive. So if the value is above the mean, assigned out a plus value if the difference is negative. So if the data value is below the mean, assign a negative value. And then if the difference is zero, just ignore that value. So if you're right on the mean. Just ignore that value. If the null hypothesis is actually true, then, just like we were saying in the Poll Everywhere, one way in which our data can line up with a null hypothesis is that you have exactly half the values above the mean, exactly half the values below the mean. And so this is what we're saying, is our null hypothesis right here. And so then the most true that our null hypothesis can be under this sort of layout of what's happening with our data and doing the so called sign test is that we should expect the same amount of pluses and minuses half the data, half the values are above the null hypothesis value of the mean. Half the values of them are below the null hypothesis of the mean. And so then we can calculate that probability using that binomial distribution that we were talking about with p equals point five. So in other words, if the data are happening by chance, if we say, okay, let's simulate data under this null hypothesis, then we should expect exactly half of them to be above or of them to be above or exactly a true probability of point five for any value being above that mean and any value being below that mean. Okay, all right. Questions on this setup here, before we take it one step further,
+
+Unknown Speaker  7:34  
+oh, yeah, sure.
+
+Unknown Speaker  7:42  
+Correct. Oh, I think I know what you're getting.
+
+Unknown Speaker  7:51  
+Actually, I think I worded that question poorly, which is to say that you actually write that like anything, anything to something, we could happen by chance, right? So even if the null hypothesis is true, you could by chance get, like, all of your values below the mean, even like more mean. You might more than 5.9 for instance. But so I need to be with that question. But basically, what I'm getting is, like, theoretically, what should be happening if theoretically, all your data values are going to be above the mean, then your null hypothesis can't actually be true. But yeah, absolutely correct that like, yeah, I gotta be with that question. Good. Other questions here.
+
+Unknown Speaker  8:20  
+Okay, now, what's actually going on with this business right here, where I have these triple asterisks on the mute not here, and saying almost Okay, the question before we actually try to do a sign test here is with this setup right here, why is it that it's not actually going to be a test for the mean? If our null hypothesis says that 50% of the value should be above that value, whatever it is, and 50% should be below that value. That's what we're saying right here. A mean does not always have this property. What's the thing that does have this property the median, exactly. So what that means is that if this is our metric, if this is the way that we are creating a test statistic, then the thing that we are actually testing for is not the mean itself. It's the median. Now a median is a valid measure of central tendency, just like the mean is. So this is fine, but we just need to recognize that what we are doing when we do this thing that's called a sign test is a test for the median and not the mean. We are testing whether the median is equal to any particular value or not. All right, so occasionally I'm sticking a little tilde on top of the mu naught here to say that, okay, yeah, are mu naught from before we will keep using mu naught to represent the null hypothesis value of a mean. We're gonna use this mu naught with a tilde on top of it to represent the null hypothesis value of a median, and mu itself with a tilde on top of it is going to be a median. All right, so now we recall the data that we actually had. These were our data values for the number of sleep. Please don't go to the next slide yet. If you have the other slide deck open on your machines, we then do our sign test. We subtract six from each of these values, and then look at whether the result is negative or positive. If it's below the value, it's gonna be negative. So three minus six, we have that. Three is less than six, so we have minus for that. Seven is greater than six, we get a plus for that, and then minus for the rest of them as well. And so Poll Everywhere question is basically, how strong of evidence is this against the null hypothesis?
+
+Unknown Speaker  9:49  
+So
+
+Unknown Speaker  9:53  
+here's the question the Poll Everywhere, which of the following represent data that are at least as extreme as the observed data? These are the observed.
+
+Unknown Speaker  10:00  
+Data right here we have minus plus minus minus minus. We know that our P value is the probability of observing data that are at least as extreme as the data that we actually observe. And so then my question is, which of these that you see in the Poll Everywhere is, quote, unquote, at least as extreme as this right here?
+
+Unknown Speaker  10:18  
+Looking good, great.
+
+Unknown Speaker  10:21  
+No problems here. There with is that this is a two tailed test, so we got to go in both directions, both of these and both of these are going to be representing data that are at least as extreme. So either four minuses, five minuses, or four pluses, five pluses, those are all at least as extreme as the data that we observe. All right now,
+
+Unknown Speaker  10:37  
+with that being the case, the p value, again, is the probability of observing data that are at least as extreme as the data that we actually observe. And so what we need to do is calculate the probability of observing all four of those things in the Poll Everywhere question under the null hypothesis. The null hypothesis says that there is a 5050, chance for each data value to be either above or below the mean. And so then each of these is just going to be a binomial probability with p equals point five. So the probability of getting four values that are above the mean is going to be a D binom with x equals four, size equals 5p, equals point five, then probability x equals five. Is that one right there? X equals zero. Is that one there? X equals one? Is that one right there? All right. So this gives us a fairly large P value, so we have point 375, which is clearly not below point 05, by adding up those four probabilities right there. Okay, side note, but this is going to be something important for us with with our coding right here, we can also do this p by norm. Instead, we will P by P by nom of one. Give it size equals five, and then prop equals point five, and then times two. But why can we do that here? Well, we
+
+Unknown Speaker  11:51  
+so we see D binom Up here, we see p binom down here, d binom
+
+Unknown Speaker  11:55  
+is giving us the probability of exactly each of these values, x equals 4x, equals five, so on and so forth, so we can add them all together, so I
+
+Unknown Speaker  12:03  
+don't have an idea of what p by norm might be doing, such that this gives me the same exact answer as we saw up here. Things we can think
+
+Unknown Speaker  12:12  
+about for figuring out, like what might possibly be happening here is when we saw, I think Lucas said he covered the p norm function in discussions, and then we talked about the P t function as well. Let's go right here.
+
+Unknown Speaker  12:23  
+Yeah, exactly. So P binom is calculating the cumulative probability,
+
+Unknown Speaker  12:28  
+so without the times two right here, this is giving me the probability that x is less than or equal to the value that I give it right there, which then, of course, is equal to the probability that x equals zero plus the probability that x equals one. The binomial distribution, or binomial random variable, can be negative. So when I say the probability X is less than or equal to one, the only other possibility is zero. Okay, now that's the first part here. That's without the times too. This is giving me just the probability of x is equal to one, zero plus the probability X is equal to one. So that part right there and then. Now what I'm saying is I can just multiply this by two to get then the other bits of it as well. The only reason why that's okay to do here is because P equals point five. If P was anything other than point five, this would not be symmetric. But because p is equal to point five, those are equal the
+
+Unknown Speaker  13:14  
+probability X equals zero equals the probability x equals five, if it's five flips total, or five data points total, and probability that x equals one is equal to probability that x equals four, again, only because the true
+
+Unknown Speaker  13:27  
+success probability equals point five. I binomial distribution then becomes metric. And so I can just multiply by two and get the same exact thing this way as I got right here. Don't want to be sure to mention that here, because once I get homework one posted, you'll see, as you start working through that that you're probably going to want to use the P bind on function, because use the P final function. You're going to want to make sure that you know exactly what it's doing before, before you do that. And so this right here is just what it's doing. One other thing I'll mention on that is that
+
+Unknown Speaker  13:54  
+we can also do give
+
+Unknown Speaker  13:59  
+it a lower tail equals false. So by default, the P by one function, just like the p and p norm functions, they default to lower tail equals true, meaning they're giving you the probability of being less than or equal to any particular value. If we give it lower tail equals false. It's going to deal with somewhat obvious, but we want to be really careful about the strictness of the inequality. It
+
+Unknown Speaker  14:18  
+gives us the converse of this, but the converse of that is strictly greater than one. It does not include does not include one.
+
+Unknown Speaker  14:28  
+Yes,
+
+Unknown Speaker  14:30  
+please,
+
+Unknown Speaker  14:34  
+if I'm understanding the question correctly.
+
+Unknown Speaker  14:42  
+So Right. So I think what you're getting at is that the sign test would be a test for the mean as well. If the data were, in fact, symmetric. If the data are symmetric, then your mean is equal to the median. And so in that case, then if you test for the median, you are also testing for the mean. But what we're saying here is that the data may not be symmetric, in which case, the.
+
+Unknown Speaker  15:00  
+Median will be different from the mean, but we can still do the sign test as a test for the median. We're looking at whether all the data values, half of them, are above some particular value and half of them are below some particular value. If the data are not symmetric, wherever your median is, it might be either above that what that mean is, or below what that mean is, but this will still be a valid test for whatever that median is. Does that answer the question already? Yeah. Cool, great. Okay, now here's a real question for today, or the first, the first of two overall questions that we have. What is the type one error rate of the science test under a few different situations here? So in particular, last time, this is what we saw with a T test. The T test dot. How does the condition that the data follow a normal distribution? We see that it does quite poorly with the gamma distribution. Like we said at the very beginning of class, the type one error rate for a t test on the gamma distribution was with M with n equals five. Specifically, was about point one to point one, one, somewhere in that ballpark right there, with a uniform distribution. The type one error was somewhere between point 06 and point 07 it's not as bad as with a few gamma distribution, but still not great. We're still not really all that close to point oh, five on, like, relatively speaking. And then if the data follow the distribution, then we're right on. We expect that to be true, because that is the condition, or one of the conditions. The question now is, how does the sign test do in exactly these three scenarios right here? This is what we're about to simulate. As the first year turn for two simulate as the first year turn for today is if we simulate under these distributions again, then run a sign test on that, how do we do okay? Now we have a problem that we need to talk about before we go any further here, which is that the sign test cannot actually do a point o level five level test. And so our first daily check question that this will go in your our Markdown file is going to get that going, which you're welcome to right now. We're about to get the return here as well. Right now. We're about to get the return here as well. But the first question to answer on that is, why not? Why can we not do a point 05, level test with an equal file?
+
+Unknown Speaker  16:40  
+And
+
+Unknown Speaker  16:52  
+in fact, for pretty much any n, we can't do exactly a point a level five level test, but where I work quite far from it, in n equals with n equals five. Why is that? I
+
+Unknown Speaker  17:03  
+It's Yes.
+
+Unknown Speaker  17:09  
+Very good thought, yeah. So, so like, how extreme Can we go? And let's assume that we are going to do a two sided test here. So the most extreme it could be is the combination of these two right here, right? So we want to think about
+
+Unknown Speaker  17:22  
+is, I all that we're keeping track of is whether each data value is below that, null hypothesis value of the median, now not the mean, but null hypothesis value of the median or above it. And so the most extreme that we can be is to have none of them above it, so all of them below it, or all of them above it, P equals zero, or X equals zero, or X equals five.
+
+Unknown Speaker  17:52  
+Braces consistent. Here, the only more extreme we can go than not
+
+Unknown Speaker  17:58  
+is to have no rejection region whatsoever, and then we'll never reject no hypothesis. We'll never reject null hypothesis. But this is the most extreme rejection region that actually has anything in it that we can possibly do in this particular situation. All right, you're going to reject null hypothesis if all your values are above the null hypothesis value of the median, or all them are below the null
+
+Unknown Speaker  18:19  
+hypothesis value of the median, okay, the probability that x equals zero is just getting all your values. I forget which way I set this up now, but let's say below the median. Under the null hypothesis, there's a point five chance of each one of them being above or below the median. And so then we just take point five raised to the
+
+Unknown Speaker  18:41  
+fifth power, which is, I think 0.03125
+
+Unknown Speaker  18:44  
+I think
+
+Unknown Speaker  18:47  
+so. This is my probability of observing every value being below the median. If the null hypothesis is actually true, the null hypothesis value of the median, likewise, the probability x equals five
+
+Unknown Speaker  19:02  
+is also this point five raised to the power which is the same exact value.
+
+Unknown Speaker  19:08  
+So
+
+Unknown Speaker  19:10  
+the smallest possible rejection region that we can have that is not completely empty has a probability of the sum of these two things happening if the null hypothesis
+
+Unknown Speaker  19:19  
+is actually true.
+
+Unknown Speaker  19:22  
+So I right, let's say it this way. Total area of rejection agent
+
+Unknown Speaker  19:34  
+is
+
+Unknown Speaker  19:40  
+this right here? Point 0625, right? This is as small as we can possibly get. And basically. So the idea is, even if you have a bigger N, even even with n equals 10 or N equals 20 or so on so forth, you can get closer to point oh five than we would with that right there. But in almost every case, it's impossible to get a rejection region that has a probability of exactly point 05, so the idea is that when we're doing a sign test, we.
+
+Unknown Speaker  20:00  
+To figure out what are our possible rejection regions, and then which one of them gives us the closest probability to whatever level we desire. In this case, we're gonna say we would like to a point oh five level test. We recognize that we can't we have this rejection right here that gives us basically a point 0625, level test, right? And so that's close as we can get to to a point oh five level test. So guys, because of the discrete nature of this sign size, that everything is either just above or below that median, and that's all that we're keeping track of. There's a 5050, chance in either way. And so with that being the case, this is the closest that we can get. Okay, now very slight adjustment to this as well. Technically, as we probably learned at some point, your P value has to be less than that significance level to tell you to reject the null hypothesis. So in other words, if I
+
+Unknown Speaker  20:41  
+got data in which zero of my values were above the median, I got a p value of point 0625, if that's my threshold, right there, we've learned that if your P value actually is exactly equal to the alpha level, you don't reject the hypothesis it's got to be below it. So this matters with how we code things. We've got to say, Okay, let's just bump this up by, like, a very slight bit. So
+
+Unknown Speaker  21:02  
+plus some epsilon can be point 0001, doesn't matter. So anything like that. Now, when you get a P value of point 0625, you will, in fact, reject the hypothesis by saying that you are below that significance level threshold,
+
+Unknown Speaker  21:15  
+right? So that's what I have, right here.
+
+Unknown Speaker  21:21  
+You
+
+Unknown Speaker  21:28  
+okay, so here's our task, our first return for today. The first thing that we're going to do is to write a function to perform a sine test for a sample of size n equals five, and then an alpha of point 0625, plus some small epsilon value. These are the specifications of the function I'm asking you to write here. Most of this is to make your life easier. So I'm saying that you should take in a vector of five values as an input and then return a two sided P value, kind of just like we saw right here, two sided P value. And because under the null hypothesis, P is going to be equal to point five in terms of whether each value is above or below that median value, we can invoke this right here, the P by one. So I forgot to start your vehicle for us right now as well. You can hardcore hard code the null hypothesis value of six. So I'm not asking you to make this a function that's very flexible for any other situations. I will ask you to do that. I think in lab two, if you pull that up, your function can ignore ties, because we're going to, like, tie with that null hypothesis value the median, because we're going to simulate from continuous distribution. So there actually is a zero probability of getting exactly right on six. And then, like I said, using the P minor function in some manner will likely be the easiest way to do this. So you can look back on kind of what's happening right here.
+
+Unknown Speaker  22:25  
+How you write a function, take in a vector values and then,
+
+Unknown Speaker  22:29  
+and then output a p value. Okay, once we have that done, then there's a little bit more to do right here. But at this point, you're gonna be doing a lot of kind of, either retyping or copy pasting or not too much is gonna change from this in terms of what you need to do for for the actual return from today. So I think this is the biggest lift in terms of what we need to do right now. So I'm gonna give you a few minutes if you can get anywhere. Few minutes to see if you can get anywhere on that on your own. And then I will code this up on the screen as well, for those of you who will just make sure that either we got it right, or if you are like stuck and can't figure it out, we can do it
+
+Unknown Speaker  22:55  
+together. And one other thing, I don't have a grade scope assignment up yet, so let me get that up too. I
+
+Unknown Speaker  23:20  
+i
+
+Unknown Speaker  23:23  
+begging from song.
+
+Unknown Speaker  23:40  
+Table,
+
+Unknown Speaker  24:00  
+point with that function. So
+
+Unknown Speaker  24:10  
+our task at this point, with that function written, is to put that function into this simulation right here. Essentially, we're going to change a couple of things with this, but recall what's going on here for a second. What's going on with the simulation is we are checking the type one error rate of the t test when we simulate under a gamma distribution with these parameter values right here. And what we saw was that the type one error rate, in this case, is extremely inflated from what we expect it to be. So now our task is to take this simulation and modify it for what we're doing right now. So the first thing, the first obvious thing is going to change, is that instead of t dot test, we do the sign test on the data. Most of it's going to stay the same, but our task right now is to edit that code, change it for alpha equals point 0625, instead of this point oh, five, right here. And then the other note that's kind of crucial here is that this gamma distribution, it does have a mean of six, but it doesn't have a median of six, and so it's not quite going to work for the simulation. We need to get a gamma distribution for our null hypothesis to be true. It.
+
+Unknown Speaker  25:00  
+The median has to be equal to six, so way beyond the scope of this, course. But the way that we're going to adjust this to have a median of six is going to change the scale value right here. It's 6.5757
+
+Unknown Speaker  25:09  
+again, where that comes from. Don't worry about it. But the point is that this value, if we put that in for the scale value right here, that will give us a median of six. All right, so let's go ahead and do this together. Actually,
+
+Unknown Speaker  25:19  
+there's my function for the signed
+
+Unknown Speaker  25:22  
+test. Now to check type one error of the sign test for gamma
+
+Unknown Speaker  25:27  
+distributed data,
+
+Unknown Speaker  25:32  
+take this code right here, so I'll retype it this first time. But then for the next few scenarios, we're going to do more
+
+Unknown Speaker  25:42  
+copy, paste. I'm bless you. So
+
+Unknown Speaker  25:46  
+still going to be called Gam data, that's fine. R gamma, n equals five. Shape
+
+Unknown Speaker  25:53  
+equals 1.2 scale equals what we're told here. We got to change that to 6.757
+
+Unknown Speaker  25:58  
+little comment here to have median of six.
+
+Unknown Speaker  26:04  
+The p value is going to be gotten by running the sign test right here, and what that thing returns is just the p value. We're going to run that on Gam data. Then we're
+
+Unknown Speaker  26:15  
+going to check if the P value is less than our significance level. All
+
+Unknown Speaker  26:20  
+right, our significance level is point 0625, plus some little epsilon. So I can make that anything that's slightly bigger than point 625, we'll just call it point 626.
+
+Unknown Speaker  26:32  
+If that happens, we're going to increment the counter. Come on.
+
+Unknown Speaker  26:38  
+My Type I rate is going to be that count divided by the number of iterations. Number iterations. And then let's show where it is quite catch
+
+Unknown Speaker  26:47  
+all that. I'll leave it open screen for a second here, once I show it. But the point is that we are expecting the science has to do pretty good. It's non parametric. It doesn't care what distribution of the data is. The alpha level of the sign test is point 0625,
+
+Unknown Speaker  27:00  
+plus a little bit. There's our test to death, right there.
+
+Unknown Speaker  27:05  
+All right, questions there. Let me leave this up for another moment, but the next two scenarios we're asked to do are just gonna do the same thing that we did on Thursday last week, where we just said, Okay, now let's try uniform and let's try normal and see how the sign test does on Thursday. We thought the t test does quite poorly again, with the gamma and even the uniform does just even uniform. So it's just fine with uniform. What we expect to see here is that the sign test does not care what the distribution of the data is. It's always gonna give us an estimate of type one error that developed out right there. All right, so I do it now. So the next scenario is normal
+
+Unknown Speaker  27:37  
+data, copy, all this.
+
+Unknown Speaker  27:40  
+Only thing we need to change this right here, and because the normal distribution is symmetric, now the mean well equal to median. So I can, again, just give it a mean of six,
+
+Unknown Speaker  27:50  
+and everything else can stay the same. That should be fine. And there's our normal data. That's another type one error.
+
+Unknown Speaker  27:56  
+It's a little lower, but it's because there's noise. That's totally fine. This is still theoretically point 0625, and you'll see how this one changed to half. How this one changed to a half instead of seeds. What's gonna move around every single time I did this? Now for uniform data, copy all this again. Now this changes uniform
+
+Unknown Speaker  28:13  
+distribution wants the min and max values. We're gonna give it a min and max of two and 10 respectively to get a median of six, mean of six, mean of six as well. But with it being symmetric, we're good to go either way there too. And then again, we got an estimate of the type one error of approximately point 0625,
+
+Unknown Speaker  28:29  
+again. Let me leave this up for a moment. Any questions here? Okay?
+
+Unknown Speaker  28:40  
+About 15 minutes left, and one more thing to hit before we get out here for today. Let's see if we can do it. So the sign test that we've been talking about the last 30 minutes or so, again, is a non parametric test, but it's a test for the median. Can we do a non parametric test that's actually for the mean? And yes, we can. We actually learned about this in the D, C, 10, maybe 80 as well. We learned about how we can construct boot track confidence intervals. These are non parametric as well. All you need to do is just resample from your data. What you are saying is, okay, I think my data are an accurate representation of the population. And so then if I sample from that and calculate the statistical interest, such as the mean right here, this is Python code, so, um, this is hopefully more familiar to you all in than our code. And we can say, Okay, let's get an estimate of the sampling distribution via the bootstrap procedure to get the bootstrap confidence interval. And then what you learn in the D 10 is that with a confidence interval, well, here's our here's our code to get the confidence interval, for example, for the set values right here. Find bootstrap confidence interval for the mean amount of sleep is 1.6 to 5.0 and here's our code to do the same exact thing right here. So you can see that. So in some ways, this looks similar. We're just keeping track of all the bootstrap means. Take the mean of running the sample function on sleep. When we do this, I think we saw this in lab one. When you give it a vector of values and don't specify like, how many are sampling from it by default, one. And I made a note there that this is a useful thing for bootstrapping. We sample everything. If we start replacing with true, then we are doing a bootstrap procedure right here. Take a mean of those values. Now you have the mean of your bootstrap sample. Keep track of those. We want the two point fifth less than a 97 point fifth percentile to give us our 95% bootstrap confidence interval. R code, Python code, there's randomness, so we got slightly different answers here. But.
+
+Unknown Speaker  30:00  
+See where they are. The same thing.
+
+Transcribed by https://otter.ai

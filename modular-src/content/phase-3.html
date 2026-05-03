@@ -1,0 +1,401 @@
+<div class="phase-content" id="phase-3">
+
+<!-- ==================== LEVEL 17 ==================== -->
+<div class="level-card" id="level-17">
+<div class="level-header" onclick="toggleLevel(17)">
+  <span class="level-title"><span class="num">Level 17</span> - Lab 1 Deep Dive: R Foundations</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-17">
+
+<h3>Q1.1: Assignment with &lt;-</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q1.1</div>
+<pre class="r-code">x &lt;- <span class="nb">42</span>
+name &lt;- <span class="st">"Maxime"</span>
+data &lt;- <span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">2</span>, <span class="nb">3</span>, <span class="nb">4</span>, <span class="nb">5</span>)
+</pre>
+</div>
+
+<h3>Q1.2.1: Negative Indexing Removes Elements</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q1.2.1</div>
+<pre class="r-code">v &lt;- <span class="fn">c</span>(<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">30</span>, <span class="nb">40</span>, <span class="nb">50</span>)
+v[<span class="nb">-1</span>]          <span class="cm"># 20, 30, 40, 50  (removes first)</span>
+v[-<span class="fn">c</span>(<span class="nb">1</span>,<span class="nb">3</span>)]     <span class="cm"># 20, 40, 50      (removes 1st and 3rd)</span>
+</pre>
+</div>
+
+<h3>Q1.2.2: What : Cannot Do</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q1.2.2</div>
+<pre class="r-code"><span class="cm"># The : operator only does integer steps</span>
+<span class="nb">1</span>:<span class="nb">5</span>                       <span class="cm"># 1, 2, 3, 4, 5</span>
+
+<span class="cm"># For non-integer steps, use seq()</span>
+<span class="fn">seq</span>(<span class="nb">1</span>, <span class="nb">5</span>, by = <span class="nb">0.5</span>)       <span class="cm"># 1.0, 1.5, 2.0, ... 5.0</span>
+</pre>
+</div>
+
+<h3>Q1.4: Overwriting Dataframe Columns</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q1.4</div>
+<pre class="r-code"><span class="cm"># Overwrite an existing column</span>
+df$price &lt;- df$price * <span class="nb">1.1</span>    <span class="cm"># Increase all prices by 10%</span>
+
+<span class="cm"># Create a new column</span>
+df$total &lt;- df$price * df$quantity
+</pre>
+</div>
+
+<h3>Q2.1: Translating a Python Loop to R</h3>
+<div class="box box-rpython">
+  <div class="box-label">R vs Python - Loop Translation</div>
+  <table class="cmp-table">
+    <tr><th>Python</th><th>R</th></tr>
+    <tr><td><code>results = []<br>for i in range(1, 11):<br>&nbsp;&nbsp;results.append(i**2)</code></td><td><code>results &lt;- c()<br>for (i in 1:10) {<br>&nbsp;&nbsp;results[i] &lt;- i^2<br>}</code></td></tr>
+  </table>
+</div>
+
+<h3>Q2.2: Sample with replace=TRUE</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q2.2</div>
+<pre class="r-code"><span class="cm"># Resample a column from a dataframe (bootstrap-style)</span>
+boot_vals &lt;- <span class="fn">sample</span>(df$column, <span class="fn">nrow</span>(df), replace = <span class="kw">TRUE</span>)
+</pre>
+</div>
+
+<h3>Q3.1: even_odd Function with %% Modulo</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q3.1</div>
+<pre class="r-code">even_odd &lt;- <span class="kw">function</span>(x) {
+  <span class="kw">if</span> (x %% <span class="nb">2</span> == <span class="nb">0</span>) {
+    <span class="kw">return</span>(<span class="st">"even"</span>)
+  } <span class="kw">else</span> {
+    <span class="kw">return</span>(<span class="st">"odd"</span>)
+  }
+}
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>x %% 2</code> - Modulo: remainder when dividing by 2. Even numbers give 0.</div>
+    <div class="line-exp">R uses <code>%%</code> for modulo. Python uses <code>%</code>.</div>
+  </div>
+</div>
+
+<h3>Q3.2: sapply() to Apply a Function</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q3.2</div>
+<pre class="r-code"><span class="cm"># Apply even_odd to every value in a column</span>
+results &lt;- <span class="fn">sapply</span>(df$numbers, even_odd)
+<span class="cm"># sapply(VECTOR, FUNCTION) = apply FUNCTION to every element</span>
+</pre>
+</div>
+
+<h3>Q3.3: calc_ts Function (t-statistic)</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 1 Q3.3</div>
+<pre class="r-code">calc_ts &lt;- <span class="kw">function</span>(data, mu0) {
+  x_bar &lt;- <span class="fn">mean</span>(data)
+  s &lt;- <span class="fn">sd</span>(data)
+  n &lt;- <span class="fn">length</span>(data)
+  t_stat &lt;- (x_bar - mu0) / (s / <span class="fn">sqrt</span>(n))
+  <span class="kw">return</span>(t_stat)
+}
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">This manually calculates the t-statistic: (sample mean - claimed mean) / standard error.</div>
+  </div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz - Lab 1</div>
+  <div class="quiz-q">What does <code>7 %% 3</code> return in R?</div>
+  <div class="quiz-opt" data-i="0">2.33 (division)</div>
+  <div class="quiz-opt" data-i="1">21 (multiplication)</div>
+  <div class="quiz-opt" data-i="2">1 (remainder of 7 / 3)</div>
+  <div class="quiz-opt" data-i="3">3 (integer division)</div>
+  <div class="quiz-result" data-explain="7 divided by 3 = 2 remainder 1. So 7 %% 3 = 1."></div>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz - Lab 1 Indexing</div>
+  <div class="quiz-q">Given <code>v &lt;- c(5, 10, 15, 20)</code>, what does <code>v[-c(2,4)]</code> return?</div>
+  <div class="quiz-opt" data-i="0">10, 20</div>
+  <div class="quiz-opt" data-i="1">5, 15</div>
+  <div class="quiz-opt" data-i="2">5, 10, 15, 20</div>
+  <div class="quiz-opt" data-i="3">Error</div>
+  <div class="quiz-result" data-explain="v[-c(2,4)] removes positions 2 and 4 (10 and 20), leaving 5 and 15."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 18 ==================== -->
+<div class="level-card" id="level-18">
+<div class="level-header" onclick="toggleLevel(18)">
+  <span class="level-title"><span class="num">Level 18</span> - Lab 2 Deep Dive: Type I Error and Power</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-18">
+
+<h3>Q1.1: Why t-test Has Inflated Type I Error on Gamma</h3>
+<div class="box box-concept">
+  <div class="box-label">Key Idea</div>
+  <p>The t-test assumes normality. Gamma is right-skewed. With small n, CLT has not kicked in, so the t-test rejects MORE than it should (e.g., 0.07 instead of 0.05).</p>
+</div>
+
+<h3>Q1.2: Type I Error Sim on Gamma</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 2 Q1.2</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">42</span>)
+n &lt;- <span class="nb">30</span>
+mu0 &lt;- <span class="nb">2</span> * <span class="nb">3</span>   <span class="cm"># shape * scale = 6</span>
+n_sims &lt;- <span class="nb">10000</span>
+rejections &lt;- <span class="nb">0</span>
+
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:n_sims) {
+  data &lt;- <span class="fn">rgamma</span>(n, shape = <span class="nb">2</span>, scale = <span class="nb">3</span>)
+  p &lt;- <span class="fn">t.test</span>(data, mu = mu0)$p.value
+  <span class="kw">if</span> (p &lt; <span class="nb">0.05</span>) {
+    rejections &lt;- rejections + <span class="nb">1</span>
+  }
+}
+type1_error &lt;- rejections / n_sims  <span class="cm"># Around 0.065-0.08</span>
+</pre>
+</div>
+
+<h3>Q1.3: Sign Test Achievable Alpha</h3>
+<div class="box box-concept">
+  <div class="box-label">Key Idea</div>
+  <p>The sign test has DISCRETE p-values. With n = 30, find the achievable alpha closest to 0.05 using <code>pbinom()</code>.</p>
+</div>
+
+<h3>Q1.4: Bootstrap Type I Error -- Double Loop</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 2 Q1.4</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">42</span>)
+n &lt;- <span class="nb">30</span>
+n_sims &lt;- <span class="nb">1000</span>       <span class="cm"># Outer: how many datasets</span>
+B &lt;- <span class="nb">1000</span>            <span class="cm"># Inner: bootstrap resamples per dataset</span>
+mu0 &lt;- <span class="nb">6</span>
+rejections &lt;- <span class="nb">0</span>
+
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:n_sims) {
+  data &lt;- <span class="fn">rgamma</span>(n, shape = <span class="nb">2</span>, scale = <span class="nb">3</span>)
+
+  <span class="cm"># Bootstrap CI for this dataset</span>
+  boot_means &lt;- <span class="fn">rep</span>(<span class="nb">0</span>, B)
+  <span class="kw">for</span> (j <span class="kw">in</span> <span class="nb">1</span>:B) {
+    boot_sample &lt;- <span class="fn">sample</span>(data, n, replace = <span class="kw">TRUE</span>)
+    boot_means[j] &lt;- <span class="fn">mean</span>(boot_sample)
+  }
+  ci &lt;- <span class="fn">quantile</span>(boot_means, <span class="fn">c</span>(<span class="nb">0.025</span>, <span class="nb">0.975</span>))
+
+  <span class="cm"># If mu0 outside CI, reject</span>
+  <span class="kw">if</span> (mu0 &lt; ci[<span class="nb">1</span>] || mu0 &gt; ci[<span class="nb">2</span>]) {
+    rejections &lt;- rejections + <span class="nb">1</span>
+  }
+}
+type1_boot &lt;- rejections / n_sims
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>Double loop:</strong> OUTER creates different datasets. INNER does bootstrap within each.</div>
+    <div class="line-exp"><code>||</code> is the OR operator in R (like <code>or</code> in Python).</div>
+  </div>
+</div>
+
+<h3>Q1.5: Type I Error vs n Plot Interpretation</h3>
+<div class="box box-concept">
+  <div class="box-label">Key Finding</div>
+  <p>As n increases, the t-test Type I Error on gamma data approaches 0.05 (CLT kicks in). For small n, it is inflated. The sign test stays at or below 0.05 for ALL n.</p>
+</div>
+
+<h3>Q2.2: sim_power_t Function</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 2 Q2.2</div>
+<pre class="r-code">sim_power_t &lt;- <span class="kw">function</span>(n, mu0, delta, sd, n_sims = <span class="nb">10000</span>, alpha = <span class="nb">0.05</span>) {
+  rejections &lt;- <span class="nb">0</span>
+  true_mean &lt;- mu0 + delta
+
+  <span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:n_sims) {
+    data &lt;- <span class="fn">rnorm</span>(n, mean = true_mean, sd = sd)
+    p &lt;- <span class="fn">t.test</span>(data, mu = mu0)$p.value
+    <span class="kw">if</span> (p &lt; alpha) {
+      rejections &lt;- rejections + <span class="nb">1</span>
+    }
+  }
+  <span class="kw">return</span>(rejections / n_sims)
+}
+</pre>
+</div>
+
+<h3>Q2.3: Power Curve</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 2 Q2.3</div>
+<pre class="r-code">deltas &lt;- <span class="fn">seq</span>(<span class="nb">0</span>, <span class="nb">5</span>, by = <span class="nb">0.5</span>)
+powers &lt;- <span class="fn">rep</span>(<span class="nb">0</span>, <span class="fn">length</span>(deltas))
+
+<span class="kw">for</span> (j <span class="kw">in</span> <span class="nb">1</span>:<span class="fn">length</span>(deltas)) {
+  powers[j] &lt;- sim_power_t(n = <span class="nb">30</span>, mu0 = <span class="nb">10</span>, delta = deltas[j], sd = <span class="nb">5</span>)
+}
+
+<span class="fn">plot</span>(deltas, powers, type = <span class="st">"b"</span>,
+     xlab = <span class="st">"Effect Size"</span>, ylab = <span class="st">"Power"</span>)
+<span class="fn">abline</span>(h = <span class="nb">0.8</span>, col = <span class="st">"red"</span>, lty = <span class="nb">2</span>)
+</pre>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz - Lab 2</div>
+  <div class="quiz-q">Why does the t-test show inflated Type I Error on gamma data?</div>
+  <div class="quiz-opt" data-i="0">Gamma is skewed, violating the normality assumption</div>
+  <div class="quiz-opt" data-i="1">Gamma has too high variance</div>
+  <div class="quiz-opt" data-i="2">The sample size is too large</div>
+  <div class="quiz-opt" data-i="3">The t-test formula is wrong</div>
+  <div class="quiz-result" data-explain="Gamma is right-skewed. With small n, the CLT hasn't made things normal enough, so the t-test rejects more often than alpha."></div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz - Lab 2 Bootstrap</div>
+  <div class="quiz-q">Why is there a double loop in the bootstrap Type I Error sim?</div>
+  <div class="quiz-opt" data-i="0">The outer loop generates bootstrap samples</div>
+  <div class="quiz-opt" data-i="1">Both loops do the same thing</div>
+  <div class="quiz-opt" data-i="2">Outer generates datasets; inner does bootstrap resampling within each</div>
+  <div class="quiz-opt" data-i="3">The double loop is unnecessary</div>
+  <div class="quiz-result" data-explain="OUTER loop creates many datasets (to estimate Type I Error rate). INNER loop does bootstrap within ONE dataset (to build a CI)."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 19 ==================== -->
+<div class="level-card" id="level-19">
+<div class="level-header" onclick="toggleLevel(19)">
+  <span class="level-title"><span class="num">Level 19</span> - Lab 3 Part 1: Significance vs Effect Size</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-19">
+
+<h3>Q1.1: Multiple Choice (Answers: 1, 4, 5)</h3>
+<div class="box box-concept">
+  <div class="box-label">Correct Statements</div>
+  <ol>
+    <li><strong>(1)</strong> Large n can make trivially small effects statistically significant. TRUE</li>
+    <li><strong>(4)</strong> With large enough n, even tiny effects produce small p-values. TRUE</li>
+    <li><strong>(5)</strong> Statistical significance does not imply practical significance. TRUE</li>
+  </ol>
+</div>
+
+<h3>Q1.2: Large vs Small Sample t-test</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 3 Q1.2</div>
+<pre class="r-code"><span class="cm"># Large sample: tiny effect becomes significant</span>
+<span class="fn">set.seed</span>(<span class="nb">42</span>)
+large_data &lt;- <span class="fn">rnorm</span>(<span class="nb">100000</span>, mean = <span class="nb">50.01</span>, sd = <span class="nb">10</span>)
+<span class="fn">t.test</span>(large_data, mu = <span class="nb">50</span>)$p.value   <span class="cm"># Very small!</span>
+<span class="fn">t.test</span>(large_data, mu = <span class="nb">50</span>)$conf.int  <span class="cm"># Very narrow CI</span>
+
+<span class="cm"># Small sample: same tiny effect NOT significant</span>
+small_data &lt;- <span class="fn">rnorm</span>(<span class="nb">20</span>, mean = <span class="nb">50.01</span>, sd = <span class="nb">10</span>)
+<span class="fn">t.test</span>(small_data, mu = <span class="nb">50</span>)$p.value   <span class="cm"># Large p-value</span>
+</pre>
+</div>
+
+<h3>Q1.3: Interpretation (Answer: 2)</h3>
+<div class="box box-concept">
+  <div class="box-label">Key Idea</div>
+  <p>Even though p is tiny, the actual difference is negligible. The correct interpretation: "Statistically significant but NOT practically meaningful."</p>
+</div>
+
+<h3>Q1.4.2: Why p-values Differ (Answer: 3)</h3>
+<div class="box box-concept">
+  <div class="box-label">Key Idea</div>
+  <p>Sample size changes the standard error (SE = s/sqrt(n)). With n = 100,000, SE is tiny, so even 0.01 difference looks "many SEs away." With n = 20, SE is large, same difference is within noise.</p>
+</div>
+
+<h3>Q1.5: power.t.test for Required n</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 3 Q1.5</div>
+<pre class="r-code"><span class="cm"># How many observations to detect delta = 0.01 at 80% power?</span>
+<span class="fn">power.t.test</span>(power = <span class="nb">0.80</span>, delta = <span class="nb">0.01</span>, sd = <span class="nb">10</span>,
+             sig.level = <span class="nb">0.05</span>, type = <span class="st">"one.sample"</span>)
+<span class="cm"># Answer: HUGE number! Tiny effects need massive n.</span>
+</pre>
+</div>
+
+<h3>Q1.6: Cohen's d Function</h3>
+<div class="box box-rcode">
+  <div class="box-label">Lab 3 Q1.6</div>
+<pre class="r-code">cohens_d &lt;- <span class="kw">function</span>(data, mu0) {
+  <span class="kw">return</span>(<span class="fn">abs</span>(<span class="fn">mean</span>(data) - mu0) / <span class="fn">sd</span>(data))
+}
+<span class="cm"># For large_data: d is very small (like 0.001) = trivial effect</span>
+</pre>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz - Lab 3</div>
+  <div class="quiz-q">With n = 1,000,000 and true mean 50.001, testing H0: mu = 50, the p-value is...</div>
+  <div class="quiz-opt" data-i="0">Large (fail to reject)</div>
+  <div class="quiz-opt" data-i="1">Very small (reject), even though effect is negligible</div>
+  <div class="quiz-opt" data-i="2">Exactly 0.05</div>
+  <div class="quiz-opt" data-i="3">Cannot predict</div>
+  <div class="quiz-result" data-explain="With a million data points, even 0.001 difference produces a tiny p-value. The SE is extremely small. This is the Big Data Trap."></div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz - Lab 3 Interpretation</div>
+  <div class="quiz-q">n = 5 million, p = 0.00001, Cohen's d = 0.01. Best conclusion?</div>
+  <div class="quiz-opt" data-i="0">The effect is large and important</div>
+  <div class="quiz-opt" data-i="1">No real effect</div>
+  <div class="quiz-opt" data-i="2">Real but practically meaningless (tiny d)</div>
+  <div class="quiz-opt" data-i="3">Invalid test</div>
+  <div class="quiz-result" data-explain="Small p = effect is real. But d = 0.01 is minuscule. Statistically significant but practically meaningless."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 20 ==================== -->
+<div class="level-card" id="level-20">
+<div class="level-header" onclick="toggleLevel(20)">
+  <span class="level-title"><span class="num">Level 20</span> - Lab Patterns Cheat Sheet</span>
+  <span class="level-xp">+30 XP</span>
+</div>
+<div class="level-body" id="level-body-20">
+
+<div class="box box-concept">
+  <div class="box-label">Pattern 1 - Simulation Loop</div>
+<pre class="r-code">rejections &lt;- <span class="nb">0</span>
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:n_sims) {
+  data &lt;- GENERATE(n, ...)
+  p &lt;- TEST(data, mu0)$p.value
+  <span class="kw">if</span> (p &lt; alpha) { rejections &lt;- rejections + <span class="nb">1</span> }
+}
+rate &lt;- rejections / n_sims
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Pattern 2 - Bootstrap CI</div>
+<pre class="r-code">boot_means &lt;- <span class="fn">rep</span>(<span class="nb">0</span>, B)
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:B) {
+  bs &lt;- <span class="fn">sample</span>(data, <span class="fn">length</span>(data), replace = <span class="kw">TRUE</span>)
+  boot_means[i] &lt;- <span class="fn">mean</span>(bs)
+}
+ci &lt;- <span class="fn">quantile</span>(boot_means, <span class="fn">c</span>(<span class="nb">0.025</span>, <span class="nb">0.975</span>))
+</pre>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">Which Test to Use?</div>
+  <table class="cmp-table">
+    <tr><th>Situation</th><th>Use This</th></tr>
+    <tr><td>Normal data, test mean</td><td><code>t.test()</code></td></tr>
+    <tr><td>Skewed data, small n, test median</td><td>Sign test</td></tr>
+    <tr><td>Want CI without assumptions</td><td>Bootstrap</td></tr>
+    <tr><td>Want required n</td><td><code>power.t.test()</code></td></tr>
+    <tr><td>Measure effect size</td><td>Cohen's d</td></tr>
+  </table>
+</div>
+
+</div></div>
+
+</div> <!-- end phase-3 -->

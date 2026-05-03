@@ -1,0 +1,535 @@
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(dev = 'pdf')
+  def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+  knitr::knit_hooks$set(chunk = function(x, options) {
+    x <- def.chunk.hook(x, options)
+    ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+  })
+```
+
+
+
+
+## Statistical Power {.t}
+
+::: {.block}
+### Last couple of lectures
+\vspace{-2mm}
+ - The Type I Error rate of a statistical test is the probability of rejecting $H_0$ when $H_0$ is actually true.
+ 
+\vspace{3mm}
+
+ - We can estimate the Type I Error rate via simulation
+ 
+:::
+
+Now, in general terms, what is statistical power?
+
+https://pollev.com/chi
+
+
+## Statistical Power {.t}
+\label{powerbegin}
+
+::: {.block}
+Statistical power is a function of these four things:
+
+ - Sample size
+ - Statistical significance level
+ - Standard deviation
+ - Effect size
+::: 
+ 
+The first 3 of these should be relatively apparent as to what they are (in principle). But what is \underline{effect size}?
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+Suppose that prior to any data collection, we want to know what our statistical power is for detecting a difference from an average of 6 hours of sleep.
+
+ - Sample size: 5
+ - Statistical significance level: $\alpha=0.05$
+ - Standard deviation: ?
+ - Effect size: ???
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+The challenging thing about power calculations in practice is that they need to be done prior to any data collection, which makes it difficult to know what the standard deviation and the effect size should be.
+
+\vspace{2mm}
+::: {.block}
+### Three overall approaches
+\vspace{-2mm}
+ - Literature review
+
+\vspace{4mm}
+ - Pilot study
+
+\vspace{4mm}
+ - Posthoc
+
+:::
+
+
+## Statistical Power {.t}
+\label{powerend}
+\framesubtitle{Example: UCSD students' sleep again}
+::: {.block}
+### Three overall approaches
+\vspace{-2mm}
+ - Literature review
+   - Look through previous studies to find anything similar
+   
+\vspace{2mm}
+ - Pilot study
+   - Collect a small preliminary set of data, use the estimates from that
+   
+\vspace{2mm}
+ - Posthoc
+   - Do power calculations after your data collection and statistical analyses, using estimates from your actual data as inputs
+:::
+
+Posthoc is obviously the least desirable, and I am philosophically against this practice in general (but just be aware that it is out there in real research studies -- I often get asked by collaborators to do exactly this).
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+Let us suppose that from a literature review, we believe that the variance of the hours of sleep a UCSD student gets is 1 hour, and that the average UCSD student might only sleep for 4 hours per night. That is, if $X_i$ is the amount of sleep that the $i^{th}$ student gets, then we will proceed by assuming that:
+
+$$
+X_i \sim N(\mu=4, \sigma^2=1)
+$$
+
+\vspace{4mm}
+A power calculation proceeds by determining the probability that we would reject $H_0$ if the above values are actually true.
+
+
+### What is the distribution of $t_s$ under this reality?
+\vspace{-2mm}
+$$
+t_s = \frac{\overline{x} - \mu_0}{s/\sqrt{n}} = \ldots
+$$
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+```{r, echo=FALSE, out.width="75%"}
+t <- seq(-4, 4, by=0.01)
+f_t <- dt(t, df=4)
+plot(f_t ~ t, type='l', main="Null distribution: t with df=4")
+polygon(c(t[t>=qt(0.025, df=4, lower.tail=FALSE)], max(t), qt(0.025, df=4, lower.tail=FALSE)), c(f_t[t>=qt(0.025, df=4, lower.tail=FALSE)], 0, 0), col="gray75")
+polygon(c(t[t<=qt(0.025, df=4)], qt(0.025, df=4), min(t)), c(f_t[t<=qt(0.025, df=4)], 0, 0), col="gray75")
+```
+
+The statistical power of the test here is the probability of observing a value of $t_s$ that is in the rejection region, if $X_i \sim N(\mu=4, \sigma^2 = 1)$.
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+::: {.block}
+### What is the distribution of $t_s$ under this reality?
+\vspace{-2mm}
+$$
+\begin{aligned}
+t_s = \frac{\overline{x} - \mu_0}{s/\sqrt{n}} &= \frac{\overline{x} - 6}{s/\sqrt{5}}
+\end{aligned}
+$$
+but we are operating under the assumption that the mean of $\overline{X}$ is 4, so this does not actually have
+a t distribution. But...
+
+$$
+\begin{aligned}
+&= \frac{\overline{x} - 4 + 4 - 6}{s/\sqrt{5}} \\
+&= \frac{\overline{x} - 4}{s/\sqrt{5}} + \frac{4 - 6}{s/\sqrt{5}} \\
+&= \frac{\overline{x} - 4}{s/\sqrt{n}} - \frac{2}{s/\sqrt{5}} \\
+\end{aligned}
+$$
+
+:::
+
+The first quantity after the $=$ sign is a $t$ random variable with df=4. The second quantity is a \textit{random shift} to the left...
+
+
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+::: {.block}
+### What is the distribution of $t_s$ under this reality?
+\vspace{-2mm}
+$$
+\begin{aligned}
+t_s = \frac{\overline{x} - 4}{s/\sqrt{n}} - \frac{2}{s/\sqrt{5}} \\
+\end{aligned}
+$$
+
+:::
+
+The left quantity is a $t$ random variable with df=4. The right quantity is a \textit{random shift} towards smaller values...
+
+This means that, under this particular effect size and with $\sigma=1$, the distribution of $t_s$ follows a
+\underline{non-central t-Distribution} with a noncentrality parameter of:
+
+$$
+\delta = -\frac{2}{1/\sqrt{5}} = -2 \sqrt{5}.
+$$
+
+\vspace{6mm}
+
+...what?
+
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+```{r, echo=FALSE}
+t <- seq(-4, 4, by=0.01)
+f_t <- dt(t, df=4)
+plot(f_t ~ t, type='l', main="Null distribution and alternative distribution with mean=4", xlim=c(-13, 4))
+polygon(c(t[t>=qt(0.025, df=4, lower.tail=FALSE)], max(t), qt(0.025, df=4, lower.tail=FALSE)), c(f_t[t>=qt(0.025, df=4, lower.tail=FALSE)], 0, 0), col="gray75")
+polygon(c(t[t<=qt(0.025, df=4)], qt(0.025, df=4), min(t)), c(f_t[t<=qt(0.025, df=4)], 0, 0), col="gray75")
+
+```
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+```{r, echo=FALSE}
+t <- seq(-4, 4, by=0.01)
+f_t <- dt(t, df=4)
+plot(f_t ~ t, type='l', main="Null distribution and alternative distribution with mean=4", xlim=c(-13, 4))
+polygon(c(t[t>=qt(0.025, df=4, lower.tail=FALSE)], max(t), qt(0.025, df=4, lower.tail=FALSE)), c(f_t[t>=qt(0.025, df=4, lower.tail=FALSE)], 0, 0), col="gray75")
+polygon(c(t[t<=qt(0.025, df=4)], qt(0.025, df=4), min(t)), c(f_t[t<=qt(0.025, df=4)], 0, 0), col="gray75")
+
+
+ta <- seq(-13, 1, by=0.01)
+f_ta <- dt(ta, df=4, ncp=(-2/(1/sqrt(5))))
+lines(ta, f_ta)
+polygon(c(ta[ta<=qt(0.025, df=4)], qt(0.025, df=4), min(ta)), c(f_ta[ta<=qt(0.025, df=4)], 0, 0), col="gray50", density=10)
+```
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+```{r, echo=FALSE}
+t <- seq(-4, 4, by=0.01)
+f_t <- dt(t, df=4)
+plot(f_t ~ t, type='l', main="Null distribution and alternative distribution with mean=4", xlim=c(-13, 4))
+polygon(c(t[t>=qt(0.025, df=4, lower.tail=FALSE)], max(t), qt(0.025, df=4, lower.tail=FALSE)), c(f_t[t>=qt(0.025, df=4, lower.tail=FALSE)], 0, 0), col="gray75")
+polygon(c(t[t<=qt(0.025, df=4)], qt(0.025, df=4), min(t)), c(f_t[t<=qt(0.025, df=4)], 0, 0), col="gray75")
+
+
+ta <- seq(-13, 1, by=0.01)
+f_ta <- dt(ta, df=4, ncp=(-2/(1/sqrt(5))))
+lines(ta, f_ta)
+polygon(c(ta[ta<=qt(0.025, df=4)], qt(0.025, df=4), min(ta)), c(f_ta[ta<=qt(0.025, df=4)], 0, 0), col="gray50", density=10)
+text(x=-9, y=0.2, labels="This is the non-central t-Distribution representing")
+text(x=-8.7, y=0.18, labels=expression(paste("the distribution of ", t[s], " under ", X[i], " ~ N(4, 1)")))
+text(x=-2.5, y=0.37, "This is the null distribution")
+arrows(x0=-10, y0=0.1, x1=-7, y1=0.04)
+text(x=-11, y=0.11, "This area is the statistical power")
+```
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+So then using the non-central t-Distribution function in R, we can obtain it. First, the rejection region starts at:
+
+```{r}
+qt(0.025, df=4)
+```
+
+We can then put this value into the `pt` function with the appropriate non-centrality parameter:
+
+```{r}
+pt(-2.776445, df=4, ncp=-(2*sqrt(5)))
+```
+
+Note: technically, there's also a right tail! But under this $H_A$, the probability of observing a $t_s$ over there is practically 0.
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+There is also a built-in function in R:
+```{r}
+power.t.test(n=5, delta=2, sd=1, sig.level=0.05, 
+             type="one.sample", alternative="two.sided")
+```
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+::: {.block}
+### Conclusion:
+\vspace{-2mm}
+If UCSD students' sleep truly follows a $N(\mu=4, \sigma^2=1)$ distribution, then our statistical
+power to detect $H_A\colon \mu \neq 6$ with a sample size of n=5 is approximately `r round(pt(-2.776445, df=4, ncp=-(2*sqrt(5))), 4)`.
+:::
+
+Lingering questions:
+
+ - What if $H_A$ is true, but not with exactly $X_i \sim N(\mu=4, \sigma^2=1)$?
+ - Is there a better way that we can accomplish what was done on the previous slides?
+ 
+Let's answer the 2nd one first, then swing back to the 1st one.
+
+## Statistical Power {.t}
+Everything we just did is fine, but: 
+
+ - it can be a bit conceptually difficult to understand
+
+\vspace{2mm}
+
+ - it involves a lot of memorization or looking stuff up in order to do it
+ 
+\vspace{2mm}
+
+ - it doesn't readily transfer to other situations; if you are doing a different statistical test (such as something in a regression setting), you have to learn/look up basically an entirely new procedure and/or find the right function for that situation (and hope that you use it correctly)
+
+\vspace{2mm}
+
+ - it relied on the distribution of sleep following a normal distribution!  
+ 
+So what might we do instead?
+
+## Statistical Power {.t}
+\framesubtitle{Simulation to estimate statistical power}
+
+Another valid way to estimate statistical power is to do it via simulation. The advantages are:
+
+ - We are already good at simulation in general, so it is conceptually easier to understand any simulation procedure than it is to understand e.g. what a non-central t-Distribution is.
+
+\vspace{4mm}
+
+ - Once you learn how to simulate an estimate of statistical power in one situation, it is easier to transfer that knowledge to any other situation than it is to learn the appropriate theory-based procedure for that situation.
+
+\vspace{4mm}
+
+ - If we simulate, we are not limited to $H_A$ that assume the data follow the normal distribution; we can consider practically any distribution whatsoever.
+ 
+## Statistical Power {.t}
+\framesubtitle{Simulation to estimate statistical power}
+So then how do we do it?
+
+ - Simulate samples of size 5 under the $N(\mu=4, \sigma^2=1)$ distribution
+
+\vspace{4mm}
+
+ - Do a t-test with $H_0\colon \mu=6$ for those simulated data, get the p-value
+
+\vspace{4mm}
+
+ - Determine whether the p-value for $t_s$ is less than 0.05
+
+\vspace{4mm}
+
+ - Repeat many times, count the proportion of times that $t_s$ does give a p-value that is less than 0.05
+
+
+## Your Turn \#1 {.t}
+\label{power1}
+Let's do it together. Open up an R Markdown file for today's Daily Check and start putting in this skeleton code:
+```{r, eval=FALSE}
+count <- 0
+reps <- 10000
+
+for(i in 1:reps){
+  sleep <- ...
+
+  pval <- ...
+  if(pval < 0.05){
+    count <- count + 1
+  }
+}
+```
+
+<!-- ## Statistical Power {.t} -->
+<!-- ```{r} -->
+<!-- count <- 0 -->
+<!-- reps <- 10000 -->
+
+<!-- for(i in 1:reps){ -->
+<!--   sleep <- rnorm(n=5, mean=4, sd=1) -->
+<!--   ts <- (mean(sleep) - 6) / (sd(sleep) / sqrt(5)) -->
+
+<!--   pval <- t.test(sleep, mu=6)$p.value -->
+<!--   if(pval < 0.05){ -->
+<!--     count <- count + 1 -->
+<!--   } -->
+<!-- } -->
+
+<!-- count / reps -->
+<!-- ``` -->
+
+
+
+## Your Turn \#1 {.t}
+```{r, echo=FALSE, cache=TRUE}
+count <- 0
+reps <- 10000
+
+for(i in 1:reps){
+  sleep <- rnorm(n=5, mean=4, sd=1)
+
+  pval <- t.test(sleep, mu=6)$p.value
+  if(pval < 0.05){
+    count <- count + 1
+  }
+}
+```
+
+If done correctly, we should get something close to:
+```{r}
+count / reps
+```
+
+
+## Statistical Power {.t}
+\framesubtitle{Example: UCSD students' sleep again}
+
+::: {.block}
+### Conclusion:
+\vspace{-2mm}
+If UCSD students' sleep truly follows a $N(\mu=4, \sigma^2=1)$ distribution, then our statistical
+power to detect $H_A\colon \mu \neq 6$ with a sample size of n=5 is approximately `r round(pt(-2.776445, df=4, ncp=-(2*sqrt(5))), 4)` from the theory-based approach, and `r count / reps` from the simulation approach.
+:::
+
+Lingering questions:
+
+ - What if $H_A$ is true, but not with exactly $X_i \sim N(\mu=4, \sigma^2=1)$?
+ - Is there a better way that we can accomplish what was done on the previous slides?
+ 
+Now, back to the first question here.
+
+## Power Curves {.t}
+\label{curves}
+Since we don't ever have full confidence in \textit{one single} effect size / variance combination, practitioners
+typically report power calculations over a wide range of possibilities, presented as \underline{power curves}.
+
+\vspace{-2mm}
+
+```{r, echo=FALSE, out.width="85%", fig.align='center'}
+delta <- c(0.5, 1, 2)
+n <- seq(5, 50, by=5)
+powers <- matrix(NA, nrow=length(delta), ncol=length(n))
+
+for(i in 1:length(delta)){
+  for(j in 1:length(n)){
+    powers[i, j] <- power.t.test(n=n[j], delta=delta[i], sd=1, sig.level=0.05, type="one.sample", alternative="two.sided")$power
+  }
+}
+
+plot(powers[1,] ~ n, pch=19, ylim=c(0,1), ylab="power", main=expression(paste("Power Curves with ", 
+                                                                              sigma, "=1, ", H[0], ": ", mu, "=6")), 
+     cex.main=2, cex.lab=2, cex.axis=2, cex=2)
+lines(powers[1,] ~ n)
+points(powers[2,] ~ n, pch=15, cex=2)
+lines(powers[2,] ~ n)
+points(powers[3,] ~ n, pch=17, cex=2)
+lines(powers[3,] ~ n)
+legend("right", pch=c(17, 15, 19), legend=c(expression(paste(mu, "=4")), 
+                                            expression(paste(mu, "=5")), 
+                                            expression(paste(mu, "=5.5"))), cex=2)
+```
+
+## Power Curves {.t}
+What do we observe in the power curves shown on the previous slide?
+
+https://pollev.com/chi
+
+\pause
+
+\vspace{4mm}
+
+::: {.block}
+### Now, how do we make them? 
+\vspace{-2mm}
+You will do / are doing more of it in Lab 2, but for now, we will give you the foundations of how to do it.
+:::
+
+First, recall the code that we just wrote in the Your Turn on Slide \ref{power1}. 
+
+ - That was hardcoded for one specific sample size, effect size, and variance. 
+ - Now, we will want to write a function that can take any combination of inputs for these
+ - It should also allow the user to specify the number of `reps`
+ - For now, we will not change the fact that it simulates from a normal distribution, nor the $\alpha=0.05$ significance level
+
+
+## Your Turn \#2 {.t}
+\label{power2}
+```{r, echo=FALSE}
+sim_power_t <- function(n, delta, sd, reps=10000){
+  count <- 0
+  
+  for(i in 1:reps){
+    sleep <- rnorm(n=n, mean=delta, sd=sd)
+
+    pval <- t.test(sleep)$p.value
+    if(pval < 0.05){
+      count <- count + 1
+    }
+  }
+  return(count / reps)
+}
+
+```
+
+Fill in the required code below:
+```{r, eval=FALSE}
+sim_power_t <- function(n, delta, sd, reps=10000){
+  count <- 0
+
+  ...
+  
+  
+  return(count / reps)
+}
+
+```
+
+
+## Your Turn \#2 {.t}
+If written correctly, running the function should give something close to these outputs:
+
+```{r, cache=TRUE}
+sim_power_t(n=5, delta=2, sd=1)
+sim_power_t(n=10, delta=1, sd=1)
+```
+
+\vspace{5mm}
+### Summary of today's Daily Check
+\vspace{-2mm}
+ - Your Turn \#1 from Slide \ref{power1}
+ - Your Turn \#2 from Slide \ref{power2}
+ 
+Upload your pdf output file to Gradescope by midnight tonight. 
+
+## Recap and Looking Ahead {.t}
+
+::: {.t}
+### Recap
+\vspace{-2mm}
+ - Statistical power is the probability of correctly rejecting $H_0$. We want it to be high! (80\% is a standard
+ rule of thumb).
+ 
+\vspace{1mm}
+ - We learned how to do simulation to estimate statistical power
+
+\vspace{1mm}
+
+ - It depends on a variety of inputs that are not always obvious as to what they should be (see Slides \ref{powerbegin} to \ref{powerend}).
+:::
+
+\vspace{3mm}
+
+### Looking Ahead
+\vspace{-2mm}
+ - In Lab 2, you will use the function you just wrote to reconstruct the power curves shown in Slide \ref{curves}
+
+\vspace{1mm}
+
+ - Question: if power always increases with sample size, then will there always be a sample size at which we would detect even a negligible difference -- that is, a difference that is so small that we wouldn't actually care about it even if it is real?

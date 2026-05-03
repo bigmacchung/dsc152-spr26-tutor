@@ -1,0 +1,160 @@
+<div class="phase-content" id="phase-9">
+
+<!-- ==================== LEVEL 44 ==================== -->
+<div class="level-card" id="level-44">
+<div class="level-header" onclick="toggleLevel(44)">
+  <span class="level-title"><span class="num">Level 44</span> — Midterm Big-Picture Cheat Sheet</span>
+  <span class="level-xp">+80 XP</span>
+</div>
+<div class="level-body" id="level-body-44">
+
+<div class="box box-story">
+  <div class="box-label">The Whole Course in One Picture</div>
+  <p>The midterm spans <strong>Lec 1–10</strong>. The good news: it's all the same workflow, applied to slightly more complex models. <em>Question → null → test stat → distribution → p-value → conclusion (with conditions noted).</em> What changes lecture-by-lecture is which test fits which kind of question.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Decision Flowchart — Which Test, When?</div>
+  <table class="cmp-table">
+    <tr><th>What do you have?</th><th>What do you want to test?</th><th>Use this</th></tr>
+    <tr><td>1 quantitative outcome, 1 group, known μ₀</td><td>μ = μ₀?</td><td><strong>1-sample t-test</strong> (Lec 2) — <code>t.test(x, mu=μ₀)</code></td></tr>
+    <tr><td>1 quantitative outcome, conditions for t broken (skew/small n)</td><td>median = m₀?</td><td><strong>Sign test</strong> (Lec 3) — <code>pbinom(k, n, 0.5)</code></td></tr>
+    <tr><td>1 quantitative outcome, want a CI without normality</td><td>CI for μ</td><td><strong>Bootstrap CI</strong> (Lec 3) — <code>sample(x, replace=TRUE)</code></td></tr>
+    <tr><td>1 quantitative outcome, 2 independent groups</td><td>μ₁ = μ₂?</td><td><strong>2-sample t-test</strong> (Lec 6) — <code>t.test(y ~ group, data=df)</code></td></tr>
+    <tr><td>2 groups, conditions for t broken</td><td>same distribution?</td><td><strong>Permutation test</strong> (Lec 6) — shuffle labels, accumulate</td></tr>
+    <tr><td>1 quantitative outcome, 1 quantitative predictor</td><td>β₁ = 0?</td><td><strong>SLR + slope t-test</strong> (Lec 7) — <code>lm(y ~ x)</code></td></tr>
+    <tr><td>1 outcome, multiple predictors</td><td>βⱼ = 0 for ONE predictor</td><td><strong>MLR + single-row t-test</strong> (Lec 8) — <code>summary(lm)$coefficients[j,4]</code></td></tr>
+    <tr><td>Categorical predictor with k>2 levels</td><td>"any group differs?"</td><td><strong>Partial F-test</strong> (Lec 9) — <code>anova(null_model, full_model)</code></td></tr>
+    <tr><td>Categorical predictor, ANY level differs from reference</td><td>each level vs reference</td><td>Per-row t-tests in <code>summary(lm)</code>; refit with <code>relevel</code> to switch reference</td></tr>
+    <tr><td>Any regression result you care about</td><td>are conditions OK?</td><td><strong>Diagnostic plots</strong> (Lec 10) — residuals vs fitted, QQ plot, residuals vs order; <code>shapiro.test</code></td></tr>
+  </table>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">All the Test Statistics in One Place</div>
+  <table class="cmp-table">
+    <tr><th>Test</th><th>Statistic</th><th>Null distribution</th></tr>
+    <tr><td>1-sample t</td><td>\((\bar x - \mu_0)/(s/\sqrt n)\)</td><td>\(t_{n-1}\)</td></tr>
+    <tr><td>2-sample t (Welch)</td><td>\((\bar x_1 - \bar x_2)/\sqrt{s_1^2/n_1 + s_2^2/n_2}\)</td><td>\(t\) with Welch-corrected df</td></tr>
+    <tr><td>Slope (SLR/MLR)</td><td>\(\hat\beta_j / SE(\hat\beta_j)\)</td><td>\(t_{n-k}\)</td></tr>
+    <tr><td>Sign test</td><td>\(k\) = # values above \(m_0\)</td><td>\(\text{Binomial}(n, 0.5)\)</td></tr>
+    <tr><td>Permutation</td><td>chosen statistic (e.g. \(|\bar x_1 - \bar x_2|\))</td><td>built by shuffling labels</td></tr>
+    <tr><td>Partial F</td><td>\(\dfrac{(RSS_{\text{null}}-RSS_{\text{full}})/p}{RSS_{\text{full}}/(n-k)}\)</td><td>\(F_{p,\,n-k}\)</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Master R Cheat Sheet — every function the midterm could ask</div>
+<pre class="r-code"><span class="cm">## Distributions</span>
+<span class="fn">rbinom</span>(n, size, prob)        <span class="cm"># sample binomials</span>
+<span class="fn">dbinom</span>(x, size, prob)        <span class="cm"># P(X=x) exactly</span>
+<span class="fn">pbinom</span>(q, size, prob)        <span class="cm"># P(X ≤ q) cumulative</span>
+<span class="fn">rnorm</span>(n, mean, sd)
+<span class="fn">runif</span>(n, min, max)
+<span class="fn">rgamma</span>(n, shape, scale)
+<span class="fn">qt</span>(p, df, ncp=<span class="nb">0</span>)              <span class="cm"># t-quantile (e.g. critical value)</span>
+<span class="fn">pt</span>(q, df, ncp=<span class="nb">0</span>)              <span class="cm"># P(T ≤ q); ncp for power</span>
+<span class="fn">df</span>(x, df1, df2)               <span class="cm"># F-density (rare)</span>
+
+<span class="cm">## Tests</span>
+<span class="fn">t.test</span>(x, mu=<span class="nb">0</span>)                          <span class="cm"># 1-sample</span>
+<span class="fn">t.test</span>(y ~ group, data=df, var.equal=<span class="kw">FALSE</span>) <span class="cm"># Welch 2-sample</span>
+<span class="fn">power.t.test</span>(n, delta, sd, sig.level=<span class="nb">.05</span>, type=<span class="st">"one.sample"</span>)
+<span class="fn">shapiro.test</span>(model$residuals)
+<span class="fn">anova</span>(null_model, full_model)              <span class="cm"># partial F</span>
+
+<span class="cm">## Regression</span>
+model &lt;- <span class="fn">lm</span>(y ~ x, data=df)             <span class="cm"># SLR</span>
+model &lt;- <span class="fn">lm</span>(y ~ x1 + x2 + x3, data=df)  <span class="cm"># MLR</span>
+<span class="fn">summary</span>(model)                            <span class="cm"># overview</span>
+<span class="fn">summary</span>(model)$coefficients              <span class="cm"># coef matrix</span>
+<span class="fn">confint</span>(model, <span class="st">"x"</span>)                       <span class="cm"># 95% CI</span>
+model$residuals; model$fitted.values
+
+<span class="cm">## Bootstrap (with replacement)</span>
+boot &lt;- <span class="fn">numeric</span>(<span class="nb">1000</span>)
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">1000</span>) boot[i] &lt;- <span class="fn">mean</span>(<span class="fn">sample</span>(x, <span class="fn">length</span>(x), replace=<span class="kw">TRUE</span>))
+<span class="fn">quantile</span>(boot, <span class="fn">c</span>(<span class="nb">.025</span>, <span class="nb">.975</span>))
+
+<span class="cm">## Permutation (without replacement)</span>
+perm &lt;- <span class="fn">numeric</span>(<span class="nb">1000</span>)
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">1000</span>) {
+  shuffled &lt;- df; shuffled$group &lt;- <span class="fn">sample</span>(df$group)
+  perm[i] &lt;- diff_means(shuffled)
+}
+<span class="fn">mean</span>(<span class="fn">abs</span>(perm) &gt;= <span class="fn">abs</span>(obs_stat))
+
+<span class="cm">## Sim power (one-sample example; adapt for slope or 2-sample)</span>
+sim_power &lt;- <span class="kw">function</span>(n, mu_a, sigma, mu_0=<span class="nb">0</span>, reps=<span class="nb">1000</span>) {
+  rej &lt;- <span class="fn">numeric</span>(reps)
+  <span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:reps) {
+    x &lt;- <span class="fn">rnorm</span>(n, mu_a, sigma)
+    rej[i] &lt;- <span class="fn">t.test</span>(x, mu=mu_0)$p.value &lt; <span class="nb">0.05</span>
+  }
+  <span class="fn">mean</span>(rej)
+}
+</pre>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Top 8 Midterm Conceptual Traps</div>
+  <ol>
+    <li><strong>"Statistically significant" ≠ "practically important."</strong> (Lec 5: bacon, poker, big data)</li>
+    <li><strong>"Failure to reject" ≠ "H₀ is true."</strong> Maybe you just had low power.</li>
+    <li><strong>Bootstrap (replace=TRUE) vs Permutation (replace=FALSE).</strong> Used for different questions.</li>
+    <li><strong>Adjustment ≠ causation.</strong> Only random assignment licenses causal language.</li>
+    <li><strong>Per-row t in MLR vs partial F.</strong> Different nulls. Different uses.</li>
+    <li><strong>"Validity" = correct Type I error rate.</strong> Conditions guarantee validity, not "the test is right."</li>
+    <li><strong>1:N in R = both endpoints.</strong> Different from Python's <code>range(1, N)</code>.</li>
+    <li><strong>Pretty p-values from broken diagnostics are fiction.</strong> Always check LINE before trusting your inference.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(44)">Mark Level 44 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 45 — MIDTERM EVE ==================== -->
+<div class="level-card" id="level-45">
+<div class="level-header" onclick="toggleLevel(45)">
+  <span class="level-title"><span class="num">Level 45</span> — Midterm Eve Drill 🌙</span>
+  <span class="level-xp">+100 XP</span>
+</div>
+<div class="level-body" id="level-body-45">
+
+<div class="box box-story">
+  <div class="box-label">Tonight Only</div>
+  <p>It's the night before the midterm. You don't need to relearn anything — you need to <strong>articulate</strong> the things you already half-know. Below are 12 questions; if you can answer all 12 out loud, in plain English, in under 2 minutes total, you're ready. If you stall on any of them, that's exactly your next 30 minutes of study.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The 12 Questions</div>
+  <ol style="line-height:2;">
+    <li>What's the difference between a parameter and a statistic? Give one example. (Lvl 29)</li>
+    <li>State LINE in plain English, including <em>which violation produces which residual-plot symptom</em>. (Lvl 31, 41)</li>
+    <li>Why is a permutation test using <code>sample(x, replace=TRUE)</code> wrong? (Lvl 27)</li>
+    <li>In one sentence, what's the difference between bootstrap and permutation? (Lvl 27)</li>
+    <li>Confounding: explain the FEV paradox. Why does adjusting for age flip the smoke coefficient? (Lvl 33)</li>
+    <li>Why does the 2-sample t-test (var.equal=TRUE) give the SAME p-value as <code>lm(y ~ binary_group)</code>? (Lvl 35)</li>
+    <li>What does the partial F-test test, and how is it different from per-row t-tests in <code>summary(lm)</code>? (Lvl 38)</li>
+    <li>How would you simulate power for a slope in a regression? Sketch the loop. (Lvl 32)</li>
+    <li>Penguins/Simpson's: a marginal slope is negative; within every species the slope is positive. Why does that happen — and how do you write the model that fixes it? (Lvl 36)</li>
+    <li>You're handed a dataset and a question. Sketch your 7-step workflow from question to written conclusion. (Lvl 43)</li>
+    <li>What is the formula for the F-statistic, in words and symbols? When is it big? (Lvl 38)</li>
+    <li>What's the practical danger of relying on Shapiro-Wilk at large n? (Lvl 42)</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">Tonight's One Rule</div>
+  <p><strong>Do NOT learn anything new tonight.</strong> Re-watch lec 8 if you must. But mostly: re-read the cheat sheet (Lvl 44), close the laptop early, sleep 8 hours, eat breakfast. Tired you is dumber than well-rested you. The marginal value of tonight's last hour of cramming is negative.</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Final Analogy</div>
+  <p>This whole class is one sentence: <em>"Take the random variation in your data seriously, and never claim more than your assumptions allow."</em> Every formula you learned, every diagnostic you ran, every R function you typed — they're all just careful machinery for making honest probabilistic claims. Go be honest tomorrow.</p>
+</div>
+
+<button class="complete-btn" onclick="completeLevel('midterm-eve')">Mark Midterm Eve Complete — Good Luck Maxime!</button>
+</div></div>
+
+</div> <!-- end phase-9 -->

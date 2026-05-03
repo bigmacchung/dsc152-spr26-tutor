@@ -1,0 +1,491 @@
+<div class="phase-content" id="phase-7">
+
+<!-- ==================== LEVEL 33 ==================== -->
+<div class="level-card" id="level-33">
+<div class="level-header" onclick="toggleLevel(33)">
+  <span class="level-title"><span class="num">Level 33</span> — Confounding & The FEV Paradox (the moment your stomach drops)</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-33">
+
+<div class="box box-story">
+  <div class="box-label">Business Story — Boston, 1970s</div>
+  <p>Researchers measured Forced Expiratory Volume (FEV, lung function) in 654 children ages 3–19 at a Boston hospital. Each child was coded as smoker (1) or non-smoker (0). The naive question: <em>does smoking hurt lung function?</em> They run a two-sample t-test on FEV by smoke. The result is shocking: <strong>smokers have HIGHER mean FEV than non-smokers</strong>. Wait — what?</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — the naive (wrong) analysis</div>
+<pre class="r-code">FEV &lt;- <span class="fn">read_delim</span>(<span class="st">"FEV.txt"</span>, delim=<span class="st">"\t"</span>)
+<span class="fn">t.test</span>(fev ~ smoke, data=FEV)
+<span class="cm"># mean in non-smokers ≈ 2.57 L</span>
+<span class="cm"># mean in smokers     ≈ 3.28 L  ← higher!?</span>
+<span class="cm"># p-value &lt; 0.001  → "statistically significant" in the WRONG direction</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The Resolution: Age Is a Lurking Confounder</div>
+  <p>What predicts whether a child smokes? <strong>Age.</strong> A 4-year-old does not smoke; a 17-year-old might. What also predicts FEV? <strong>Age</strong> — older kids have bigger lungs. So "smokers" in this dataset are systematically older, and older kids have bigger lungs <em>regardless of smoking</em>. Age is a <em>confounder</em>: a third variable that influences both the predictor (smoke) and the outcome (FEV).</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Ice Cream and Drowning</div>
+  <p>"Ice cream sales" and "drowning deaths" are highly correlated across months. Does ice cream cause drowning? No — both are driven by <em>summer</em>. Smoking and FEV are correlated across kids — but both are driven by <em>age</em>. The fix is the same: hold the lurker constant.</p>
+</div>
+
+<!-- ============== INTERACTIVE: CONFOUNDING / SIMPSON'S ============== -->
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">🎮 Interactive — See the Confounder Reveal</div>
+  <p>The scatterplot below shows a synthetic FEV-style dataset (260 kids, ages 3–18). Toggle "Color by Age" to see the confounder pop out. Toggle "Show Naive Line" (smoke as binary x) vs "Show Adjusted Line" (within each age band) to watch the smoke effect FLIP from positive to negative.</p>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;">
+    <label style="color:#94a3b8; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="conf-color" onchange="confUpdate()"> Color by Age</label>
+    <label style="color:#94a3b8; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="conf-naive" checked onchange="confUpdate()"> Show Naive Line (smoke only)</label>
+    <label style="color:#94a3b8; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="conf-adj" onchange="confUpdate()"> Show Within-Age Lines</label>
+  </div>
+
+  <svg id="conf-svg" viewBox="0 0 600 320" style="width:100%; height:auto; background:#080b12; border-radius:6px;">
+    <line x1="50" y1="280" x2="580" y2="280" stroke="#475569"/>
+    <line x1="50" y1="20" x2="50" y2="280" stroke="#475569"/>
+    <text x="50" y="298" fill="#94a3b8" font-size="11">3</text>
+    <text x="315" y="298" fill="#94a3b8" font-size="11">10</text>
+    <text x="572" y="298" fill="#94a3b8" font-size="11">18</text>
+    <text x="315" y="312" fill="#94a3b8" font-size="11" text-anchor="middle">age (years)</text>
+    <text x="14" y="150" fill="#94a3b8" font-size="11" transform="rotate(-90 14 150)">FEV (L)</text>
+    <g id="conf-points"></g>
+    <g id="conf-lines"></g>
+  </svg>
+
+  <div id="conf-stats" style="font-family:'SF Mono',monospace; font-size:0.88rem; padding:10px; background:#080b12; border-radius:6px; color:#22d3ee; margin-top:10px; line-height:1.7;">
+    Naive smoke effect (no adjustment): + (smokers appear better) ·
+    Age-adjusted smoke effect: − (smokers actually worse)
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — the FIX: adjust for age</div>
+<pre class="r-code">model2 &lt;- <span class="fn">lm</span>(fev ~ smoke + age, data=FEV)
+<span class="fn">library</span>(knitr)
+<span class="fn">kable</span>(<span class="fn">summary</span>(model2)$coefficients)
+
+<span class="cm"># Now the smoke coefficient flips:</span>
+<span class="cm">#               Estimate  Std. Error  t value  Pr(&gt;|t|)</span>
+<span class="cm"># (Intercept)    0.367     0.081       4.51    7e-06</span>
+<span class="cm"># smoke         -0.209     0.081      -2.59    0.010</span>
+<span class="cm"># age            0.231     0.008      28.2     &lt;2e-16</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>fev ~ smoke + age</code> — the <code>+</code> means "include both predictors." Each coefficient is now the effect of its variable <em>holding the others constant</em>.</div>
+    <div class="line-exp">The smoke estimate is now <strong>−0.21 L</strong>: smoking is associated with a 0.21-liter <em>decrease</em> in FEV when comparing kids of the same age.</div>
+    <div class="line-exp"><code>kable()</code> from <code>knitr</code> just makes the output table render nicely in your knitted PDF.</div>
+  </div>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">Multiple Linear Regression Model</div>
+  <p>$$\widehat{y} = \hat\beta_0 + \hat\beta_1 x_1 + \hat\beta_2 x_2 + \cdots + \hat\beta_p x_p$$</p>
+  <p>Each \(\hat\beta_j\) = "estimated change in y per +1 unit of \(x_j\), with all other \(x\)'s held constant." That phrase is the entire reason MLR exists. Memorize it.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Adjustment Is Not Causation</div>
+  <p>Even after adjusting for age, this is observational data. We say smoking is <strong>"associated with"</strong> a decrease in FEV, NOT "smoking causes a decrease in FEV." Random assignment (Lec 6) is what licenses causal language; statistical adjustment merely controls for measured confounders — there could be unmeasured ones.</p>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">Looking at the kable output above, which p-value(s) do we actually care about for "is smoking associated with FEV after adjusting for age?"</div>
+  <div class="quiz-opt" data-i="0">All three p-values jointly.</div>
+  <div class="quiz-opt" data-i="1">Only the smoke row's p-value (0.010). The age row's p-value isn't our research question; the intercept's p-value almost never matters.</div>
+  <div class="quiz-opt" data-i="2">Only the F-statistic at the bottom of summary().</div>
+  <div class="quiz-opt" data-i="3">The lowest p-value among them.</div>
+  <div class="quiz-result" data-explain="Decide BEFORE looking at output which coefficient your hypothesis is about, then read THAT row's p-value. Picking the lowest p across rows is data dredging. Including age in the model is for adjustment, not because we are testing a hypothesis about age."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(33)">Mark Level 33 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 34 ==================== -->
+<div class="level-card" id="level-34">
+<div class="level-header" onclick="toggleLevel(34)">
+  <span class="level-title"><span class="num">Level 34</span> — Multiple Linear Regression: interpreting coefficients</span>
+  <span class="level-xp">+50 XP</span>
+</div>
+<div class="level-body" id="level-body-34">
+
+<div class="box box-concept">
+  <div class="box-label">Each Coefficient Is a Conditional Effect</div>
+  <p>In SLR, β̂₁ = "effect of x on y." In MLR, \(\hat\beta_j\) = "effect of \(x_j\) on y, <strong>holding all other predictors fixed</strong>." That conditional/partial nature is the magic — it's how we adjust for confounders.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">Writing a Complete Conclusion (per Lec 8 conventions)</div>
+  <p style="font-size:0.95rem;">"We find statistically significant evidence at the α=0.05 level that smoking status is associated with lung function, while adjusting for age (p=0.010). Specifically, we estimate that smoking is associated with an average decrease in FEV of 0.21 liters when comparing children of the same age, with 95% CI: (−0.37, −0.05)."</p>
+  <ul>
+    <li>"<strong>statistically significant evidence at the α=0.05 level</strong>" — never "proves" or "demonstrates"</li>
+    <li>"<strong>associated with</strong>" — never "causes" without random assignment</li>
+    <li>"<strong>while adjusting for age</strong>" — make explicit what was held constant</li>
+    <li>"<strong>when comparing children of the same age</strong>" — operationalize the conditional</li>
+    <li>Pair the point estimate with a 95% CI (use <code>confint(model)</code>)</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — confidence intervals + clean tables</div>
+<pre class="r-code">model2 &lt;- <span class="fn">lm</span>(fev ~ smoke + age, data=FEV)
+
+<span class="cm"># 95% CI for smoke coefficient</span>
+<span class="fn">confint</span>(model2, <span class="st">"smoke"</span>)
+<span class="cm">#         2.5 %     97.5 %</span>
+<span class="cm"># smoke   -0.367   -0.050</span>
+
+<span class="cm"># Pretty-print the whole coefficient table</span>
+<span class="fn">library</span>(knitr)
+<span class="fn">kable</span>(<span class="fn">summary</span>(model2)$coefficients)
+
+<span class="cm"># Inline R for the conclusion sentence (in your Rmd):</span>
+<span class="cm"># "...decrease of `r abs(round(summary(model2)$coefficients[2,1], 2))` liters..."</span>
+</pre>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Adjusting for a Variable Is Like Splitting the Group</div>
+  <p>Imagine binning children into age groups (3–6, 7–10, 11–14, 15–18) and computing a separate smoke vs. FEV difference within each bin, then averaging those differences. That's morally what <code>lm(fev ~ smoke + age)</code> is doing, just with continuous age and a clever weighting. <em>"Compare apples to apples."</em></p>
+</div>
+
+<div class="quiz-box" data-answer="3">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">In <code>lm(fev ~ smoke + age + height, data=FEV)</code> the age coefficient is 0.05 (down from 0.23 in the smoke+age model). Most likely explanation?</div>
+  <div class="quiz-opt" data-i="0">The age effect disappeared.</div>
+  <div class="quiz-opt" data-i="1">The model is overfit.</div>
+  <div class="quiz-opt" data-i="2">Multicollinearity broke the model.</div>
+  <div class="quiz-opt" data-i="3">Most of "age's effect on FEV" actually flows through height (older kids are taller; taller kids have bigger lungs). Adjusting for height absorbs that channel, so the residual age effect shrinks.</div>
+  <div class="quiz-result" data-explain="This is a classic mediation/over-adjustment story: when two predictors are correlated, the coefficient on each one represents the effect 'orthogonal to' the other. Whether to include height depends on your scientific question."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(34)">Mark Level 34 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 35 ==================== -->
+<div class="level-card" id="level-35">
+<div class="level-header" onclick="toggleLevel(35)">
+  <span class="level-title"><span class="num">Level 35</span> — t-Test = lm with a binary predictor (the unification)</span>
+  <span class="level-xp">+45 XP</span>
+</div>
+<div class="level-body" id="level-body-35">
+
+<div class="box box-story">
+  <div class="box-label">The "Aha" Moment</div>
+  <p>You spent three lectures learning about the t-test. Then you spent two more learning about linear regression. <strong>Surprise: they are the same thing.</strong> A two-sample t-test (with var.equal=TRUE) is mathematically identical to fitting <code>lm(y ~ group)</code> where group is a binary 0/1 variable. The slope is the difference of means. The slope's t-statistic is the t-test statistic. Same p-value.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">Why It Works</div>
+  <p>Code group as \(x \in \{0, 1\}\). Fit \(\hat y = \hat\beta_0 + \hat\beta_1 x\).</p>
+  <ul>
+    <li>When \(x=0\): \(\hat y = \hat\beta_0\) → that's the mean of group 0.</li>
+    <li>When \(x=1\): \(\hat y = \hat\beta_0 + \hat\beta_1\) → that's the mean of group 1.</li>
+    <li>So \(\hat\beta_1\) = (mean of group 1) − (mean of group 0).</li>
+  </ul>
+  <p>Test \(H_0: \beta_1 = 0\) ↔ test \(H_0: \mu_1 = \mu_2\). Same null. Same math.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — Lec 8 demonstrated the equivalence</div>
+<pre class="r-code">model1 &lt;- <span class="fn">lm</span>(fev ~ smoke, data=FEV)
+<span class="fn">summary</span>(model1)$coefficients[<span class="nb">2</span>,<span class="nb">4</span>]
+<span class="cm"># [1] 5.46e-13</span>
+
+<span class="fn">t.test</span>(fev ~ smoke, data=FEV, var.equal=<span class="kw">TRUE</span>)$p.value
+<span class="cm"># [1] 5.46e-13   ← IDENTICAL</span>
+
+<span class="cm"># Welch's (unequal variances) is slightly different — different model</span>
+<span class="fn">t.test</span>(fev ~ smoke, data=FEV)$p.value
+<span class="cm"># [1] ~7e-09</span>
+</pre>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Two Scripts, One Movie</div>
+  <p>The t-test and lm are like watching the same movie with two different captions on. Same scenes happening, same plot — the captions just emphasize different things. The t-test caption says "test of means." The lm caption says "test of a slope." But the math doing the work underneath is one engine.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">Why This Matters</div>
+  <p>Because the t-test is just a special case of lm, the SAME framework handles ALL the harder problems: more than two groups (use a categorical predictor), continuous predictors, multiple predictors, interactions. The t-test was a stepping stone. From here on, it's all lm.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">If t-test ≡ lm, why does Lec 8 show that <code>t.test()</code> and <code>summary(lm)</code> p-values <em>don't quite match</em> in some examples?</div>
+  <div class="quiz-opt" data-i="0">It's a numerical bug in R.</div>
+  <div class="quiz-opt" data-i="1">The t-test uses a different distribution.</div>
+  <div class="quiz-opt" data-i="2">R's default <code>t.test()</code> uses Welch's correction (unequal variances). lm assumes equal variances. Add <code>var.equal=TRUE</code> to t.test and they match exactly.</div>
+  <div class="quiz-opt" data-i="3">Because lm uses different rounding.</div>
+  <div class="quiz-result" data-explain="The Welch correction modifies df and SE to handle unequal variances; lm uses the pooled-variance assumption (same as the 'classical' two-sample t-test). Same model = same p-value. Different assumptions = different p-values."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(35)">Mark Level 35 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 36 ==================== -->
+<div class="level-card" id="level-36">
+<div class="level-header" onclick="toggleLevel(36)">
+  <span class="level-title"><span class="num">Level 36</span> — Penguins & Simpson's Paradox (the sign flips!)</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-36">
+
+<div class="box box-story">
+  <div class="box-label">Business Story — Palmer Station, Antarctica</div>
+  <p>An ecologist measures bill length and bill depth on n=344 penguins. She runs <code>lm(bill_depth_mm ~ bill_length_mm)</code> and gets a NEGATIVE slope: longer bills → shallower depths. Conservation biologists are confused — that contradicts every species' developmental biology. What gives? <strong>Species</strong> is the lurking confounder. Within EACH species (Adelie, Chinstrap, Gentoo), the relationship is positive. Pooled across species, it's negative. <strong>This is Simpson's Paradox.</strong></p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Simpson's Paradox in One Sentence</div>
+  <p><strong>An association can have one direction in the marginal data and the opposite direction within every subgroup of a third variable.</strong> Aggregating across the third variable (species, age, etc.) without controlling for it can flip your conclusion.</p>
+</div>
+
+<!-- ============== INTERACTIVE: SIMPSON'S PARADOX ============== -->
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">🎮 Interactive — Penguin Sign Flip</div>
+  <p>Below: simulated penguin-style data (3 species, n=120). Toggle "Color by Species" to see why the sign flips. Toggle the two regression lines.</p>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;">
+    <label style="color:#94a3b8; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="peng-color" onchange="pengUpdate()"> Color by Species</label>
+    <label style="color:#94a3b8; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="peng-naive" checked onchange="pengUpdate()"> Marginal line (negative)</label>
+    <label style="color:#94a3b8; font-size:0.9rem; cursor:pointer;"><input type="checkbox" id="peng-adj" onchange="pengUpdate()"> Within-species lines (positive)</label>
+  </div>
+
+  <svg id="peng-svg" viewBox="0 0 600 320" style="width:100%; height:auto; background:#080b12; border-radius:6px;">
+    <line x1="50" y1="280" x2="580" y2="280" stroke="#475569"/>
+    <line x1="50" y1="20" x2="50" y2="280" stroke="#475569"/>
+    <text x="315" y="312" fill="#94a3b8" font-size="11" text-anchor="middle">bill length (mm)</text>
+    <text x="14" y="150" fill="#94a3b8" font-size="11" transform="rotate(-90 14 150)">bill depth (mm)</text>
+    <g id="peng-points"></g>
+    <g id="peng-lines"></g>
+  </svg>
+
+  <div id="peng-stats" style="font-family:'SF Mono',monospace; font-size:0.88rem; padding:10px; background:#080b12; border-radius:6px; color:#22d3ee; margin-top:10px; line-height:1.7;">
+    Marginal slope (no species): NEGATIVE (≈ −0.08)<br>
+    Within-species slopes: ALL POSITIVE (≈ +0.18 to +0.25)
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — penguin paradox in 3 lines</div>
+<pre class="r-code"><span class="fn">library</span>(palmerpenguins)
+<span class="fn">summary</span>(<span class="fn">lm</span>(bill_depth_mm ~ bill_length_mm, data=penguins))$coefficients
+<span class="cm">#                  Estimate</span>
+<span class="cm"># bill_length_mm   -0.085   ← NEGATIVE</span>
+
+<span class="fn">summary</span>(<span class="fn">lm</span>(bill_depth_mm ~ bill_length_mm + species, data=penguins))$coefficients
+<span class="cm">#                  Estimate</span>
+<span class="cm"># bill_length_mm    0.200   ← POSITIVE — sign flipped!</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">Adding <code>+ species</code> tells lm to fit separate intercepts per species (since species is a categorical/factor variable). The bill_length slope is then the within-species slope — the apples-to-apples comparison.</div>
+    <div class="line-exp">If you forget to adjust for species, you "see" a negative slope because Gentoo (long bills, shallow) sits in the upper-left and Chinstrap/Adelie (short bills, deep) sit in the lower-right of the cloud.</div>
+  </div>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — UC Berkeley Admissions (1973)</div>
+  <p>Famous case: Berkeley graduate admissions appeared biased against women in aggregate (44% of men admitted, 35% of women). But within almost every department, women had EQUAL or HIGHER admission rates. Why the flip? Women applied disproportionately to highly competitive departments with low admission rates for everyone. <strong>Department was the confounder.</strong> Same shape as the penguin example.</p>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">Which of these is the BEST defense against Simpson's Paradox in your analysis?</div>
+  <div class="quiz-opt" data-i="0">Think hard about which other variables could plausibly affect both X and Y, and adjust for them in your regression.</div>
+  <div class="quiz-opt" data-i="1">Use a larger sample size.</div>
+  <div class="quiz-opt" data-i="2">Use a Bayesian model.</div>
+  <div class="quiz-opt" data-i="3">Always color your scatterplots by every available variable to spot the lurkers.</div>
+  <div class="quiz-result" data-explain="More n doesn't fix confounding (it makes the wrong answer more precise!). Bayesian methods don't fix confounding either. Coloring helps spot it — but you can only color by variables you measured. The fundamental defense is causal/scientific thinking up front: 'what variables could be common causes of X and Y?' Then measure and adjust for them. Random assignment (Lec 6) sidesteps it entirely."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(36)">Mark Level 36 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 37 ==================== -->
+<div class="level-card" id="level-37">
+<div class="level-header" onclick="toggleLevel(37)">
+  <span class="level-title"><span class="num">Level 37</span> — Categorical Predictors with k>2 levels: dummy coding</span>
+  <span class="level-xp">+50 XP</span>
+</div>
+<div class="level-body" id="level-body-37">
+
+<div class="box box-story">
+  <div class="box-label">Business Story — Therapy Dogs Study</div>
+  <p>A mental health study has 3 treatment groups: <em>Control</em> (no dog), <em>Indirect</em> (dog in room, can't pet), <em>Direct</em> (can pet the dog). Outcome: post-pre change in loneliness score (negative = improved). You want to know "do groups differ?" — but Group has 3 levels, not 2. How does <code>lm()</code> handle that?</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Dummy / Indicator Coding</div>
+  <p>R picks one level alphabetically as the <strong>reference</strong> (here: Control). It then creates k−1 binary "dummy" variables for the remaining levels. The model becomes:</p>
+  <p style="text-align:center;">$$\widehat{\text{diff}} = \hat\beta_0 + \hat\beta_1 \cdot \mathbb{1}[\text{Direct}] + \hat\beta_2 \cdot \mathbb{1}[\text{Indirect}]$$</p>
+  <ul>
+    <li>Control: \(\hat\beta_0\) alone</li>
+    <li>Direct: \(\hat\beta_0 + \hat\beta_1\)</li>
+    <li>Indirect: \(\hat\beta_0 + \hat\beta_2\)</li>
+  </ul>
+  <p>So \(\hat\beta_1\) = (mean of Direct) − (mean of Control), and \(\hat\beta_2\) = (mean of Indirect) − (mean of Control). Each coefficient is a <strong>difference from the reference</strong>.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — therapy dogs</div>
+<pre class="r-code">lonely &lt;- <span class="fn">read_csv</span>(<span class="st">"dog_data_lonely.csv"</span>)
+groups_model &lt;- <span class="fn">lm</span>(diff ~ Group, data=lonely)
+<span class="fn">summary</span>(groups_model)
+
+<span class="cm"># Coefficients (note "Group" reference is Control):</span>
+<span class="cm">#                Estimate  Pr(&gt;|t|)</span>
+<span class="cm"># (Intercept)     -0.30     0.39    ← Control mean diff</span>
+<span class="cm"># GroupDirect     -2.85     0.001   ← Direct - Control</span>
+<span class="cm"># GroupIndirect   -1.90     0.02    ← Indirect - Control</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">R automatically created <code>GroupDirect</code> and <code>GroupIndirect</code> as 0/1 dummies. Control is the reference (its dummy = both zeros).</div>
+    <div class="line-exp">The intercept is no longer "y when x=0" in a continuous sense — it's the mean for the reference category.</div>
+    <div class="line-exp">Each row's t-test asks: "Is this group's mean different from the reference's mean?"</div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Per-row p-values do NOT answer "do groups differ?"</div>
+  <p>The two t-tests above answer "is Direct different from Control?" and "is Indirect different from Control?" — separately. They do NOT answer the omnibus question "is there ANY difference among the three groups?" Worse, doing two t-tests inflates Type I error. To test the omnibus null, you need the <strong>partial F-test</strong> in Level 38.</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — The Reference Pole</div>
+  <p>Imagine planting a flag in Control's mean and measuring how far each other group's mean is from that flag. β̂₁ and β̂₂ are those distances. To ask "are any of the flags far from each other?" you need a different question — that's the F-test.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">In the dogs study, the Indirect coefficient is −1.90 with p=0.02 (significant); Direct coefficient is −2.85 with p=0.001 (very significant). Can you conclude "Direct is significantly better than Indirect"?</div>
+  <div class="quiz-opt" data-i="0">Yes — Direct's coefficient is larger in magnitude.</div>
+  <div class="quiz-opt" data-i="1">Yes — Direct has a smaller p-value.</div>
+  <div class="quiz-opt" data-i="2">No — neither shown p-value tests "Direct vs Indirect"; both compare to Control. To test Direct vs Indirect, you'd need to refit with Indirect as the reference (e.g. <code>relevel</code>) or run a contrast.</div>
+  <div class="quiz-opt" data-i="3">Yes — they're both negative.</div>
+  <div class="quiz-result" data-explain="The reference category determines what comparisons each row's p-value answers. To compare Direct vs Indirect, change the reference: lonely$Group <- relevel(factor(lonely$Group), ref='Indirect') and refit."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(37)">Mark Level 37 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 38 ==================== -->
+<div class="level-card" id="level-38">
+<div class="level-header" onclick="toggleLevel(38)">
+  <span class="level-title"><span class="num">Level 38</span> — Partial F-Test: testing groups of coefficients (with RSS waterfall)</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-38">
+
+<div class="box box-concept">
+  <div class="box-label">The Question the Partial F-Test Answers</div>
+  <p>"Does adding this group of predictors significantly improve the model, beyond a smaller model?" For the dogs study, "is there ANY difference among the three groups?" maps to comparing:</p>
+  <ul>
+    <li><strong>null model</strong>: <code>diff ~ 1</code> (intercept only — predicts the overall mean)</li>
+    <li><strong>full model</strong>: <code>diff ~ Group</code> (separate mean per group)</li>
+  </ul>
+  <p>The omnibus null is \(H_0: \beta_1 = \beta_2 = 0\) (both Direct AND Indirect dummies are zero). If we reject, at least one group differs from Control.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">The F-Statistic</div>
+  <p>$$\mathcal{F} = \frac{(RSS_{\text{null}} - RSS_{\text{full}})\,/\,p}{RSS_{\text{full}}\,/\,(n-k)}$$</p>
+  <ul>
+    <li>\(n\) = total sample size</li>
+    <li>\(k\) = number of coefficients in the full model</li>
+    <li>\(p\) = number of EXTRA coefficients in the full model (vs the null) = degrees-of-freedom difference</li>
+    <li>\(RSS_{\text{null}} - RSS_{\text{full}}\) = how much the bigger model explains</li>
+    <li>\(RSS_{\text{full}}/(n-k)\) = leftover noise per residual df</li>
+  </ul>
+  <p>Under H₀, \(\mathcal{F}\) follows an F-distribution with \((p, n-k)\) degrees of freedom. Big F → small p → reject.</p>
+</div>
+
+<!-- ============== INTERACTIVE: F-RATIO WATERFALL ============== -->
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">🎮 Interactive — RSS Waterfall (the F-test, visualized)</div>
+  <p>Drag the slider for "true between-group spread" to see how it drives the F-statistic. When groups have similar means, the full model barely beats the null → small F → big p. As between-group spread grows, the full model wins big → F skyrockets → tiny p.</p>
+
+  <div style="margin:10px 0;">
+    <label style="color:#94a3b8; font-size:0.85rem;">Between-group spread Δ = <span id="fw-delta-val" style="color:#22d3ee;">2.5</span></label>
+    <input type="range" id="fw-delta" min="0" max="6" value="2.5" step="0.1" style="width:100%;" oninput="fwUpdate()">
+  </div>
+
+  <svg id="fw-svg" viewBox="0 0 600 250" style="width:100%; height:auto; background:#080b12; border-radius:6px;">
+    <text x="100" y="20" fill="#94a3b8" font-size="12" text-anchor="middle">RSS_null</text>
+    <text x="300" y="20" fill="#94a3b8" font-size="12" text-anchor="middle">RSS_full</text>
+    <text x="500" y="20" fill="#94a3b8" font-size="12" text-anchor="middle">Reduction (numerator)</text>
+    <rect id="fw-bar-null" x="60" y="40" width="80" height="180" fill="#475569"/>
+    <rect id="fw-bar-full" x="260" y="40" width="80" height="180" fill="#22d3ee"/>
+    <rect id="fw-bar-diff" x="460" y="40" width="80" height="0" fill="#fbbf24"/>
+    <text id="fw-lbl-null" x="100" y="240" fill="#e2e8f0" font-size="11" text-anchor="middle">—</text>
+    <text id="fw-lbl-full" x="300" y="240" fill="#e2e8f0" font-size="11" text-anchor="middle">—</text>
+    <text id="fw-lbl-diff" x="500" y="240" fill="#e2e8f0" font-size="11" text-anchor="middle">—</text>
+  </svg>
+
+  <div id="fw-stats" style="font-family:'SF Mono',monospace; font-size:0.88rem; padding:10px; background:#080b12; border-radius:6px; color:#22d3ee; margin-top:10px; line-height:1.7;">
+    F = — · p = —
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — partial F-test for the therapy dogs</div>
+<pre class="r-code">null_model  &lt;- <span class="fn">lm</span>(diff ~ <span class="nb">1</span>,    data=lonely)
+groups_model &lt;- <span class="fn">lm</span>(diff ~ Group, data=lonely)
+
+<span class="fn">anova</span>(null_model, groups_model)
+<span class="cm"># Analysis of Variance Table</span>
+<span class="cm">#</span>
+<span class="cm"># Model 1: diff ~ 1</span>
+<span class="cm"># Model 2: diff ~ Group</span>
+<span class="cm">#   Res.Df    RSS  Df  Sum of Sq      F    Pr(&gt;F)</span>
+<span class="cm"># 1    283   1234</span>
+<span class="cm"># 2    281   1078   2     156      20.3   2.4e-09  ← omnibus p-value</span>
+
+<span class="cm"># Manually:</span>
+RSS_null &lt;- <span class="fn">sum</span>((lonely$diff - <span class="fn">mean</span>(lonely$diff))^<span class="nb">2</span>)
+RSS_full &lt;- <span class="fn">sum</span>(groups_model$residuals^<span class="nb">2</span>)
+F_stat &lt;- ((RSS_null - RSS_full) / <span class="nb">2</span>) /
+          (RSS_full / (<span class="fn">nrow</span>(lonely) - <span class="nb">3</span>))
+F_stat
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>anova(model_smaller, model_bigger)</code> — order matters! Smaller (nested) first, bigger (full) second.</div>
+    <div class="line-exp">For a 3-group comparison adjusting for nothing: p=2 (two extra dummies), n=284, k=3 (intercept + 2 dummies).</div>
+    <div class="line-exp">Same approach for adjusted models: <code>anova(lm(diff ~ Age_Yrs), lm(diff ~ Group + Age_Yrs))</code> → tests Group while adjusting for Age.</div>
+  </div>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — The Lawyer's Question</div>
+  <p>The partial F-test is the lawyer's question: <em>"Counselor, did your additional witnesses (the Group dummies) <strong>significantly</strong> reduce the unexplained variance compared to no witnesses at all?"</em> The numerator is the explained variance reduction. The denominator is the noise floor (variance left over per residual df). If the reduction is much larger than baseline noise, F is huge and the judge (your α) accepts the witnesses as relevant.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">When to Use F vs t</div>
+  <table class="cmp-table">
+    <tr><th>Question</th><th>Tool</th></tr>
+    <tr><td>"Does coefficient β_j = 0?" (one variable)</td><td>t-test from <code>summary()$coefficients[j,4]</code></td></tr>
+    <tr><td>"Do these k coefficients = 0 jointly?" (a group)</td><td>Partial F via <code>anova(small, big)</code></td></tr>
+    <tr><td>"Does the full model beat the intercept-only model?"</td><td>F-statistic at the bottom of <code>summary(lm)</code></td></tr>
+  </table>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">In the dogs example, the per-row t-tests give p=0.001 (Direct vs Control) and p=0.02 (Indirect vs Control). The partial F-test gives p = 2.4e-09. Why is the F p-value so much smaller than either individual t?</div>
+  <div class="quiz-opt" data-i="0">It's a bug.</div>
+  <div class="quiz-opt" data-i="1">F combines evidence from both extra coefficients into a single test, with df=(2, n−3) instead of (n−3) for each t. The combined evidence against H₀: β₁=β₂=0 is stronger than either alone.</div>
+  <div class="quiz-opt" data-i="2">Because F always uses a one-sided test.</div>
+  <div class="quiz-opt" data-i="3">Because anova() uses a different RSS.</div>
+  <div class="quiz-result" data-explain="When several effects all point in the same direction, the omnibus F-test pools their evidence, often giving a p-value smaller than any individual t. (The reverse is also possible: F can be 'significant' while no individual t is — that's why the F is the omnibus test.)"></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(38)">Mark Level 38 Complete</button>
+</div></div>
+
+</div> <!-- end phase-7 -->

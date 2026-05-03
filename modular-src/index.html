@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSC 152 Companion — Quiz 1 + Quiz 2 + Midterm | Maxime's Guide</title>
+
+<!-- MathJax for LaTeX rendering in formula boxes -->
+<script>
+window.MathJax = {
+  tex: {
+    // INLINE math uses \( ... \) only — single-$ would clash with currency ($3, $0.002) elsewhere
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true
+  },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<!-- ===== STYLESHEETS (load order = cascade order) ===== -->
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/layout.css">
+<link rel="stylesheet" href="styles/boxes.css">
+<link rel="stylesheet" href="styles/code.css">
+<link rel="stylesheet" href="styles/quiz.css">
+<link rel="stylesheet" href="styles/interactive.css">
+<link rel="stylesheet" href="styles/achievements.css">
+</head>
+<body>
+
+<!-- ===== ACHIEVEMENT POPUP + CONFETTI CANVAS ===== -->
+<!-- @include content/achievements-overlay.html -->
+
+<!-- ===== HEADER ===== -->
+<!-- @include content/header.html -->
+
+<!-- ===== PHASE TABS ===== -->
+<!-- @include content/phase-tabs.html -->
+
+<!-- ============================= MAIN CONTENT ============================= -->
+<div class="main">
+
+<!-- @include content/phase-1.html -->
+<!-- @include content/phase-2.html -->
+<!-- @include content/phase-3.html -->
+<!-- @include content/phase-4.html -->
+<!-- @include content/phase-5.html -->
+<!-- @include content/phase-6.html -->
+<!-- @include content/phase-7.html -->
+<!-- @include content/phase-8.html -->
+<!-- @include content/phase-9.html -->
+<!-- @include content/phase-10.html -->
+
+</div> <!-- end main -->
+
+<!-- =================================================================
+     ===== JAVASCRIPT MODULES (load order matters — see README) =====
+     ================================================================= -->
+<script src="scripts/state.js"></script>
+<script src="scripts/navigation.js"></script>
+<script src="scripts/xp.js"></script>
+<script src="scripts/achievements.js"></script>
+<script src="scripts/confetti.js"></script>
+<script src="scripts/quiz.js"></script>
+<script src="scripts/viz/math-helpers.js"></script>
+<script src="scripts/viz/permutation.js"></script>
+<script src="scripts/viz/regression.js"></script>
+<script src="scripts/viz/confounding.js"></script>
+<script src="scripts/viz/penguin.js"></script>
+<script src="scripts/viz/f-waterfall.js"></script>
+<script src="scripts/viz/diagnostics.js"></script>
+<script src="scripts/app.js"></script>
+
+</body>
+</html>

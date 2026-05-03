@@ -1,0 +1,361 @@
+<div class="phase-content" id="phase-10">
+
+<!-- ==================== LEVEL 46 ==================== -->
+<div class="level-card" id="level-46">
+<div class="level-header" onclick="toggleLevel(46)">
+  <span class="level-title"><span class="num">Level 46</span> — Lab 4 Part 1: airquality SLR + LINE diagnostics + Type I simulations</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-46">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>You're handed R's built-in <code>airquality</code> dataset — 153 daily air-quality measurements from the New York metro area, May–September 1973. After dropping rows with missing values you have <strong>n = 111</strong> complete days. Question: <em>does temperature predict ozone concentration?</em> A picture-perfect setup for simple linear regression. But the LINE conditions WILL be violated — and the lab forces you to feel exactly what each violation costs.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — Lab 4 setup</div>
+<pre class="r-code">aq &lt;- <span class="fn">na.omit</span>(airquality)
+<span class="fn">cat</span>(<span class="st">"Rows:"</span>, <span class="fn">nrow</span>(aq), <span class="st">"\n"</span>)   <span class="cm"># 111</span>
+<span class="fn">head</span>(aq)
+
+<span class="cm"># SLR: Ozone on Temp</span>
+model &lt;- <span class="fn">lm</span>(Ozone ~ Temp, data=aq)
+<span class="fn">summary</span>(model)
+<span class="cm"># Coefficients:</span>
+<span class="cm">#               Estimate  Std. Error  t value  Pr(&gt;|t|)</span>
+<span class="cm"># (Intercept)  -147.65    18.76       -7.87    2.76e-12</span>
+<span class="cm"># Temp            2.44     0.24       10.19    &lt;2e-16    ***</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>The 2.44 trap.</strong> What is 2.44? It's \(\hat\beta_1\) — the SAMPLE estimate of the population slope \(\beta_1\). NOT the true slope. NOT a causal effect. Just our best guess from this n=111 sample of summer days.</div>
+    <div class="line-exp">Even with p &lt; 2e-16, you cannot say "\(\beta_1\) is exactly 2.44." You can say "we are confident \(\beta_1\) is not zero." That's it.</div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ The classic Lab 4 LINE multiple-choice trap</div>
+  <p>Lab 4 Q1.4 lists four LINE statements. Three of them are tempting traps. The truths:</p>
+  <ul>
+    <li>✅ With n=111, CLT helps β̂₁ be approximately normal — t-test stays approximately valid even if residuals aren't perfectly normal.</li>
+    <li>✅ E (equal variance) is broken if ozone is more variable on hot days than cool days. (It IS broken in airquality — see fan in residuals-vs-fitted.)</li>
+    <li>❌ If I (independence) fails, the t-test does NOT give correct p-values. Standard errors are biased.</li>
+    <li>❌ L (linearity) does NOT require β₁ ≠ 0. Linearity is about the SHAPE of the relationship, not whether one exists.</li>
+  </ul>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Reading the Two Diagnostic Plots</div>
+  <p>R's <code>plot(model, which=1)</code> is the residuals-vs-fitted plot. <code>plot(model, which=2)</code> is the Normal Q-Q plot. For airquality:</p>
+  <ul>
+    <li><strong>Residuals-vs-fitted:</strong> shows BOTH curvature (L violated — relationship is somewhat nonlinear) AND a clear fan (E violated — bigger residuals at higher fitted ozone). Answer to Lab 4 Q1.5: <code>c(1, 4)</code>.</li>
+    <li><strong>Q-Q plot:</strong> shows departure from the diagonal — N is violated. Q-Q plots specifically diagnose Normality. Answer to Lab 4 Q1.6: <code>c(3)</code>.</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — Type I error simulation harness (Lab 4 Q1.7)</div>
+<pre class="r-code"><span class="cm"># Reusable simulator: takes ANY data generator, counts rejection rate at α=0.05</span>
+sim_typeI &lt;- <span class="kw">function</span>(gen_data, reps, alpha = <span class="nb">0.05</span>, ...) {
+  args &lt;- <span class="fn">list</span>(...)
+  rejections &lt;- <span class="fn">replicate</span>(reps, {
+    dat &lt;- <span class="fn">do.call</span>(gen_data, args)
+    fit &lt;- <span class="fn">lm</span>(dat$y ~ dat$x)
+    p_val &lt;- <span class="fn">summary</span>(fit)$coefficients[<span class="nb">2</span>, <span class="nb">4</span>]
+    p_val &lt; alpha
+  })
+  <span class="fn">mean</span>(rejections)
+}
+
+<span class="cm"># Baseline: all LINE conditions hold (β1 = 0, normal noise)</span>
+gen_baseline &lt;- <span class="kw">function</span>(n, sigma) {
+  x &lt;- <span class="fn">runif</span>(n, <span class="nb">0</span>, <span class="nb">10</span>)
+  y &lt;- <span class="fn">rnorm</span>(n, mean=<span class="nb">0</span>, sd=sigma)   <span class="cm"># slope IS zero</span>
+  <span class="fn">list</span>(x=x, y=y)
+}
+
+typeI_baseline &lt;- <span class="fn">sim_typeI</span>(gen_baseline, reps=<span class="nb">2000</span>, n=<span class="nb">50</span>, sigma=<span class="nb">2</span>)
+<span class="cm"># typeI_baseline ≈ 0.05  ← when conditions hold, test is valid</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>replicate(reps, {...})</code> is R's idiomatic loop for Monte Carlo. It runs the block <code>reps</code> times and returns a vector.</div>
+    <div class="line-exp"><code>do.call(fn, list(...))</code> calls fn with arguments unpacked from a list — lets you forward arbitrary args from outer to inner.</div>
+    <div class="line-exp">Same skeleton recycled for every condition violation: just swap out <code>gen_data</code>.</div>
+  </div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">You replace <code>gen_baseline</code> with a generator that produces heteroskedastic noise (sd grows with x). You run <code>sim_typeI</code> with reps=2000. The rate comes out around 0.12. What does this tell you?</div>
+  <div class="quiz-opt" data-i="0">"H₀ is true 12% of the time."</div>
+  <div class="quiz-opt" data-i="1">"The simulation has a bug — Type I error can never exceed α."</div>
+  <div class="quiz-opt" data-i="2">"Heteroskedasticity has inflated the test's actual Type I rate from the nominal 5% to about 12%. The test is INVALID under this violation — false positives are 2.4× more common than the test claims."</div>
+  <div class="quiz-opt" data-i="3">"With more reps the rate would drop back to 0.05."</div>
+  <div class="quiz-result" data-explain="The whole point of the lab simulation is to MEASURE how broken the test becomes when conditions fail. Inflated Type I means the test rejects H₀ way more often than its α budget allows — every published 'p &lt; 0.05' is now closer to 'p &lt; 0.12' in truth. This is why diagnostic plots aren't a checklist — they're real."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(46)">Mark Level 46 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 47 ==================== -->
+<div class="level-card" id="level-47">
+<div class="level-header" onclick="toggleLevel(47)">
+  <span class="level-title"><span class="num">Level 47</span> — Lab 4 Part 2-3: Confounding in airquality + cost of adjustment</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-47">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>Same dataset, new question: <em>does solar radiation affect ozone?</em> A clean SLR <code>lm(Ozone ~ Solar.R)</code> says yes — solar's coefficient is ~0.13, statistically significant. Smug? Don't be. Add temperature: <code>lm(Ozone ~ Solar.R + Temp)</code> and the solar coefficient SHRINKS. Why? <strong>Hot days are sunny days.</strong> Temperature was confounding the relationship, just like AGE confounded smoke→FEV in Lec 8. The story repeats with different costumes.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — the confounder reveal</div>
+<pre class="r-code"><span class="cm"># Naive: solar alone</span>
+naive &lt;- <span class="fn">lm</span>(Ozone ~ Solar.R, data=aq)
+<span class="fn">summary</span>(naive)$coefficients
+<span class="cm"># Solar.R    0.127    0.030    4.27    p &lt; 0.001  ← apparent positive effect</span>
+
+<span class="cm"># Adjusted: solar AND temp</span>
+adjusted &lt;- <span class="fn">lm</span>(Ozone ~ Solar.R + Temp, data=aq)
+<span class="fn">summary</span>(adjusted)$coefficients
+<span class="cm"># Solar.R    0.052    0.026    1.97    p ≈ 0.05   ← solar effect SHRINKS by ~60%</span>
+<span class="cm"># Temp       2.18     0.23     9.41    p &lt; 0.001  ← temp dominates</span>
+
+<span class="cm"># Confidence interval for the solar coefficient (adjusted)</span>
+<span class="fn">confint</span>(adjusted, <span class="st">"Solar.R"</span>)
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">The naive solar coefficient (0.127) was inflated by ~2.4× because of confounding with temperature.</div>
+    <div class="line-exp">After adjustment, solar's "real" effect (0.052) is barely significant — and the CI brushes zero.</div>
+    <div class="line-exp">This is the SAME shape as the FEV (Lec 8) story. Temp here = age there. <strong>The pattern repeats whenever a third variable predicts both X and Y.</strong></div>
+  </div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Lab 4 Part 3 — Simulation of confounding under known DGP</div>
+  <p>Part 3 builds confounding from scratch: simulate (X, Z, Y) where Z is a confounder. Compare:</p>
+  <ul>
+    <li><code>lm(y ~ x)</code>: BIASED estimate of the X→Y effect (because Z's variance leaks in)</li>
+    <li><code>lm(y ~ x + z)</code>: UNBIASED estimate (we condition on Z)</li>
+  </ul>
+  <p>Under a known DGP you can verify: the bias disappears when you adjust. But you also see the COST: when X and Z are highly correlated, the standard error on β̂_x balloons (variance inflation). Adjustment isn't free.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">The Bias-Variance Tradeoff in Confounder Adjustment</div>
+  <ul>
+    <li><strong>Skip adjustment</strong>: smaller SE, biased point estimate (the apparent solar effect of 0.127)</li>
+    <li><strong>Adjust</strong>: larger SE (especially if X and Z are correlated), unbiased point estimate (0.052)</li>
+    <li><strong>The math</strong>: \(\text{Var}(\hat\beta_x \mid x, z) = \dfrac{\sigma^2}{(1 - r_{xz}^2)\sum(x_i - \bar x)^2}\) — the (1 − r²) is the "variance inflation factor." High correlation between X and Z → small denominator → huge variance.</li>
+  </ul>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Two Witnesses Telling Overlapping Stories</div>
+  <p>Imagine two witnesses describing a crime — both saw partly the same thing. If you ask only one (the naive model), they over-claim because they include shared and unique information mixed together. If you ask both (the adjusted model), each can only contribute their UNIQUE piece, but the more they overlap (high correlation), the less unique signal remains for each — your confidence in either's individual contribution drops. Adjustment makes the answer more honest but less precise when overlap is high.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">Cross-reference: Step 7.5 Simpson's Paradox detector</div>
+  <p>The <code>simpsons_paradox.py</code> helper from the validation pipeline scans for SIGN REVERSALS between aggregate and segmented analyses. The airquality solar-ozone case here is a magnitude-shrinking confounder (effect goes from 0.13 to 0.05) — not a sign flip. Compare to Lec 8 PENGUINS where the slope literally flipped sign — that's the "high severity" Simpson's paradox. The detector's <code>severity</code> field would call airquality "low/medium" (effect modification) and penguins "high" (paradox).</p>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">You adjust for temperature and the solar coefficient drops from 0.127 to 0.052 with p ≈ 0.05. The CI for solar (adjusted) is roughly (0.001, 0.103). What's the most defensible conclusion?</div>
+  <div class="quiz-opt" data-i="0">"After adjusting for temperature, there is weak/marginal evidence that solar radiation is associated with ozone (β̂ = 0.052, p ≈ 0.05, 95% CI: [0.001, 0.103]). The naive analysis substantially overstated solar's effect because temperature confounds the relationship. Even the adjusted CI brushes zero — claims about solar's role should be tentative."</div>
+  <div class="quiz-opt" data-i="1">"Solar has no effect — the naive analysis was wrong."</div>
+  <div class="quiz-opt" data-i="2">"Solar increases ozone by 0.052 ppb per Langley — definitive."</div>
+  <div class="quiz-opt" data-i="3">"Drop solar from the model since p ≥ 0.05."</div>
+  <div class="quiz-result" data-explain="Honest scientific writing: report adjusted estimate + CI + the fact that the naive was inflated. Don't drop variables on the basis of borderline p-values (Lec 8 warning). Don't claim definitiveness from observational data. The CI tells the real story — solar's adjusted effect is plausibly anywhere from nearly-zero to 0.10."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(47)">Mark Level 47 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 48 ==================== -->
+<div class="level-card" id="level-48">
+<div class="level-header" onclick="toggleLevel(48)">
+  <span class="level-title"><span class="num">Level 48</span> — Lab 5 Part 1: iris partial F-test (categorical species, by hand)</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-48">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>Famous Fisher iris dataset: 150 flowers, 50 each of <em>setosa</em>, <em>versicolor</em>, <em>virginica</em>. You want to predict petal length from species AND petal width. Species is categorical with 3 levels. R fits the model. You see TWO species coefficients in <code>summary()</code> output. The instinct is to read those p-values. <strong>That instinct is wrong.</strong> The correct test for "does species matter at all?" is the partial F-test — and Lab 5 makes you compute it BY HAND from RSS values to drive that home.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">The Right Model</div>
+  <p>With <code>setosa</code> as reference (R's default — alphabetical), the model is:</p>
+  <p>\[\text{Petal.Length}_i = \beta_0 + \beta_1 \cdot \text{versicolor}_i + \beta_2 \cdot \text{virginica}_i + \beta_3 \cdot \text{Petal.Width}_i + \epsilon_i\]</p>
+  <p>where <code>versicolor</code> and <code>virginica</code> are 0/1 dummy indicators. <code>setosa</code> is captured by the intercept (both dummies = 0). <strong>Lab 5 Q1.1 answer = 2.</strong></p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The Right Test for "Does Species Matter?"</div>
+  <p>The two species t-tests in <code>summary()</code> answer "is versicolor different from setosa?" and "is virginica different from setosa?" — separately, with no Bonferroni correction. The JOINT question — "does species, taken as a whole, help predict petal length after adjusting for petal width?" — is the partial F-test:</p>
+  <p>\(H_0: \beta_{\text{versicolor}} = \beta_{\text{virginica}} = 0\) (both species dummies are zero)</p>
+  <p>Compare full <code>lm(Petal.Length ~ Species + Petal.Width)</code> vs reduced <code>lm(Petal.Length ~ Petal.Width)</code> via <code>anova()</code>. <strong>Lab 5 Q1.2 answer = 3.</strong></p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — partial F by hand AND via anova()</div>
+<pre class="r-code"><span class="fn">data</span>(iris)
+full    &lt;- <span class="fn">lm</span>(Petal.Length ~ Species + Petal.Width, data=iris)
+reduced &lt;- <span class="fn">lm</span>(Petal.Length ~ Petal.Width,           data=iris)
+
+<span class="cm"># Step 1: RSS for each model</span>
+RSS_full    &lt;- <span class="fn">sum</span>(<span class="fn">residuals</span>(full)^<span class="nb">2</span>)
+RSS_reduced &lt;- <span class="fn">sum</span>(<span class="fn">residuals</span>(reduced)^<span class="nb">2</span>)
+
+<span class="cm"># Step 2: degrees of freedom</span>
+n &lt;- <span class="fn">nrow</span>(iris)             <span class="cm"># 150</span>
+k &lt;- <span class="fn">length</span>(<span class="fn">coef</span>(full))     <span class="cm"># 4 (intercept + 2 dummies + petal.width)</span>
+p &lt;- <span class="fn">length</span>(<span class="fn">coef</span>(full)) - <span class="fn">length</span>(<span class="fn">coef</span>(reduced))  <span class="cm"># 2 (the 2 species dummies)</span>
+
+<span class="cm"># Step 3: F statistic</span>
+F_stat &lt;- ((RSS_reduced - RSS_full) / p) / (RSS_full / (n - k))
+
+<span class="cm"># Step 4: upper-tail p-value from F(p, n-k) distribution</span>
+pval &lt;- <span class="fn">pf</span>(F_stat, df1=p, df2=n - k, lower.tail=<span class="kw">FALSE</span>)
+
+<span class="cm"># Step 5: verify against built-in</span>
+<span class="fn">anova</span>(reduced, full)
+<span class="cm"># Both should match: large F, tiny p — species matters.</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>pf(q, df1, df2, lower.tail=FALSE)</code> — upper-tail F probability. Same family as <code>pt</code>, <code>pbinom</code> from earlier lectures.</div>
+    <div class="line-exp"><code>length(coef(model))</code> — programmatic way to count coefficients (don't hard-code).</div>
+    <div class="line-exp"><code>anova(reduced, full)</code> — pass smaller (nested) model FIRST, full model SECOND. The order matters for sign of degrees of freedom.</div>
+  </div>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Three Parallel Lines</div>
+  <p>Geometrically, the model <code>Petal.Length ~ Species + Petal.Width</code> draws THREE parallel lines (one per species) — same slope on Petal.Width, different intercepts. The vertical separation between the lines IS the species effect. The partial F-test asks "are these three lines really separated, or could that vertical spread be noise?" The huge F → no, the spread is real; species matters even after Petal.Width is controlled for.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Lab 5 Q1.7 trap</div>
+  <p>"F &gt; 1 means significance" is FALSE. Whether F is significant depends on its position in the F(p, n−k) distribution. F &gt; 1 is just "the full model fits better than the reduced" — but you need the p-value to know if it fits "significantly" better. <strong>Q1.7 answer = 2.</strong></p>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz</div>
+  <div class="quiz-q">You fit <code>lm(Petal.Length ~ Species)</code> (no Petal.Width) and the partial F-test (vs intercept-only) gives a HUGE F. You then add Petal.Width and re-run partial F (vs Petal.Width only) — the F is still huge but smaller. What does this mean?</div>
+  <div class="quiz-opt" data-i="0">"Adding Petal.Width broke the model."</div>
+  <div class="quiz-opt" data-i="1">"Some of what species 'explained' on its own was actually mediated by petal width (different species have different typical widths). After adjusting for width, species's INDEPENDENT contribution is smaller but still strongly significant."</div>
+  <div class="quiz-opt" data-i="2">"Petal.Width is a confounder."</div>
+  <div class="quiz-opt" data-i="3">"You should drop Petal.Width since it reduced species's effect."</div>
+  <div class="quiz-opt" data-i="4">"The two F values should be identical."</div>
+  <div class="quiz-result" data-explain="Petal.Width and Species are correlated (different species have characteristic widths). When Width is in the model, Species can only contribute its UNIQUE variance — what species adds beyond what width already explained. F drops but stays huge because species's unique contribution is still substantial."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(48)">Mark Level 48 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 49 ==================== -->
+<div class="level-card" id="level-49">
+<div class="level-header" onclick="toggleLevel(49)">
+  <span class="level-title"><span class="num">Level 49</span> — Lab 5 Part 2 + Master Lab Cheat Sheet</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-49">
+
+<div class="box box-concept">
+  <div class="box-label">LINE in Multiple Regression — same letters, same diagnostics</div>
+  <p>The L·I·N·E conditions transfer from SLR to MLR with no real change. The diagnostic TOOLS are unchanged: residuals-vs-fitted (L + E), Q-Q plot + Shapiro-Wilk (N), residuals-vs-order (I). Only the geometric meaning of "fitted value" changes — it's now a higher-dimensional surface. Everything else is identical.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — Lab 5 Part 2: simulation of L violation cost</div>
+<pre class="r-code"><span class="cm"># Generator: TRUE relationship is quadratic, but we fit a LINE</span>
+gen_quadratic_truth &lt;- <span class="kw">function</span>(n, sigma) {
+  x &lt;- <span class="fn">runif</span>(n, <span class="nb">0</span>, <span class="nb">10</span>)
+  y &lt;- <span class="nb">2</span> + <span class="nb">3</span>*x - <span class="nb">0.3</span>*x^<span class="nb">2</span> + <span class="fn">rnorm</span>(n, <span class="nb">0</span>, sigma)
+  <span class="fn">list</span>(x=x, y=y)
+}
+
+<span class="cm"># Compare: power to detect ANY effect (slope ≠ 0)</span>
+<span class="cm"># vs simulating a true linear effect at the SAME effective effect size</span>
+power_quad &lt;- <span class="fn">sim_typeI</span>(gen_quadratic_truth, reps=<span class="nb">2000</span>, n=<span class="nb">50</span>, sigma=<span class="nb">2</span>)
+<span class="cm"># power_quad &lt; what you'd get from a properly-specified linear model</span>
+<span class="cm"># Lesson: ignoring curvature COSTS you power, even when the test is "valid."</span>
+</pre>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — Lab 5 Part 2: simulation of E violation impact on Type I</div>
+<pre class="r-code"><span class="cm"># Generator: TRUE slope = 0, but residual variance grows with x (heteroskedasticity)</span>
+gen_hetero &lt;- <span class="kw">function</span>(n) {
+  x &lt;- <span class="fn">runif</span>(n, <span class="nb">0</span>, <span class="nb">10</span>)
+  y &lt;- <span class="fn">rnorm</span>(n, <span class="nb">0</span>, sd=<span class="nb">0.5</span> + <span class="nb">0.5</span>*x)   <span class="cm"># sd grows with x</span>
+  <span class="fn">list</span>(x=x, y=y)
+}
+
+typeI_hetero &lt;- <span class="fn">sim_typeI</span>(gen_hetero, reps=<span class="nb">2000</span>, n=<span class="nb">50</span>)
+<span class="cm"># typeI_hetero &gt; 0.05  ← the t-test rejects MORE than 5% of the time when H₀ is true</span>
+<span class="cm"># The advertised α=0.05 is a lie. Real Type I might be 0.08-0.15 depending on severity.</span>
+</pre>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📋 Master Lab Cheat Sheet — Lab 4 + Lab 5 patterns</div>
+  <table class="cmp-table">
+    <tr><th>Pattern</th><th>R Recipe</th><th>Where it appears</th></tr>
+    <tr><td>Read a model summary</td><td><code>summary(model)$coefficients[row, col]</code></td><td>Lab 4 Q1.2, Lab 5 Q1.6</td></tr>
+    <tr><td>Extract one slope estimate / SE / p-value</td><td><code>coefs["Temp", "Estimate"]</code> etc.</td><td>Lab 4 Q1.2</td></tr>
+    <tr><td>Get residuals and fitted values</td><td><code>residuals(model)</code>, <code>fitted(model)</code></td><td>Lab 4 Q1.5-6, Lab 5 Q1.4</td></tr>
+    <tr><td>Diagnostic plots (default 4)</td><td><code>par(mfrow=c(1,2)); plot(model, which=1); plot(model, which=2)</code></td><td>Lab 4 Q1.5-6</td></tr>
+    <tr><td>Type I / power simulation harness</td><td><code>replicate(reps, { ... fit lm ... extract p ... p&lt;α })</code></td><td>Lab 4 Q1.7+, Lab 5 Q2</td></tr>
+    <tr><td>Permutation test for slope</td><td>Shuffle y or x, refit lm, extract slope, accumulate; p = mean(|stat_null| ≥ |stat_obs|)</td><td>Lab 4 Q1.10+</td></tr>
+    <tr><td>Confounder adjustment</td><td><code>lm(y ~ x_of_interest + confounder)</code> → look at x_of_interest coefficient</td><td>Lab 4 Part 2-3</td></tr>
+    <tr><td>Partial F-test (categorical or grouped predictors)</td><td><code>anova(reduced_model, full_model)</code></td><td>Lab 5 Q1.6, Q2.1</td></tr>
+    <tr><td>Manual F-statistic</td><td><code>F = ((RSS_red - RSS_full) / p) / (RSS_full / (n - k))</code></td><td>Lab 5 Q1.5</td></tr>
+    <tr><td>F-distribution p-value (upper tail)</td><td><code>pf(F, df1=p, df2=n-k, lower.tail=FALSE)</code></td><td>Lab 5 Q1.5</td></tr>
+  </table>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Lab Pitfalls — the recurring mistakes graders see</div>
+  <ol>
+    <li>Hard-coding n, k, p instead of computing them programmatically (Lab 5 Q1.5 explicitly tests this — points off if you write n &lt;- 150 instead of n &lt;- nrow(iris)).</li>
+    <li>Reading per-row p-values when the question demands a partial F (Lab 5 Q1.2).</li>
+    <li>Forgetting <code>lower.tail = FALSE</code> when computing F p-values — you'll report 1 - p instead of p.</li>
+    <li>Computing the F-statistic with reduced and full backward (small ÷ big instead of (red - full) ÷ full).</li>
+    <li>Concluding "no effect" when failing to reject — confused with "evidence of no effect." Lec 5 warning.</li>
+    <li>Ignoring diagnostic plots and just reporting p-values — Lec 10 / Lab 5 Part 2 explicitly punish this.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Final Lab Mantra</div>
+  <p>Every lab in this course follows the same loop:</p>
+  <ol>
+    <li>Frame the question (which β are we testing? what's H₀?)</li>
+    <li>Fit the model (<code>lm</code> or <code>t.test</code> — same tilde syntax)</li>
+    <li>Extract the right p-value (single coef or partial F?)</li>
+    <li>Check conditions (<code>plot(model)</code>, simulation if you doubt them)</li>
+    <li>Write a HONEST conclusion (estimate + CI + p-value + adjustment language + observational caveat)</li>
+  </ol>
+  <p>Once you internalize this loop, every lab + every quiz question reduces to "which step is this asking about?"</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Final Lab Quiz</div>
+  <div class="quiz-q">A friend tells you "the lab Type I simulation showed my t-test gives a 12% rejection rate under H₀ — but I should still trust the p &lt; 0.05 result on my real data, because that's what α means." What do you say?</div>
+  <div class="quiz-opt" data-i="0">"You're right, α is what matters."</div>
+  <div class="quiz-opt" data-i="1">"You're right, simulations don't apply to real data."</div>
+  <div class="quiz-opt" data-i="2">"You're confusing nominal α (0.05, what your test ADVERTISES) with actual Type I rate (0.12, what your test ACTUALLY DELIVERS). The simulation showed conditions are violated for THIS kind of data — your real-data p-value of 0.04 is closer to the equivalent of p ≈ 0.10 under proper conditions. The p-value you reported is too small to trust at the α you claimed."</div>
+  <div class="quiz-opt" data-i="3">"Run more simulations."</div>
+  <div class="quiz-result" data-explain="The whole point of the lab simulations: when conditions break, the test's nominal α is a fiction. The diagnostic isn't optional. If diagnostics fail, you either (a) report the result with a flag and a robust check (bootstrap, permutation, robust SE), or (b) switch methods. You don't pretend the broken test still works."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(49)">Mark Level 49 Complete — All Labs Done!</button>
+</div></div>
+
+</div> <!-- end phase-10 -->

@@ -1,0 +1,38 @@
+/* ===== QUIZ ===== */
+/* Quiz boxes, options (correct/wrong/disabled states), result panels, step-reveal buttons */
+
+/* ===== QUIZ ===== */
+.quiz-box {
+  background: #141821; border: 2px solid #334155;
+  border-radius: 10px; padding: 18px; margin: 18px 0;
+}
+.quiz-box .quiz-label { color: #fbbf24; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; }
+.quiz-box .quiz-q { color: #e2e8f0; font-size: 1rem; margin-bottom: 12px; font-weight: 500; }
+.quiz-opt {
+  padding: 10px 16px; margin: 6px 0; background: #1c2030;
+  border: 1px solid #334155; border-radius: 8px; cursor: pointer;
+  color: #e2e8f0; font-size: 0.92rem; transition: all 0.2s;
+}
+.quiz-opt:hover { border-color: #818cf8; background: #1e2540; }
+.quiz-opt.correct { background: #052e16; border-color: #4ade80; color: #4ade80; }
+.quiz-opt.wrong { background: #1f0a0e; border-color: #f87171; color: #f87171; }
+.quiz-opt.disabled { pointer-events: none; opacity: 0.6; }
+.quiz-result {
+  display: none; margin-top: 12px; padding: 12px 16px;
+  border-radius: 8px; font-size: 0.9rem; line-height: 1.5;
+}
+.quiz-result.show { display: block; }
+.quiz-result.pass { background: #052e16; border: 1px solid #4ade80; color: #4ade80; }
+.quiz-result.fail { background: #1f0a0e; border: 1px solid #f87171; color: #f87171; }
+
+/* ===== STEP REVEAL ===== */
+.step-reveal-btn {
+  background: linear-gradient(135deg, #1c2030, #242a3d);
+  border: 1px solid #334155; color: #e2e8f0;
+  padding: 10px 20px; border-radius: 8px; cursor: pointer;
+  font-size: 0.9rem; font-weight: 600; margin: 10px 0;
+  transition: all 0.2s; display: inline-block;
+}
+.step-reveal-btn:hover { border-color: #818cf8; background: #242a3d; }
+.step-hidden { display: none; }
+.step-hidden.show { display: block; }

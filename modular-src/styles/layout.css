@@ -1,0 +1,66 @@
+/* ===== LAYOUT ===== */
+/* Header, phase tabs, main content, level cards */
+
+/* ===== HEADER ===== */
+.header {
+  background: linear-gradient(135deg, #141821 0%, #1c2030 100%);
+  border-bottom: 2px solid #22d3ee33;
+  padding: 20px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.header h1 { font-size: 1.4rem; color: #22d3ee; font-weight: 700; }
+.header .subtitle { color: #94a3b8; font-size: 0.85rem; margin-top: 2px; }
+.xp-bar-container { display: flex; align-items: center; gap: 12px; }
+.xp-display { color: #fbbf24; font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+.streak-display { color: #f87171; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+.level-display { color: #c084fc; font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+.progress-bar-outer {
+  width: 200px; height: 10px; background: #1e293b;
+  border-radius: 5px; overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #818cf8);
+  border-radius: 5px; transition: width 0.5s ease; width: 0%;
+}
+
+/* ===== PHASE TABS ===== */
+.phase-tabs {
+  display: flex; gap: 4px; padding: 12px 24px;
+  background: #0f1219; overflow-x: auto; border-bottom: 1px solid #1e293b;
+}
+.phase-tab {
+  padding: 10px 18px; border-radius: 8px 8px 0 0;
+  background: #141821; color: #94a3b8; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  border: 1px solid #1e293b; border-bottom: none;
+  white-space: nowrap; transition: all 0.2s;
+}
+.phase-tab:hover { background: #1c2030; color: #e2e8f0; }
+.phase-tab.active { background: #1c2030; color: #22d3ee; border-color: #22d3ee44; }
+
+/* ===== MAIN CONTENT ===== */
+.main { max-width: 900px; margin: 0 auto; padding: 24px; }
+.phase-content { display: none; }
+.phase-content.active { display: block; }
+
+/* ===== LEVEL CARDS ===== */
+.level-card {
+  background: #141821; border: 1px solid #1e293b;
+  border-radius: 12px; margin-bottom: 24px; overflow: hidden;
+}
+.level-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #1c2030, #141821);
+  cursor: pointer; display: flex; justify-content: space-between;
+  align-items: center; border-bottom: 1px solid #1e293b;
+}
+.level-header:hover { background: #1c2030; }
+.level-title { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; }
+.level-title .num { color: #22d3ee; }
+.level-xp { color: #fbbf24; font-size: 0.8rem; font-weight: 600; }
+.level-body { padding: 20px; display: none; }
+.level-body.open { display: block; }

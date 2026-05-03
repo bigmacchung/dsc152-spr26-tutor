@@ -1,0 +1,1025 @@
+<div class="phase-content" id="phase-2">
+
+<!-- ==================== LEVEL 9 ==================== -->
+<div class="level-card" id="level-9">
+<div class="level-header" onclick="toggleLevel(9)">
+  <span class="level-title"><span class="num">Level 9</span> - Simulating Type I Error: The Master Pattern</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-9">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>Imagine you are testing 10,000 fire alarms. You KNOW there is no fire (H0 is TRUE). You want to count how many alarms go off anyway (false alarms = Type I Errors). If each alarm is set to alpha = 0.05, you would EXPECT about 500 false alarms out of 10,000 (5%).</p>
+  <p>In statistics, we do the same thing with SIMULATIONS. We generate fake data where we KNOW H0 is true, run a test, and check if it wrongly rejects. Repeat thousands of times and count the false alarm rate.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Concept - The Four-Step Pattern</div>
+  <ol>
+    <li><strong>Generate fake data where H0 IS TRUE</strong> (e.g., rnorm with the claimed mean)</li>
+    <li><strong>Run a t-test on the fake data</strong></li>
+    <li><strong>Check if we wrongly reject</strong> (is p &lt; alpha?)</li>
+    <li><strong>Repeat 10,000 times</strong> and count how often we wrongly rejected</li>
+  </ol>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code - Full Type I Error Simulation</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">42</span>)
+n &lt;- <span class="nb">30</span>                         <span class="cm"># Sample size</span>
+n_sims &lt;- <span class="nb">10000</span>                 <span class="cm"># Number of simulations</span>
+alpha &lt;- <span class="nb">0.05</span>                   <span class="cm"># Significance level</span>
+mu0 &lt;- <span class="nb">6</span>                        <span class="cm"># True mean (H0 IS true)</span>
+rejections &lt;- <span class="nb">0</span>                 <span class="cm"># Counter for false alarms</span>
+
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">10000</span>) {
+  <span class="cm"># Step 1: Generate data where H0 is TRUE</span>
+  fake_data &lt;- <span class="fn">rgamma</span>(n, shape = <span class="nb">2</span>, scale = <span class="nb">3</span>)  <span class="cm"># mean = 2*3 = 6 = mu0</span>
+
+  <span class="cm"># Step 2: Run t-test</span>
+  p_val &lt;- <span class="fn">t.test</span>(fake_data, mu = mu0)$p.value
+
+  <span class="cm"># Step 3: Check if we wrongly reject</span>
+  <span class="kw">if</span> (p_val &lt; alpha) {
+    rejections &lt;- rejections + <span class="nb">1</span>
+  }
+}
+
+<span class="cm"># Step 4: Calculate Type I Error rate</span>
+type1_rate &lt;- rejections / n_sims
+<span class="fn">print</span>(type1_rate)   <span class="cm"># Should be near 0.05 if test works well</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>n &lt;- 30</code> - Each fake dataset will have 30 observations.</div>
+    <div class="line-exp"><code>n_sims &lt;- 10000</code> - We repeat the experiment 10,000 times.</div>
+    <div class="line-exp"><code>mu0 &lt;- 6</code> - The true mean. We generate data with this mean, so H0 is TRUE.</div>
+    <div class="line-exp"><code>rejections &lt;- 0</code> - Start counting false alarms at 0.</div>
+    <div class="line-exp"><code>for (i in 1:10000)</code> - Repeat 10,000 times.</div>
+    <div class="line-exp"><code>rgamma(n, shape=2, scale=3)</code> - Generate 30 numbers from gamma. Mean = 2*3 = 6 = mu0, so H0 IS true.</div>
+    <div class="line-exp"><code>t.test(fake_data, mu=mu0)$p.value</code> - Run t-test and grab the p-value.</div>
+    <div class="line-exp"><code>if (p_val &lt; alpha)</code> - Did we wrongly reject? That is a Type I Error!</div>
+    <div class="line-exp"><code>rejections / n_sims</code> - Proportion of false alarms. With gamma data, this is often ABOVE 0.05.</div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">Warning - Why Gamma Causes Problems</div>
+  <p>With gamma data (right-skewed) and n = 30, the Type I Error rate is often around 0.07-0.08 instead of the desired 0.05. This is because the t-test assumes normality, and with small n and skewed data, that assumption is violated. KEY finding from Lab 2!</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz - Type I Simulation</div>
+  <div class="quiz-q">In a Type I Error simulation, why do we generate data with mean = mu0?</div>
+  <div class="quiz-opt" data-i="0">Because we want to find the power</div>
+  <div class="quiz-opt" data-i="1">Because we want to test if the data is normal</div>
+  <div class="quiz-opt" data-i="2">Because we want H0 to be TRUE, so any rejection is a false alarm</div>
+  <div class="quiz-opt" data-i="3">Because we do not know the true mean</div>
+  <div class="quiz-result" data-explain="The whole point is to see how often the test rejects when H0 IS TRUE. We generate data with mean = mu0, making H0 true. Every rejection is a false alarm."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 10 ==================== -->
+<div class="level-card" id="level-10">
+<div class="level-header" onclick="toggleLevel(10)">
+  <span class="level-title"><span class="num">Level 10</span> - Bootstrap Confidence Intervals</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-10">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>You work at a coffee company. You have ONE bag of 50 beans. You want to estimate the average weight. You cannot order more bags (too expensive). So you scoop out 50 beans, weigh them, put them ALL BACK, shake, scoop 50 again, weigh. Repeat 10,000 times. Some beans get weighed multiple times - that is OK! The spread of your 10,000 averages gives you a confidence interval.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Concept — Bootstrap in Plain English</div>
+  <p>The bootstrap is a way to pretend we have lots of samples when we really only have one. Here is the intuition in three sentences:</p>
+  <ol>
+    <li>In a perfect world we would collect many new samples from the population and watch how much the sample mean bounces around. That tells us the uncertainty.</li>
+    <li>In real life we only have one sample, so we fake it: we treat our sample AS IF it were the population, and draw new "samples" from it <strong>with replacement</strong>.</li>
+    <li>Each fake sample gives a new mean. After 10,000 fake samples we have 10,000 means, and their middle 95% is our 95% confidence interval.</li>
+  </ol>
+  <p><strong>Resampling with replacement</strong> means: pick a value, write it down, put it back, pick again. So the same value can show up multiple times in a single bootstrap sample, and some original values may not show up at all. That's what makes each bootstrap sample slightly different.</p>
+  <p>Three rules of thumb for the bootstrap:</p>
+  <ul>
+    <li>Each bootstrap sample is the SAME SIZE as the original sample (if your data has n=8 values, each resample has 8 values too).</li>
+    <li>You use <code>replace = TRUE</code> in <code>sample()</code>. Without that, you'd just get the original data shuffled, which is useless.</li>
+    <li>The bigger the number of bootstrap replicates B, the smoother your CI. B = 10,000 is a common default.</li>
+  </ul>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Analogy — Xeroxing the Data</div>
+  <p>Imagine your sample is a small stack of index cards. The bootstrap says: grab a card, write down its number, <em>put it back</em>, shuffle, grab again. Repeat n times to build one "photocopy" of your dataset. Now compute the mean of that photocopy. Do this 10,000 times and look at the spread of means.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code - Bootstrap CI</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">42</span>)
+data &lt;- <span class="fn">c</span>(<span class="nb">12.1</span>, <span class="nb">11.8</span>, <span class="nb">13.2</span>, <span class="nb">12.5</span>, <span class="nb">11.9</span>, <span class="nb">12.8</span>, <span class="nb">13.1</span>, <span class="nb">12.3</span>)
+n &lt;- <span class="fn">length</span>(data)
+B &lt;- <span class="nb">10000</span>                    <span class="cm"># Number of bootstrap resamples</span>
+boot_means &lt;- <span class="fn">rep</span>(<span class="nb">0</span>, B)       <span class="cm"># Empty vector to store means</span>
+
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:B) {
+  <span class="cm"># Resample WITH replacement</span>
+  boot_sample &lt;- <span class="fn">sample</span>(data, n, replace = <span class="kw">TRUE</span>)
+  <span class="cm"># Calculate mean of this resample</span>
+  boot_means[i] &lt;- <span class="fn">mean</span>(boot_sample)
+}
+
+<span class="cm"># 95% CI: the middle 95% of bootstrap means</span>
+ci &lt;- <span class="fn">quantile</span>(boot_means, <span class="fn">c</span>(<span class="nb">0.025</span>, <span class="nb">0.975</span>))
+<span class="fn">print</span>(ci)
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>B &lt;- 10000</code> - Do 10,000 bootstrap resamples.</div>
+    <div class="line-exp"><code>boot_means &lt;- rep(0, B)</code> - Create vector of 10,000 zeros to fill.</div>
+    <div class="line-exp"><code>sample(data, n, replace = TRUE)</code> - Pick n values from data WITH replacement.</div>
+    <div class="line-exp"><code>boot_means[i] &lt;- mean(boot_sample)</code> - Store the mean of this resample.</div>
+    <div class="line-exp"><code>quantile(boot_means, c(0.025, 0.975))</code> - The 2.5th and 97.5th percentiles = 95% CI.</div>
+  </div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Using CI for Hypothesis Testing</div>
+  <p>If mu0 is <strong>OUTSIDE</strong> the 95% CI, reject H0. If mu0 is <strong>INSIDE</strong> the CI, fail to reject.</p>
+  <p>Example: CI = [11.9, 12.8]. If H0: mu = 12, since 12 is inside, fail to reject. If H0: mu = 15, since 15 is outside, reject.</p>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz - Bootstrap</div>
+  <div class="quiz-q">In the bootstrap, <code>sample(data, length(data), replace = TRUE)</code> does what?</div>
+  <div class="quiz-opt" data-i="0">Sorts the data</div>
+  <div class="quiz-opt" data-i="1">Creates a new same-size sample by randomly picking with replacement</div>
+  <div class="quiz-opt" data-i="2">Removes duplicates from the data</div>
+  <div class="quiz-opt" data-i="3">Splits the data in half</div>
+  <div class="quiz-result" data-explain="This creates a 'bootstrap sample' - the same size as your data, randomly picked with replacement. Some values may repeat, others may be left out."></div>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz - CI and Hypothesis Test</div>
+  <div class="quiz-q">Your 95% bootstrap CI is [3.2, 5.8]. Can you reject H0: mu = 6 at alpha = 0.05?</div>
+  <div class="quiz-opt" data-i="0">Yes, because 6 is outside the CI</div>
+  <div class="quiz-opt" data-i="1">No, because 6 is outside the CI</div>
+  <div class="quiz-opt" data-i="2">No, because the CI is too narrow</div>
+  <div class="quiz-opt" data-i="3">Cannot tell from a CI</div>
+  <div class="quiz-result" data-explain="Since 6 is OUTSIDE the 95% CI [3.2, 5.8], we reject H0: mu = 6 at alpha = 0.05."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 11 ==================== -->
+<div class="level-card" id="level-11">
+<div class="level-header" onclick="toggleLevel(11)">
+  <span class="level-title"><span class="num">Level 11</span> - The Sign Test: When Data Is Ugly</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-11">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>You are analyzing Yelp restaurant reviews. Scores are heavily skewed - lots of 5-star reviews, some 1-star, few in between. The mean is misleading. The MEDIAN is better. The t-test would be unreliable with this shape. You need a test that works for ANY distribution shape. That is the <strong>sign test</strong>.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Concept - The Sign Test Tests MEDIAN, Not Mean</div>
+  <p>The idea: if the true median is m0, then roughly half the data should be above m0 and half below. If way too many are above (or below), the median is probably not m0. No normality assumption needed!</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code - Sign Test Function</div>
+<pre class="r-code">sign_test &lt;- <span class="kw">function</span>(data, m0) {
+  <span class="cm"># Remove values exactly equal to m0</span>
+  data &lt;- data[data != m0]
+  n &lt;- <span class="fn">length</span>(data)
+
+  <span class="cm"># Count how many are above m0</span>
+  S &lt;- <span class="fn">sum</span>(data &gt; m0)
+
+  <span class="cm"># Two-sided p-value using binomial distribution</span>
+  p_val &lt;- <span class="nb">2</span> * <span class="fn">min</span>(<span class="fn">pbinom</span>(S, n, <span class="nb">0.5</span>), <span class="nb">1</span> - <span class="fn">pbinom</span>(S - <span class="nb">1</span>, n, <span class="nb">0.5</span>))
+  <span class="kw">return</span>(p_val)
+}
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>data[data != m0]</code> - Remove values that equal the claimed median.</div>
+    <div class="line-exp"><code>S &lt;- sum(data &gt; m0)</code> - Count values above m0. <code>data &gt; m0</code> gives TRUE/FALSE, <code>sum()</code> counts TRUEs.</div>
+    <div class="line-exp"><code>pbinom(S, n, 0.5)</code> - Probability of S or fewer successes in n trials with p = 0.5.</div>
+    <div class="line-exp"><code>2 * min(...)</code> - Double the smaller tail probability for a two-sided test.</div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">Warning - Discrete p-values</div>
+  <p>The sign test produces DISCRETE p-values. With n = 7, there are only a few possible p-values. You CANNOT always achieve exactly alpha = 0.05. This is tested in Lab 2!</p>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz - Sign Test</div>
+  <div class="quiz-q">The sign test is better than the t-test when...</div>
+  <div class="quiz-opt" data-i="0">The sample size is very large</div>
+  <div class="quiz-opt" data-i="1">The data is heavily skewed and n is small</div>
+  <div class="quiz-opt" data-i="2">The data is normally distributed</div>
+  <div class="quiz-opt" data-i="3">You want to test the mean</div>
+  <div class="quiz-result" data-explain="The sign test shines when data is non-normal (skewed) and n is small. It tests the MEDIAN and does not assume normality."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 11b (Lecture 3 Replay) ==================== -->
+<div class="level-card" id="level-11b">
+<div class="level-header" onclick="toggleLevel('11b')">
+  <span class="level-title"><span class="num">Level 11b</span> — Lecture 3 Replay: The Sign Test Up Close (and Why Non-Parametric Beats the Gamma)</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-11b">
+
+<div class="box box-story">
+  <div class="box-label">Recap — Where Lecture 3 Picks Up</div>
+  <p>In Lecture 2, we ran a t-test. In the simulation at the end, we saw that the t-test on gamma-distributed data with n = 5 gave a Type I error rate of about <strong>0.11</strong> — way higher than the nominal 0.05. That's because the t-test's validity hinges on the data being close to normal, and the gamma is heavily skewed.</p>
+  <p>Lecture 3 asks: is there a test that <em>doesn't</em> care about the data's distribution? Yes — a <strong>non-parametric</strong> test. "Non-parametric" means: no closed-form null distribution, no normality assumption. The sign test is the one we're going to focus on.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The Key Setup Question (from Poll Everywhere)</div>
+  <p>The professor asked: if H0: μ = 6 is true, what does the data look like? Students' intuition was "every value equals 6" — but that's way stronger than needed. H0 just needs the mean to be 6; individual values can be spread around it.</p>
+  <p>What the sign test latches onto is a different, more robust framing of H0: <strong>half the values are above 6 and half are below 6.</strong> That's a statement about the <em>median</em>, not the mean — which is why the sign test is technically a test of the median (denoted μ̃).</p>
+  <p>A sign test H0: μ̃ = 6 vs. Ha: μ̃ ≠ 6 says: "each observation is independently 50/50 above or below 6." Under H0, the count above ~ Binomial(n, 0.5).</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">Gotcha — Mean ≠ Median (Usually)</div>
+  <p>If the data are <strong>symmetric</strong>, then mean = median, so a sign test for the median is effectively a test for the mean. If the data are <strong>skewed</strong>, mean ≠ median, and the sign test is strictly a test for the median.</p>
+  <p>Always read the question carefully: "test whether the average is..." → t-test or bootstrap. "Test whether the median is..." → sign test. The Quiz 1 language matters.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">The Professor's Sign Test Function (Recreated)</div>
+<pre class="r-code"><span class="cm"># Returns a two-sided sign-test p-value, null hypothesis median = 6</span>
+sign_test &lt;- <span class="kr">function</span>(x) {
+  x &lt;- x[x != <span class="nb">6</span>]                     <span class="cm"># drop ties with null</span>
+  n &lt;- <span class="fn">length</span>(x)
+  x_above &lt;- <span class="fn">sum</span>(x &gt; <span class="nb">6</span>)
+
+  <span class="cm"># two-sided min-tail doubling</span>
+  p_low  &lt;- <span class="fn">pbinom</span>(x_above, size = n, prob = <span class="nb">0.5</span>)
+  p_high &lt;- <span class="fn">pbinom</span>(x_above - <span class="nb">1</span>, size = n, prob = <span class="nb">0.5</span>,
+                    lower.tail = <span class="nb">FALSE</span>)
+  <span class="fn">min</span>(<span class="nb">1</span>, <span class="nb">2</span> * <span class="fn">min</span>(p_low, p_high))
+}
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>Why drop ties?</strong> If a value equals the null median exactly, it's neither above nor below. The lecture advice: drop them. (In the simulation, continuous distributions mean ties have probability 0.)</div>
+    <div class="line-exp"><strong>Why min-tail doubling?</strong> Binomial(n, 0.5) is symmetric, so two-sided p ≈ 2× the smaller tail — but the outer <code>min(1, ...)</code> clips it so the p-value never exceeds 1.</div>
+  </div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Why α = 0.0625 for n = 5 (Not 0.05)</div>
+  <p>With n = 5 and H0: p = 0.5, the most extreme rejection region is {X = 0} ∪ {X = 5} (all above or all below).</p>
+  <p>P(X = 0) = 0.5⁵ = 0.03125. By symmetry, P(X = 5) = 0.03125 too.</p>
+  <p>So the smallest non-empty two-sided rejection region has α = 0.03125 + 0.03125 = <strong>0.0625</strong>.</p>
+  <p>You <em>cannot</em> achieve exactly 0.05 with n = 5. You either use {0, 5} with α = 0.0625, or you use {} (the empty set) with α = 0 (but you'd never reject anything). The lecture convention: use the rejection region closest to 0.05 — here, {0, 5} with α = 0.0625.</p>
+  <p><strong>Coding detail:</strong> The professor added a small ε bump (0.0626) so that when the simulated p-value equals 0.0625 exactly, the comparison <code>p_value &lt; alpha</code> still rejects.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Type I Error Simulation — Sign Test vs. t-test Under Gamma</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">123</span>)
+B &lt;- <span class="nb">10000</span>
+n &lt;- <span class="nb">5</span>
+alpha &lt;- <span class="nb">0.0626</span>      <span class="cm"># 0.0625 + epsilon</span>
+reject &lt;- <span class="fn">logical</span>(B)
+
+<span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:B) {
+  <span class="cm"># Scale 6.757 gives gamma MEDIAN of 6 (not mean!)</span>
+  gam_data &lt;- <span class="fn">rgamma</span>(n, shape = <span class="nb">1.2</span>, scale = <span class="nb">6.757</span>)
+  pval &lt;- sign_test(gam_data)
+  reject[b] &lt;- pval &lt; alpha
+}
+<span class="fn">mean</span>(reject)
+<span class="cm"># ≈ 0.0625 — the sign test controls Type I error perfectly under gamma!</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>Critical subtlety:</strong> When simulating under H0 for a sign test, the null median must equal μ̃₀. For a gamma(shape=1.2, scale=5) the MEAN is 6, but the MEDIAN is different. Scale = 6.757 gives MEDIAN = 6. This is the magic number from the lecture.</div>
+    <div class="line-exp">Contrast: t-test on the same gamma data gave Type I error ≈ 0.11. Sign test gives ≈ 0.0625, which is exactly the nominal level. <strong>This is the headline result of Lecture 3.</strong></div>
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Sign Test Under Uniform and Normal (Sanity Checks)</div>
+<pre class="r-code"><span class="cm"># Uniform(2, 10) — median = 6, same as mean</span>
+unif_data &lt;- <span class="fn">runif</span>(n, min = <span class="nb">2</span>, max = <span class="nb">10</span>)
+
+<span class="cm"># Normal(6, 1) — median = mean = 6</span>
+norm_data &lt;- <span class="fn">rnorm</span>(n, mean = <span class="nb">6</span>, sd = <span class="nb">1</span>)
+</pre>
+  <p>Swap these into the simulation loop; both give Type I error ≈ 0.0625. The sign test is <em>distribution-agnostic</em> — this is the defining property of a non-parametric test.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Bootstrap CI as a Non-Parametric Test for the MEAN</div>
+  <p>The sign test lets you test a median without any distribution assumption. But what if you specifically care about the mean and your data is skewed? Enter the bootstrap.</p>
+  <p>A 95% bootstrap CI for the mean <em>is</em> a (roughly) α = 0.05 two-sided test of H0: μ = μ₀: if μ₀ is outside the CI, reject; otherwise, fail to reject.</p>
+<pre class="r-code">boot_means &lt;- <span class="fn">numeric</span>(<span class="nb">10000</span>)
+<span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:<span class="nb">10000</span>) {
+  resample &lt;- <span class="fn">sample</span>(sleep, size = <span class="fn">length</span>(sleep), replace = <span class="nb">TRUE</span>)
+  boot_means[b] &lt;- <span class="fn">mean</span>(resample)
+}
+ci &lt;- <span class="fn">quantile</span>(boot_means, <span class="fn">c</span>(<span class="nb">0.025</span>, <span class="nb">0.975</span>))
+</pre>
+  <p><strong>Three rules (memorize):</strong> (1) resample WITH replacement, (2) same size as original, (3) take the 2.5th and 97.5th percentiles of the bootstrap <em>means</em>, not the data.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — Why Non-Parametric Works</div>
+  <div class="quiz-q">The t-test's Type I error rate inflates on gamma data. Why does the sign test's Type I error stay near 0.0625 on the same data?</div>
+  <div class="quiz-opt" data-i="0">The sign test has a stronger null hypothesis</div>
+  <div class="quiz-opt" data-i="1">The gamma distribution is secretly normal in disguise</div>
+  <div class="quiz-opt" data-i="2">The sign test's null distribution depends only on Binomial(n, 0.5) — the data distribution is irrelevant</div>
+  <div class="quiz-opt" data-i="3">Because n = 5 is large enough for the CLT</div>
+  <div class="quiz-result" data-explain="Under H0: median = μ̃₀, each observation is 50/50 above or below by definition. Binomial(n, 0.5) doesn't know or care whether the data came from normal, gamma, or Martian distributions. That's the magic of non-parametric tests."></div>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz — Smallest Alpha for n = 5</div>
+  <div class="quiz-q">Why is the smallest achievable alpha for a two-sided sign test with n = 5 equal to 0.0625 and not, say, 0.03?</div>
+  <div class="quiz-opt" data-i="0">Because Binomial(5, 0.5) has mean 2.5</div>
+  <div class="quiz-opt" data-i="1">Because the smallest non-empty two-sided rejection region is {0, 5}, with P = 2 × 0.5⁵ = 0.0625</div>
+  <div class="quiz-opt" data-i="2">Because n = 5 is odd</div>
+  <div class="quiz-opt" data-i="3">Because the professor said so</div>
+  <div class="quiz-result" data-explain="The discrete null puts P(X=0) = P(X=5) = 0.03125. A smaller non-empty region doesn't exist. You either use {0, 5} (α=0.0625) or nothing (α=0). 0.05 is unreachable."></div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — Gamma Scale for Median</div>
+  <div class="quiz-q">The lecture used <code>rgamma(n, shape = 1.2, scale = 6.757)</code> instead of the Lec 2 version <code>rgamma(n, shape = 2, scale = 3)</code>. Why?</div>
+  <div class="quiz-opt" data-i="0">To make the simulation faster</div>
+  <div class="quiz-opt" data-i="1">Random choice — any parameters work</div>
+  <div class="quiz-opt" data-i="2">Because the sign test needs the MEDIAN to equal 6 under H0; for gamma, mean ≠ median, so you can't just pick a gamma with mean 6</div>
+  <div class="quiz-opt" data-i="3">To match the shape parameter to the data</div>
+  <div class="quiz-result" data-explain="Gamma is right-skewed, so its mean > its median. If you want to simulate under H0: median = 6, you need the gamma's median to be 6 — which requires different parameters than making its mean 6. Always match the data-generating parameter to whatever H0 is about."></div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Write Your Own — Sign Test Type I Error Simulation (Generalized)</div>
+  <p>Write a function <code>sign_test_type1(n, B, dist_fn)</code> that estimates the Type I error rate of a two-sided sign test for H0: median = 0, given a data-generating function <code>dist_fn(n)</code> that returns n values whose median is 0. Test it with <code>dist_fn = function(n) rnorm(n)</code> and n = 15.</p>
+  <details><summary>Click for one correct solution</summary>
+<pre class="r-code">sign_test_general &lt;- <span class="kr">function</span>(x, mu0 = <span class="nb">0</span>) {
+  x &lt;- x[x != mu0]
+  n &lt;- <span class="fn">length</span>(x)
+  x_above &lt;- <span class="fn">sum</span>(x &gt; mu0)
+  p_low  &lt;- <span class="fn">pbinom</span>(x_above, size = n, prob = <span class="nb">0.5</span>)
+  p_high &lt;- <span class="fn">pbinom</span>(x_above - <span class="nb">1</span>, size = n, prob = <span class="nb">0.5</span>,
+                    lower.tail = <span class="nb">FALSE</span>)
+  <span class="fn">min</span>(<span class="nb">1</span>, <span class="nb">2</span> * <span class="fn">min</span>(p_low, p_high))
+}
+
+sign_test_type1 &lt;- <span class="kr">function</span>(n, B, dist_fn) {
+  reject &lt;- <span class="fn">logical</span>(B)
+  <span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:B) {
+    samp &lt;- dist_fn(n)
+    reject[b] &lt;- sign_test_general(samp, mu0 = <span class="nb">0</span>) &lt; <span class="nb">0.05</span>
+  }
+  <span class="fn">mean</span>(reject)
+}
+
+<span class="fn">set.seed</span>(<span class="nb">42</span>)
+sign_test_type1(<span class="nb">15</span>, <span class="nb">10000</span>, <span class="kr">function</span>(n) <span class="fn">rnorm</span>(n))
+<span class="cm"># ≈ 0.035 (below nominal 0.05 because the closest achievable alpha for n=15 is about 0.035)</span>
+</pre>
+  <p><strong>Key teaching point:</strong> For n = 15, the achievable alphas jump around 0.05. You may get 0.035 or 0.07 depending on the cutoff. The sign test does not hit 0.05 exactly, but it stays <em>valid</em> (≤ nominal) for any data distribution.</p>
+  </details>
+</div>
+
+<button class="complete-btn" onclick="completeLevel('11b')">Mark Level 11b Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 12 ==================== -->
+<div class="level-card" id="level-12">
+<div class="level-header" onclick="toggleLevel(12)">
+  <span class="level-title"><span class="num">Level 12</span> - Statistical Power: Can You Detect the Signal?</span>
+  <span class="level-xp">+50 XP</span>
+</div>
+<div class="level-body" id="level-body-12">
+
+<div class="box box-story">
+  <div class="box-label">Business Story — The Metal Detector</div>
+  <p>Imagine a metal detector at the beach. Your ability to find treasure depends on:</p>
+  <ul>
+    <li><strong>How big the object is</strong> (big ring vs tiny earring) = effect size (delta)</li>
+    <li><strong>How deep it is buried</strong> (noise) = sigma</li>
+    <li><strong>How sensitive your detector is</strong> = alpha</li>
+    <li><strong>How long you search</strong> = sample size (n)</li>
+  </ul>
+  <p><strong>Power = the probability that your detector finds the treasure, assuming there really IS treasure.</strong></p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Concept — What Power Actually Is</div>
+  <p><strong>Power = P(reject H0 | H0 is false).</strong> In words: if the claim is actually wrong, how often will our test correctly notice?</p>
+  <p>Compare this with Type I Error: <strong>Type I Error = P(reject H0 | H0 is true)</strong>. Same test, different assumption about reality.</p>
+  <ul>
+    <li>Type I Error: we fake data where H0 is TRUE and count false alarms. Want this low.</li>
+    <li>Power: we fake data where H0 is FALSE and count correct detections. Want this high.</li>
+  </ul>
+  <p>Power ranges from 0 to 1. Higher is better. 0.80 is the conventional target.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Concept — Mean, Effect Size, and Power (The Key Quiz 1 Relationship)</div>
+  <p>This is the thing most students get confused about. Keep this picture in your head:</p>
+  <ul>
+    <li><strong>mu0</strong> = the claimed mean (the null value you are testing against).</li>
+    <li><strong>true mean</strong> = the real population mean (what actually generates the data).</li>
+    <li><strong>delta (effect size in raw units)</strong> = the GAP: true mean &minus; mu0.</li>
+  </ul>
+  <p>So if the airport claims mu0 = 20 minutes but the true average is 50, then delta = 50 &minus; 20 = 30. When you simulate power, you generate data with mean = mu0 + delta, which here means mean = 50. You then test that data against mu0 = 20 and see how often you (correctly) reject.</p>
+  <p><strong>The bigger delta is relative to the noise sigma, the easier it is to detect, so power goes up.</strong> This is why power is often summarized through the <em>standardized effect size</em> d = delta / sigma (Cohen's d).</p>
+  <p>Plain English for Quiz 1:</p>
+  <ul>
+    <li>Tiny gap between mu0 and the truth &rarr; hard to detect &rarr; low power.</li>
+    <li>Big gap between mu0 and the truth &rarr; easy to detect &rarr; high power.</li>
+    <li>Noisy data (big sigma) hides the gap &rarr; low power. Tight data (small sigma) exposes the gap &rarr; high power.</li>
+    <li>More data (big n) shrinks the standard error sigma/sqrt(n) &rarr; high power.</li>
+  </ul>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Four Dials That Turn Power Up or Down</div>
+  <ol>
+    <li><strong>n (sample size)</strong> &uarr; &rarr; power &uarr;. More data makes the sampling distribution narrower.</li>
+    <li><strong>delta (true gap from mu0)</strong> &uarr; &rarr; power &uarr;. Bigger effect is easier to catch.</li>
+    <li><strong>sigma (standard deviation of the data)</strong> &darr; &rarr; power &uarr;. Less noise, clearer signal.</li>
+    <li><strong>alpha (significance level)</strong> &uarr; &rarr; power &uarr;, but you also get more false alarms. Usually fixed at 0.05.</li>
+  </ol>
+  <p class="text-yellow"><strong>Quiz 1 intuition check:</strong> Practice Quiz 1 Q2 asks about power when delta = 30 and sigma = 10 — a HUGE gap relative to the noise. No surprise that power is 0.9999.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code — power.t.test (Read It Line by Line)</div>
+<pre class="r-code"><span class="cm"># 1) Compute power given n, delta, sd, alpha</span>
+<span class="fn">power.t.test</span>(n = <span class="nb">30</span>, delta = <span class="nb">2</span>, sd = <span class="nb">5</span>,
+             sig.level = <span class="nb">0.05</span>,
+             type = <span class="st">"one.sample"</span>,
+             alternative = <span class="st">"two.sided"</span>)
+
+<span class="cm"># 2) Solve for the required sample size to hit 80% power</span>
+<span class="fn">power.t.test</span>(power = <span class="nb">0.80</span>, delta = <span class="nb">2</span>, sd = <span class="nb">5</span>,
+             sig.level = <span class="nb">0.05</span>,
+             type = <span class="st">"one.sample"</span>)
+
+<span class="cm"># 3) Practice Quiz 1 Q2: SAN airport, mu0=20, true mean=50, sigma=10, n=10</span>
+<span class="fn">power.t.test</span>(n = <span class="nb">10</span>, delta = <span class="nb">30</span>, sd = <span class="nb">10</span>,
+             sig.level = <span class="nb">0.05</span>,
+             type = <span class="st">"one.sample"</span>,
+             alternative = <span class="st">"two.sided"</span>)
+<span class="cm"># =&gt; power ≈ 0.9999  (gap is 3 standard deviations wide; test almost always rejects)</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>n</code> = sample size.</div>
+    <div class="line-exp"><code>delta</code> = true mean minus mu0 (the GAP you want to detect), in the original units of the data.</div>
+    <div class="line-exp"><code>sd</code> = standard deviation sigma of the data.</div>
+    <div class="line-exp"><code>sig.level</code> = alpha (usually 0.05).</div>
+    <div class="line-exp"><code>type</code> = "one.sample", "two.sample", or "paired".</div>
+    <div class="line-exp"><code>alternative</code> = "two.sided", "greater", or "less".</div>
+    <div class="line-exp"><strong>The magic:</strong> leave out exactly ONE of {n, delta, sd, sig.level, power} and R solves for it. Omit <code>n</code> and pass <code>power = 0.80</code> to get the required sample size.</div>
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code Reading — Three Small Experiments</div>
+<pre class="r-code"><span class="cm"># A) What happens when delta goes from 1 to 3 at fixed n=30, sd=5?</span>
+<span class="fn">power.t.test</span>(n=<span class="nb">30</span>, delta=<span class="nb">1</span>, sd=<span class="nb">5</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$power
+<span class="cm"># ≈ 0.32  (small gap, weak power)</span>
+<span class="fn">power.t.test</span>(n=<span class="nb">30</span>, delta=<span class="nb">3</span>, sd=<span class="nb">5</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$power
+<span class="cm"># ≈ 0.97  (tripling delta &rarr; huge jump in power)</span>
+
+<span class="cm"># B) What happens when sd doubles at fixed n=30, delta=2?</span>
+<span class="fn">power.t.test</span>(n=<span class="nb">30</span>, delta=<span class="nb">2</span>, sd=<span class="nb">5</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$power
+<span class="cm"># ≈ 0.78</span>
+<span class="fn">power.t.test</span>(n=<span class="nb">30</span>, delta=<span class="nb">2</span>, sd=<span class="nb">10</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$power
+<span class="cm"># ≈ 0.29  (more noise &rarr; power drops)</span>
+
+<span class="cm"># C) Solve for n that gives 80% power when delta=2, sd=5</span>
+<span class="fn">power.t.test</span>(power=<span class="nb">0.80</span>, delta=<span class="nb">2</span>, sd=<span class="nb">5</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$n
+<span class="cm"># ≈ 52 (round UP to 52 people)</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">A shows delta's effect: triple the gap, power jumps from weak to nearly certain.</div>
+    <div class="line-exp">B shows sigma's effect: double the noise, power falls. Ratio delta/sd is what matters.</div>
+    <div class="line-exp">C shows solving for n: whenever you see "how many subjects do we need," this is the pattern. Always round n UP.</div>
+  </div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — Power Basics</div>
+  <div class="quiz-q">Which change would INCREASE the power of a test?</div>
+  <div class="quiz-opt" data-i="0">Decrease the sample size</div>
+  <div class="quiz-opt" data-i="1">Decrease alpha</div>
+  <div class="quiz-opt" data-i="2">Increase the sample size</div>
+  <div class="quiz-opt" data-i="3">Increase the standard deviation</div>
+  <div class="quiz-result" data-explain="More data = more power. Decreasing alpha or increasing sd would DECREASE power."></div>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz — Interpret Power in Context</div>
+  <div class="quiz-q">Practice Quiz 1 Q2c gives power ≈ 1.0 when mu0 = 20 and the true mean is 50, sigma = 10, n = 10. What does this mean in plain English?</div>
+  <div class="quiz-opt" data-i="0">The airport's claim is definitely true</div>
+  <div class="quiz-opt" data-i="1">If the true mean is really 50 (not 20), our test will almost always correctly reject H0 with these 10 passengers</div>
+  <div class="quiz-opt" data-i="2">About 100% of passengers wait 50 minutes</div>
+  <div class="quiz-opt" data-i="3">The p-value will be less than 0.01</div>
+  <div class="quiz-result" data-explain="Power = P(reject H0 | H0 false). Power ≈ 1 means: when the truth is mu = 50 and we test against mu0 = 20, we detect it almost every time."></div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — Effect Size and Power</div>
+  <div class="quiz-q">Two studies both have n = 30 and alpha = 0.05. Study A has delta = 1 and sigma = 5. Study B has delta = 5 and sigma = 5. Which will have higher power?</div>
+  <div class="quiz-opt" data-i="0">Study A, because delta is smaller</div>
+  <div class="quiz-opt" data-i="1">They will be equal because n is the same</div>
+  <div class="quiz-opt" data-i="2">Study B, because the gap from mu0 is bigger relative to the noise</div>
+  <div class="quiz-opt" data-i="3">Cannot tell without seeing the data</div>
+  <div class="quiz-result" data-explain="Bigger delta at the same sigma means the true mean is farther from mu0. Easier to detect = higher power."></div>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz — Reading power.t.test Output</div>
+  <div class="quiz-q"><code>power.t.test(power=0.80, delta=3, sd=6, sig.level=0.05, type="one.sample")</code> returns n ≈ 34.05. What do you do with that?</div>
+  <div class="quiz-opt" data-i="0">Round DOWN to 34</div>
+  <div class="quiz-opt" data-i="1">Round UP to 35 — you need at least enough subjects to reach 80% power</div>
+  <div class="quiz-opt" data-i="2">Use 34.05 as-is</div>
+  <div class="quiz-opt" data-i="3">The output is invalid because n must be an integer</div>
+  <div class="quiz-result" data-explain="Always round UP for sample size. 34 would give slightly less than 80% power; 35 gives at least 80%."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 12b (Lecture 4 Replay) ==================== -->
+<div class="level-card" id="level-12b">
+<div class="level-header" onclick="toggleLevel('12b')">
+  <span class="level-title"><span class="num">Level 12b</span> — Lecture 4 Replay: Power Deep Dive (Bert, Ernie, and Why Simulation Wins)</span>
+  <span class="level-xp">+70 XP</span>
+</div>
+<div class="level-body" id="level-body-12b">
+
+<div class="box box-concept">
+  <div class="box-label">Definition — Power, Formally</div>
+  <p><strong>Power = P(reject H0 | Ha is true).</strong> It's the probability your test correctly flags a real effect.</p>
+  <p>Compare to Type I error, which is P(reject H0 | H0 is true). Same verb ("reject H0"), opposite condition. A statistical test is juggling both — it wants to reject when H0 is false (high power) and NOT reject when H0 is true (low Type I error).</p>
+  <p><strong>Rule of thumb from lecture:</strong> 80% power is the industry-standard target. Higher is better. Below 50% power, your study is flipping a coin to detect a real effect.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The Four Dials (Memorize Directions!)</div>
+  <p>Power is a function of <em>exactly four</em> things. Know which direction each moves it:</p>
+  <table style="width:100%; border-collapse: collapse; margin-top: 8px;">
+    <tr style="background: #f0f0f0;"><th style="border: 1px solid #ccc; padding: 6px;">Dial</th><th style="border: 1px solid #ccc; padding: 6px;">Notation</th><th style="border: 1px solid #ccc; padding: 6px;">Effect on Power</th></tr>
+    <tr><td style="border: 1px solid #ccc; padding: 6px;">Sample size</td><td style="border: 1px solid #ccc; padding: 6px;">n</td><td style="border: 1px solid #ccc; padding: 6px;">↑ n → ↑ power</td></tr>
+    <tr><td style="border: 1px solid #ccc; padding: 6px;">Significance level</td><td style="border: 1px solid #ccc; padding: 6px;">α</td><td style="border: 1px solid #ccc; padding: 6px;">↑ α → ↑ power <em>(but more Type I)</em></td></tr>
+    <tr><td style="border: 1px solid #ccc; padding: 6px;">Standard deviation</td><td style="border: 1px solid #ccc; padding: 6px;">σ</td><td style="border: 1px solid #ccc; padding: 6px;">↑ σ → ↓ power</td></tr>
+    <tr><td style="border: 1px solid #ccc; padding: 6px;">Effect size</td><td style="border: 1px solid #ccc; padding: 6px;">|μ − μ₀| (or δ)</td><td style="border: 1px solid #ccc; padding: 6px;">↑ effect → ↑ power</td></tr>
+  </table>
+  <p style="margin-top: 8px;"><strong>Intuition checks from lecture:</strong></p>
+  <ul>
+    <li>Lowering α from 0.05 to 0.01 makes rejection harder ⇒ power drops.</li>
+    <li>If every UCSD student slept exactly 5.5 hrs (no variability), it'd be obvious the mean isn't 6. Add noise (high σ), and 5.5 gets muddled with 6.</li>
+    <li>An effect size of 2 (true mean = 4 when μ₀ = 6) is easy to detect. Effect size of 0.5 (true mean = 5.5) is hard.</li>
+  </ul>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The Chicken-and-Egg Problem</div>
+  <p>Here's the deep issue the lecture surfaces: power depends on σ and effect size. But σ and effect size are properties of the <em>real population</em> — the very thing you don't know yet (that's why you're doing a study!).</p>
+  <p>Three ways out:</p>
+  <ol>
+    <li><strong>Literature review.</strong> Find a similar study's σ and plausible effect, plug those in.</li>
+    <li><strong>Pilot study.</strong> Collect a small preliminary sample, use its σ and observed effect as estimates.</li>
+    <li><strong>Post-hoc power.</strong> Compute power after the study. <strong>The professor strongly dislikes this.</strong> Either you rejected H0 (so you had "enough" power) or you didn't (and post-hoc numbers can't save the study). It's treated as uninformative.</li>
+  </ol>
+  <p><strong>Exam tip:</strong> If asked to rank the three approaches, put literature review / pilot study as "acceptable" and post-hoc as "least desirable / not recommended."</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">The Non-Central t Distribution (Bert & Ernie)</div>
+  <p>Under H0: μ = 6, the t-statistic (x̄ − 6)/(s/√n) follows a standard t-distribution centered at 0. This is "Bert" — tall, narrow, centered.</p>
+  <p>Under Ha: μ = 4 (the lecture's example), the t-stat is still computed the same way, but now it follows a <strong>non-central t distribution</strong> — shifted AND slightly flattened/widened. This is "Ernie" — shorter, wider, shifted left.</p>
+  <p>Power is the area under Ernie that falls in Bert's rejection region. Graphically: the non-central t's lower tail beyond the critical value −2.776.</p>
+  <p>The non-centrality parameter is:
+  <pre class="r-code">ncp = (μ - μ₀) / (σ / sqrt(n))</pre>
+  It's the "distance in SE units" between the two distributions' centers.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Theory-Based Power (Manual Calculation)</div>
+<pre class="r-code"><span class="cm"># Scenario: n=5, σ=1, μ₀=6, true μ=4, α=0.05 (two-sided)</span>
+n &lt;- <span class="nb">5</span>
+sigma &lt;- <span class="nb">1</span>
+mu0 &lt;- <span class="nb">6</span>
+mu_true &lt;- <span class="nb">4</span>
+
+<span class="cm"># Lower critical value of the null distribution</span>
+crit &lt;- <span class="fn">qt</span>(<span class="nb">0.025</span>, df = n - <span class="nb">1</span>)     <span class="cm"># ≈ -2.776</span>
+
+<span class="cm"># Non-centrality parameter</span>
+ncp &lt;- (mu_true - mu0) / (sigma / <span class="fn">sqrt</span>(n))   <span class="cm"># ≈ -4.47</span>
+
+<span class="cm"># Power = P(T_ncp &lt; crit) under the non-central t</span>
+power &lt;- <span class="fn">pt</span>(crit, df = n - <span class="nb">1</span>, ncp = ncp)
+power
+<span class="cm"># ≈ 0.908</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>What <code>pt(..., ncp = ...)</code> does:</strong> gives you the lower-tail probability under a non-central t distribution. Without <code>ncp</code>, it defaults to the standard t (ncp = 0).</div>
+    <div class="line-exp">The upper-tail part of power (area beyond +2.776 under Ernie) is microscopic here and we ignore it. For bigger ncp's, you might want to add it.</div>
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">The Built-In Shortcut — power.t.test()</div>
+<pre class="r-code"><span class="fn">power.t.test</span>(n = <span class="nb">5</span>,
+             delta = <span class="nb">2</span>,              <span class="cm"># |μ_true - μ₀| = |4 - 6|</span>
+             sd = <span class="nb">1</span>,
+             sig.level = <span class="nb">0.05</span>,
+             type = <span class="st">"one.sample"</span>,
+             alternative = <span class="st">"two.sided"</span>)
+<span class="cm"># power ≈ 0.908 — same answer</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>Leave EXACTLY ONE of</strong> n, delta, sd, sig.level, power <strong>as NULL.</strong> R solves for whichever is missing.</div>
+    <div class="line-exp"><code>type = "one.sample"</code> for one-sample; <code>"two.sample"</code> for two-sample; <code>"paired"</code> for paired.</div>
+    <div class="line-exp"><code>delta</code> is the absolute effect size. Use positive numbers even for "less than" alternatives.</div>
+    <div class="line-exp"><strong>Solving for n:</strong> leave n = NULL and supply power = 0.80. The returned n may be fractional — always round UP.</div>
+  </div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Why Simulation Beats Theory (4 Reasons from Lecture)</div>
+  <ol>
+    <li><strong>Easier to understand.</strong> Non-central t is confusing. Simulation is just "generate data under Ha, run the test, count rejections."</li>
+    <li><strong>Less memorization.</strong> <code>power.t.test()</code> has specific syntax you forget. Simulation uses the same <code>rnorm</code>/<code>t.test</code> patterns you already know.</li>
+    <li><strong>Generalizes.</strong> <code>power.t.test()</code> only works for t-tests. Simulation works for ANY test — sign test, regression, bootstrap — just swap the test function.</li>
+    <li><strong>Not tied to normal data.</strong> <code>power.t.test()</code> assumes the data is normal under Ha. Simulation can use <code>rgamma</code>, <code>runif</code>, or anything else.</li>
+  </ol>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Simulation-Based Power (The Master Pattern)</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">42</span>)
+B &lt;- <span class="nb">10000</span>
+n &lt;- <span class="nb">5</span>
+mu0 &lt;- <span class="nb">6</span>
+mu_true &lt;- <span class="nb">4</span>
+sigma &lt;- <span class="nb">1</span>
+reject &lt;- <span class="fn">logical</span>(B)
+
+<span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:B) {
+  <span class="cm"># KEY: generate under Ha (mu_true), NOT under H0 (mu0)</span>
+  samp &lt;- <span class="fn">rnorm</span>(n, mean = mu_true, sd = sigma)
+  pval &lt;- <span class="fn">t.test</span>(samp, mu = mu0)$p.value
+  reject[b] &lt;- pval &lt; <span class="nb">0.05</span>
+}
+<span class="fn">mean</span>(reject)
+<span class="cm"># ≈ 0.907 — matches the theory value</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>The ONE line that separates Type I from power:</strong> the mean in <code>rnorm</code>. <code>mean = mu0</code> → Type I sim. <code>mean = mu_true</code> (≠ mu0) → power sim. Everything else is the same structure.</div>
+    <div class="line-exp"><strong>Don't forget <code>mu = mu0</code> inside t.test.</strong> That's the null value we're testing against, NOT the data-generating mean.</div>
+  </div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — Direction of Effects</div>
+  <div class="quiz-q">All else equal, which change makes power go DOWN?</div>
+  <div class="quiz-opt" data-i="0">Increase n from 20 to 100</div>
+  <div class="quiz-opt" data-i="1">Increase effect size from 0.5 to 2.0</div>
+  <div class="quiz-opt" data-i="2">Increase σ from 1 to 5</div>
+  <div class="quiz-opt" data-i="3">Increase α from 0.01 to 0.05</div>
+  <div class="quiz-result" data-explain="More variability (higher σ) drowns out the signal → lower power. The other three all increase power."></div>
+</div>
+
+<div class="quiz-box" data-answer="3">
+  <div class="quiz-label">Quiz — Post-Hoc Power</div>
+  <div class="quiz-q">A researcher ran a study, failed to reject H0, then computed post-hoc power and reported it to justify the result. The professor would say:</div>
+  <div class="quiz-opt" data-i="0">Great — post-hoc power validates null results</div>
+  <div class="quiz-opt" data-i="1">Acceptable if they used power.t.test</div>
+  <div class="quiz-opt" data-i="2">Acceptable only with simulation</div>
+  <div class="quiz-opt" data-i="3">Not recommended — post-hoc power is uninformative after the study is done; literature review or pilot study should be used BEFORE data collection</div>
+  <div class="quiz-result" data-explain="The lecture explicitly warned against post-hoc power. Either you rejected (so you had 'enough' power) or you didn't (and post-hoc numbers can't save the study). Power calculations are decision tools for study design, not post-hoc justifications."></div>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz — power.t.test Arguments</div>
+  <div class="quiz-q">You want to find the sample size needed for 80% power to detect an effect of 3 with sd = 6, in a two-sided one-sample test at α = 0.05. Which call is correct?</div>
+  <div class="quiz-opt" data-i="0"><code>power.t.test(n=0.80, delta=3, sd=6, sig.level=0.05, type="one.sample")</code></div>
+  <div class="quiz-opt" data-i="1"><code>power.t.test(power=0.80, delta=3, sd=6, sig.level=0.05, type="one.sample")</code></div>
+  <div class="quiz-opt" data-i="2"><code>power.t.test(n=80, delta=3, sd=6, type="one.sample", power=NULL)</code></div>
+  <div class="quiz-opt" data-i="3"><code>power.t.test(power=0.80, delta=3, sd=6, n=NULL, sig.level=0.05, type="two.sample")</code></div>
+  <div class="quiz-opt" data-i="4"></div>
+  <div class="quiz-result" data-explain="Leave n unspecified (or NULL — it's the default) and specify power. Option 3 uses type='two.sample', which is wrong. Option 1 is correct."></div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — Type I vs Power Simulation</div>
+  <div class="quiz-q">Look at this code:
+<pre class="r-code"><span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:B) {
+  samp &lt;- <span class="fn">rnorm</span>(<span class="nb">15</span>, mean = <span class="nb">10</span>, sd = <span class="nb">3</span>)
+  reject[b] &lt;- <span class="fn">t.test</span>(samp, mu = <span class="nb">10</span>)$p.value &lt; <span class="nb">0.05</span>
+}
+<span class="fn">mean</span>(reject)</pre>
+What is it estimating, and what's the expected answer?</div>
+  <div class="quiz-opt" data-i="0">Power; about 0.80</div>
+  <div class="quiz-opt" data-i="1">Power; about 0.05</div>
+  <div class="quiz-opt" data-i="2">Type I error rate; about 0.05</div>
+  <div class="quiz-opt" data-i="3">Type II error rate; about 0.05</div>
+  <div class="quiz-result" data-explain="Data mean (10) equals mu0 (10) → H0 is TRUE → this is a Type I error simulation. Expected value ≈ α = 0.05."></div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Fill in the Blank — Power via Simulation for Sign Test</div>
+  <p>Estimate the power of a two-sided sign test at nominal α = 0.05, under N(mean = 0.5, sd = 1) with n = 25, H0: median = 0.</p>
+<pre class="r-code">sign_test_pval &lt;- <span class="kr">function</span>(x, mu0 = <span class="nb">0</span>) {
+  x &lt;- x[x != ____]
+  n &lt;- <span class="fn">length</span>(x)
+  x_above &lt;- <span class="fn">sum</span>(x &gt; ____)
+  p_low  &lt;- <span class="fn">pbinom</span>(x_above, size = n, prob = <span class="nb">0.5</span>)
+  p_high &lt;- <span class="fn">pbinom</span>(x_above - <span class="nb">1</span>, size = n, prob = <span class="nb">0.5</span>, lower.tail = <span class="nb">FALSE</span>)
+  <span class="fn">min</span>(<span class="nb">1</span>, <span class="nb">2</span> * <span class="fn">min</span>(p_low, p_high))
+}
+
+<span class="fn">set.seed</span>(<span class="nb">1</span>)
+B &lt;- <span class="nb">10000</span>
+reject &lt;- <span class="fn">logical</span>(B)
+<span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:B) {
+  samp &lt;- <span class="fn">rnorm</span>(<span class="nb">25</span>, mean = ____, sd = ____)   <span class="cm"># Ha!</span>
+  reject[b] &lt;- sign_test_pval(samp, mu0 = ____) &lt; <span class="nb">0.05</span>
+}
+<span class="fn">mean</span>(reject)
+</pre>
+  <details><summary>Click for answer</summary>
+<pre class="r-code">x &lt;- x[x != mu0]
+x_above &lt;- <span class="fn">sum</span>(x &gt; mu0)
+samp &lt;- <span class="fn">rnorm</span>(<span class="nb">25</span>, mean = <span class="nb">0.5</span>, sd = <span class="nb">1</span>)    <span class="cm"># Ha: true mean = 0.5</span>
+sign_test_pval(samp, mu0 = <span class="nb">0</span>)                  <span class="cm"># test H0: median = 0</span>
+</pre>
+  <p><strong>Key separation:</strong> data is generated with <code>mean = 0.5</code> (Ha) but tested with <code>mu0 = 0</code> (H0). That gap is where power comes from.</p>
+  </details>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Write Your Own — Power for a Skewed-Data Scenario</div>
+  <p>Use the <code>power.t.test()</code> shortcut to compute power for n = 20, σ = 2, effect size = 1, α = 0.05, one-sample two-sided. Then write a simulation that generates data from <em>Gamma(shape = 2, scale = 1)</em> shifted to have the same mean and an equivalent sd, and compare the two power estimates. Briefly explain which you'd trust and why.</p>
+  <details><summary>Click for discussion + code</summary>
+<pre class="r-code"><span class="cm"># Theory-based (assumes normal)</span>
+<span class="fn">power.t.test</span>(n = <span class="nb">20</span>, delta = <span class="nb">1</span>, sd = <span class="nb">2</span>, sig.level = <span class="nb">0.05</span>,
+             type = <span class="st">"one.sample"</span>)$power
+<span class="cm"># ≈ 0.564</span>
+
+<span class="cm"># Simulation under gamma (skewed, same mean/sd approximately)</span>
+<span class="cm"># Gamma(shape=2, scale=1) has mean=2, sd=sqrt(2). We want mean shifted up by 1</span>
+<span class="cm"># relative to mu0, so let's test mu0 = 2 vs. truth mean = 3.</span>
+<span class="fn">set.seed</span>(<span class="nb">1</span>)
+B &lt;- <span class="nb">10000</span>
+reject &lt;- <span class="fn">logical</span>(B)
+<span class="kr">for</span> (b <span class="kr">in</span> <span class="nb">1</span>:B) {
+  samp &lt;- <span class="fn">rgamma</span>(<span class="nb">20</span>, shape = <span class="nb">2</span>, scale = <span class="nb">1</span>) + <span class="nb">1</span>   <span class="cm"># shift mean to 3</span>
+  reject[b] &lt;- <span class="fn">t.test</span>(samp, mu = <span class="nb">2</span>)$p.value &lt; <span class="nb">0.05</span>
+}
+<span class="fn">mean</span>(reject)
+</pre>
+  <p><strong>What to observe:</strong> the simulation gives a power that may differ meaningfully from the theory value. <code>power.t.test()</code> assumes normal; gamma is skewed. Trust the simulation when your data is suspected non-normal — it reflects the <em>actual</em> test you'll run on your <em>actual</em> data distribution.</p>
+  </details>
+</div>
+
+<button class="complete-btn" onclick="completeLevel('12b')">Mark Level 12b Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 13 ==================== -->
+<div class="level-card" id="level-13">
+<div class="level-header" onclick="toggleLevel(13)">
+  <span class="level-title"><span class="num">Level 13</span> - Simulating Power in R</span>
+  <span class="level-xp">+60 XP</span>
+</div>
+<div class="level-body" id="level-body-13">
+
+<div class="box box-concept">
+  <div class="box-label">Key Difference from Type I Simulation</div>
+  <p><strong>Type I Error sim:</strong> generate data where H0 is TRUE (mean = mu0).<br>
+  <strong>Power sim:</strong> generate data where H0 is FALSE (mean = mu0 + delta).</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code - Power Simulation</div>
+<pre class="r-code"><span class="fn">set.seed</span>(<span class="nb">42</span>)
+n &lt;- <span class="nb">30</span>
+n_sims &lt;- <span class="nb">10000</span>
+mu0 &lt;- <span class="nb">10</span>                <span class="cm"># Claimed mean under H0</span>
+delta &lt;- <span class="nb">2</span>                <span class="cm"># True effect: real mean is 12</span>
+true_mean &lt;- mu0 + delta  <span class="cm"># = 12</span>
+rejections &lt;- <span class="nb">0</span>
+
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:n_sims) {
+  <span class="cm"># Generate data where H0 is FALSE</span>
+  fake_data &lt;- <span class="fn">rnorm</span>(n, mean = true_mean, sd = <span class="nb">5</span>)
+
+  <span class="cm"># Test against mu0</span>
+  p_val &lt;- <span class="fn">t.test</span>(fake_data, mu = mu0)$p.value
+
+  <span class="kw">if</span> (p_val &lt; <span class="nb">0.05</span>) {
+    rejections &lt;- rejections + <span class="nb">1</span>
+  }
+}
+
+power &lt;- rejections / n_sims
+<span class="fn">print</span>(power)
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>true_mean &lt;- mu0 + delta</code> - Real mean is 12, NOT 10. H0 (mu = 10) is FALSE.</div>
+    <div class="line-exp"><code>rnorm(n, mean = true_mean, sd = 5)</code> - Generate data from the TRUE distribution.</div>
+    <div class="line-exp"><code>rejections / n_sims</code> - Proportion of correct rejections = estimated power.</div>
+  </div>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">Side-by-Side: Type I sim vs Power sim</div>
+  <table class="cmp-table">
+    <tr><th>Feature</th><th>Type I Error Sim</th><th>Power Sim</th></tr>
+    <tr><td>Data mean =</td><td><code>mu0</code> (H0 TRUE)</td><td><code>mu0 + delta</code> (H0 FALSE)</td></tr>
+    <tr><td>Rejection means</td><td>FALSE alarm (error)</td><td>CORRECT detection (good)</td></tr>
+    <tr><td>Want rate to be</td><td>Close to alpha</td><td>As high as possible</td></tr>
+  </table>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz - Power vs Type I</div>
+  <div class="quiz-q">In a power simulation, we generate data with mean = mu0 + delta. Why?</div>
+  <div class="quiz-opt" data-i="0">To make H0 true so we can count false alarms</div>
+  <div class="quiz-opt" data-i="1">To make H0 false so we can count correct detections</div>
+  <div class="quiz-opt" data-i="2">To increase the sample size</div>
+  <div class="quiz-opt" data-i="3">To make the data normally distributed</div>
+  <div class="quiz-result" data-explain="Power = P(reject H0 when H0 is FALSE). We need H0 false, so we use mean = mu0 + delta."></div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code Reading — Fill-In-The-Blanks (Practice Quiz 1 Q6 style)</div>
+<pre class="r-code">sim_power &lt;- <span class="kw">function</span>(n, delta, sd, alpha = <span class="nb">0.05</span>, reps = <span class="nb">10000</span>) {
+  count &lt;- <span class="nb">0</span>
+  <span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:reps) {
+    samp  &lt;- <span class="fn">rnorm</span>(n = n,
+                    mean = <span class="nb">20</span> + delta,   <span class="cm"># mu0 + delta = TRUE mean</span>
+                    sd   = sd)
+    pval  &lt;- <span class="fn">t.test</span>(samp, mu = <span class="nb">20</span>)$p.value
+    <span class="kw">if</span> (pval &lt; alpha) {
+      count &lt;- count + <span class="nb">1</span>
+    }
+  }
+  <span class="kw">return</span>(count / reps)
+}
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">This is the Practice Quiz 1 Q6 pattern. The blanks they ask about are always: n = n, mean = mu0 + delta, sd = sd, if(pval &lt; alpha), and return(count / reps).</div>
+    <div class="line-exp"><code>mu0 + delta</code> is the true mean. We test against <code>mu = 20</code> which is mu0. Every rejection here is a CORRECT rejection because the truth is 20 + delta ≠ 20.</div>
+    <div class="line-exp"><code>count / reps</code> is the estimated power: the fraction of simulated datasets where the t-test correctly rejects.</div>
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code Reading — Spot the Bug</div>
+<pre class="r-code"><span class="cm"># BUG VERSION — what is wrong here for a POWER simulation?</span>
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">10000</span>) {
+  samp &lt;- <span class="fn">rnorm</span>(n = <span class="nb">30</span>, mean = <span class="nb">20</span>, sd = <span class="nb">5</span>)   <span class="cm"># mean = mu0 !</span>
+  p    &lt;- <span class="fn">t.test</span>(samp, mu = <span class="nb">20</span>)$p.value
+  <span class="kw">if</span> (p &lt; <span class="nb">0.05</span>) count &lt;- count + <span class="nb">1</span>
+}
+</pre>
+  <div class="code-explain">
+    <div class="line-exp">The data are generated with mean = 20, which is mu0. So H0 is TRUE. This measures <strong>Type I Error</strong>, not power.</div>
+    <div class="line-exp">Fix: use <code>mean = 20 + delta</code> to make H0 false.</div>
+  </div>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz — Power Sim Blanks</div>
+  <div class="quiz-q">In a power simulation for H0: mu = 20, which line should generate the data?</div>
+  <div class="quiz-opt" data-i="0"><code>rnorm(n, mean = 20 + delta, sd = sd)</code></div>
+  <div class="quiz-opt" data-i="1"><code>rnorm(n, mean = 20, sd = sd)</code></div>
+  <div class="quiz-opt" data-i="2"><code>rnorm(n, mean = 0, sd = sd)</code></div>
+  <div class="quiz-opt" data-i="3"><code>rnorm(n, mean = delta, sd = sd)</code></div>
+  <div class="quiz-result" data-explain="Power = P(reject | H0 false). The true mean must differ from mu0 = 20, so mean = 20 + delta."></div>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz — What does count/reps give?</div>
+  <div class="quiz-q">After 10,000 reps with H0 FALSE, <code>count</code> holds 8,412 rejections. The estimated power is:</div>
+  <div class="quiz-opt" data-i="0">0.05</div>
+  <div class="quiz-opt" data-i="1">8412</div>
+  <div class="quiz-opt" data-i="2">0.8412</div>
+  <div class="quiz-opt" data-i="3">1.0</div>
+  <div class="quiz-result" data-explain="Power ≈ count / reps = 8412 / 10000 = 0.8412. That's 84.12% power."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 14 ==================== -->
+<div class="level-card" id="level-14">
+<div class="level-header" onclick="toggleLevel(14)">
+  <span class="level-title"><span class="num">Level 14</span> - The Big Data Trap</span>
+  <span class="level-xp">+40 XP</span>
+</div>
+<div class="level-body" id="level-body-14">
+
+<div class="box box-story">
+  <div class="box-label">Business Story</div>
+  <p>You work at Spotify. Your team finds playlist A has 180.3 seconds average listen time, playlist B has 180.0. Difference: 0.3 seconds. Sample: 50 MILLION users. p-value: 0.00001.</p>
+  <p>Should you redesign the app around playlist A? No! 0.3 seconds is meaningless. But with 50 million data points, even a tiny difference becomes "statistically significant."</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">Statistical Significance vs Practical Significance</div>
+  <p>With large n, ANY tiny difference becomes statistically significant. A small p-value only tells you "this difference is probably real." It does NOT tell you "this difference MATTERS."</p>
+  <p><strong>Always check:</strong> (1) p-value, (2) effect size, (3) confidence interval width.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-label">Quiz - Big Data Trap</div>
+  <div class="quiz-q">With n = 10 million, p = 0.0001 for a difference of $0.002. What should you conclude?</div>
+  <div class="quiz-opt" data-i="0">Very important because p is tiny</div>
+  <div class="quiz-opt" data-i="1">No real difference exists</div>
+  <div class="quiz-opt" data-i="2">The difference is real but probably not practically meaningful</div>
+  <div class="quiz-opt" data-i="3">Need a larger sample</div>
+  <div class="quiz-result" data-explain="The p-value confirms the difference is real (not noise). But $0.002 is practically meaningless. With huge n, even trivial effects get small p-values."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 15 ==================== -->
+<div class="level-card" id="level-15">
+<div class="level-header" onclick="toggleLevel(15)">
+  <span class="level-title"><span class="num">Level 15</span> - Cohen's d: Measuring Effect Size</span>
+  <span class="level-xp">+40 XP</span>
+</div>
+<div class="level-body" id="level-body-15">
+
+<div class="box box-formula">
+  <div class="box-label">Formula</div>
+  <p><strong>d = |x_bar - mu0| / s</strong></p>
+  <p>Rough guidelines: <span class="text-green">d = 0.2 (small)</span>, <span class="text-yellow">d = 0.5 (medium)</span>, <span class="text-red">d = 0.8 (large)</span></p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">R Code - Cohen's d</div>
+<pre class="r-code">cohens_d &lt;- <span class="kw">function</span>(data, mu0) {
+  d &lt;- <span class="fn">abs</span>(<span class="fn">mean</span>(data) - mu0) / <span class="fn">sd</span>(data)
+  <span class="kw">return</span>(d)
+}
+
+data &lt;- <span class="fn">c</span>(<span class="nb">23</span>, <span class="nb">25</span>, <span class="nb">28</span>, <span class="nb">22</span>, <span class="nb">30</span>, <span class="nb">27</span>)
+cohens_d(data, <span class="nb">20</span>)
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>abs(mean(data) - mu0)</code> - Absolute difference between sample mean and claimed value.</div>
+    <div class="line-exp"><code>/ sd(data)</code> - Divide by standard deviation to standardize.</div>
+  </div>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-label">Quiz - Cohen's d</div>
+  <div class="quiz-q">If sample mean = 52, mu0 = 50, sd = 10, what is Cohen's d?</div>
+  <div class="quiz-opt" data-i="0">0.02</div>
+  <div class="quiz-opt" data-i="1">0.20 (small effect)</div>
+  <div class="quiz-opt" data-i="2">2.0 (large effect)</div>
+  <div class="quiz-opt" data-i="3">5.0</div>
+  <div class="quiz-result" data-explain="d = |52 - 50| / 10 = 2/10 = 0.20. A 'small' effect by Cohen's guidelines."></div>
+</div>
+
+</div></div>
+
+<!-- ==================== LEVEL 16 ==================== -->
+<div class="level-card" id="level-16">
+<div class="level-header" onclick="toggleLevel(16)">
+  <span class="level-title"><span class="num">Level 16</span> - Power Curves</span>
+  <span class="level-xp">+30 XP</span>
+</div>
+<div class="level-body" id="level-body-16">
+
+<div class="box box-concept">
+  <div class="box-label">What a Power Curve Shows</div>
+  <p>X-axis: effect size (delta) or sample size (n). Y-axis: power.</p>
+  <p>As effect/sample size increases, the curve goes UP. A line at power = 0.80 is the usual target. Where the curve crosses 0.80 = minimum detectable effect.</p>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-label">Quiz - Power Curves</div>
+  <div class="quiz-q">On a power curve (x = delta, y = power), as delta increases, power...</div>
+  <div class="quiz-opt" data-i="0">Increases (easier to detect larger effects)</div>
+  <div class="quiz-opt" data-i="1">Decreases</div>
+  <div class="quiz-opt" data-i="2">Stays the same</div>
+  <div class="quiz-opt" data-i="3">Becomes negative</div>
+  <div class="quiz-result" data-explain="Larger effects are easier to detect, so power goes up."></div>
+</div>
+
+</div></div>
+
+</div> <!-- end phase-2 -->

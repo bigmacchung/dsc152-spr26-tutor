@@ -1,0 +1,43 @@
+/* ===== CODE ===== */
+/* R code blocks, syntax highlighting, line-by-line explanations, comparison tables */
+
+/* ===== R CODE BLOCKS ===== */
+pre.r-code {
+  background: #080b12; border: 1px solid #1e293b; border-radius: 8px;
+  padding: 14px; font-family: 'SF Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+  font-size: 13.5px; line-height: 1.6; color: #e2e8f0;
+  overflow-x: auto; margin: 8px 0; white-space: pre;
+}
+pre.r-code .cm { color: #64748b; font-style: italic; }
+pre.r-code .kw { color: #c084fc; }
+pre.r-code .st { color: #4ade80; }
+pre.r-code .nb { color: #fb923c; }
+pre.r-code .fn { color: #22d3ee; }
+
+/* ===== LINE-BY-LINE EXPLANATIONS ===== */
+.code-explain {
+  background: #0f1219; border: 1px solid #1e293b;
+  border-radius: 8px; padding: 12px 16px; margin: 8px 0; font-size: 0.9rem;
+}
+.code-explain .line-exp {
+  padding: 6px 0; border-bottom: 1px solid #1e293b22; color: #94a3b8;
+}
+.code-explain .line-exp:last-child { border-bottom: none; }
+.code-explain .line-exp code {
+  background: #1e293b; padding: 2px 6px; border-radius: 4px;
+  font-family: 'SF Mono', Consolas, monospace; font-size: 0.85rem; color: #22d3ee;
+}
+
+/* ===== COMPARISON TABLE ===== */
+.cmp-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9rem; }
+.cmp-table th {
+  background: #1c2030; color: #22d3ee; padding: 10px 14px;
+  text-align: left; border: 1px solid #1e293b; font-weight: 600;
+}
+.cmp-table td {
+  padding: 10px 14px; border: 1px solid #1e293b; background: #141821; color: #e2e8f0;
+}
+.cmp-table td code, .cmp-table th code {
+  background: #080b12; padding: 2px 6px; border-radius: 4px;
+  font-family: 'SF Mono', Consolas, monospace; font-size: 0.85rem; color: #4ade80;
+}

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maxime Chung — Course Schedule</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    padding: 24px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .title-block {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+    color: #1a1a2e;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+  }
+
+  .study-guides-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+
+  .study-guides-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  .study-guides-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .study-guide-btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 9px 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #1a1a2e;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .study-guide-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  .study-guide-btn.bridge {
+    background: linear-gradient(135deg, #22d3ee, #818cf8);
+    color: #0b0e14;
+    border-color: transparent;
+  }
+
+  /* Filter controls */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .toggle-btn.active {
+    border-color: currentColor;
+  }
+
+  .toggle-btn .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* Legend colors */
+  .c-106 { --clr: #34a853; }
+  .c-152 { --clr: #ea4335; }
+  .c-mgt { --clr: #ff6f00; }
+  .c-usp { --clr: #e91e63; }
+
+  /* Grid */
+  .calendar {
+    display: grid;
+    grid-template-columns: 60px repeat(5, 1fr);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    min-width: 760px;
+  }
+
+  .scroll-wrapper {
+    overflow-x: auto;
+  }
+
+  .day-header {
+    padding: 12px 4px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    background: #1a1a2e;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  .day-header:first-child {
+    border-radius: 0;
+  }
+
+  .time-col {
+    grid-column: 1;
+    background: #fafafa;
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 2px 8px 0 0;
+    font-size: 0.7rem;
+    color: #999;
+    font-weight: 500;
+    position: relative;
+  }
+
+  .time-col span {
+    position: relative;
+    top: -7px;
+  }
+
+  .day-col {
+    position: relative;
+    border-right: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f5f5f5;
+    min-height: 50px;
+  }
+
+  .day-col:last-child {
+    border-right: none;
+  }
+
+  /* Events */
+  .event {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 0.7rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+    z-index: 2;
+    line-height: 1.3;
+    border-left: 3px solid;
+  }
+
+  .event:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10;
+  }
+
+  .event.hidden {
+    opacity: 0;
+    pointer-events: none;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0;
+    margin: 0;
+  }
+
+  .event .ev-title {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event .ev-detail {
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.65rem;
+  }
+
+  .event .ev-time {
+    font-size: 0.62rem;
+    opacity: 0.7;
+  }
+
+  .event.lec {
+    background: color-mix(in srgb, var(--clr) 15%, white);
+    border-left-color: var(--clr);
+    color: color-mix(in srgb, var(--clr) 80%, black);
+  }
+
+  .event.disc {
+    background: color-mix(in srgb, var(--clr) 10%, white);
+    border-left-color: var(--clr);
+    border-left-style: dashed;
+    color: color-mix(in srgb, var(--clr) 70%, black);
+  }
+
+  .event.oh {
+    background: color-mix(in srgb, var(--clr) 8%, white);
+    border-left-color: var(--clr);
+    border-left-style: dotted;
+    color: #555;
+  }
+
+  .event.conflict-flag {
+    box-shadow: 0 0 0 2px #ff1744;
+  }
+
+  /* Finals */
+  .finals-section {
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .finals-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .final-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.88rem;
+    align-items: center;
+  }
+
+  .final-item:last-child {
+    border-bottom: none;
+  }
+
+  .final-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .final-date {
+    font-weight: 600;
+    min-width: 160px;
+  }
+
+  .final-course {
+    min-width: 120px;
+  }
+
+  .final-loc {
+    color: #666;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    display: none;
+    position: fixed;
+    background: #1a1a2e;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    max-width: 280px;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+
+  .tooltip.show {
+    display: block;
+  }
+
+  @media (max-width: 960px) {
+    body { padding: 12px; }
+
+    .topbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    h1, .subtitle {
+      text-align: center;
+    }
+
+    .study-guides-panel {
+      width: 100%;
+    }
+
+    .calendar {
+      min-width: 760px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title-block">
+    <h1>Maxime's Spring 2026 Schedule</h1>
+    <p class="subtitle">UCSD &mdash; DSC 106, DSC 152, MGT 159T, USP 4 &mdash; All classes + office hours</p>
+  </div>
+
+  <div class="study-guides-panel">
+    <div class="study-guides-title">Study Guides</div>
+    <div class="study-guides-list">
+      <a href="DSC152-companion.html" target="_blank" class="study-guide-btn">DSC 152 Study Guide</a>
+      <a href="uber-apm-bridge.html" target="_blank" class="study-guide-btn bridge">→ Uber APM Bridge</a>
+
+      <!-- Add future study guides below -->
+      <!-- <a href="DSC106_Study_Guide.html" target="_blank" class="study-guide-btn">DSC 106 Study Guide</a> -->
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="controls-row">
+    <button class="toggle-btn active c-106" data-filter="dsc106" style="color: #34a853;"><span class="dot" style="background:#34a853"></span>DSC 106</button>
+    <button class="toggle-btn active c-152" data-filter="dsc152" style="color: #ea4335;"><span class="dot" style="background:#ea4335"></span>DSC 152</button>
+    <button class="toggle-btn active c-mgt" data-filter="mgt159t" style="color: #ff6f00;"><span class="dot" style="background:#ff6f00"></span>MGT 159T</button>
+    <button class="toggle-btn active c-usp" data-filter="usp4" style="color: #e91e63;"><span class="dot" style="background:#e91e63"></span>USP 4</button>
+  </div>
+
+  <div class="controls-row">
+    <button class="toggle-btn active c-106" data-filter="dsc106-oh" style="color: #34a853;"><span class="dot" style="background:#34a853"></span>DSC 106 OH</button>
+    <button class="toggle-btn active c-152" data-filter="dsc152-oh" style="color: #ea4335;"><span class="dot" style="background:#ea4335"></span>DSC 152 OH</button>
+  </div>
+</div>
+
+<div class="scroll-wrapper">
+  <div class="calendar" id="cal"></div>
+</div>
+
+<div class="finals-section">
+  <h2>Final Exams</h2>
+  <div class="final-item"><span class="final-dot" style="background:#ea4335"></span><span class="final-date">Sat Jun 6, 3:00–5:59 PM</span><span class="final-course">DSC 152</span><span class="final-loc">TBA</span></div>
+  <div class="final-item"><span class="final-dot" style="background:#34a853"></span><span class="final-date">Thu Jun 11, 11:30 AM–2:29 PM</span><span class="final-course">DSC 106</span><span class="final-loc">CTL 0125</span></div>
+  <div class="final-item"><span class="final-dot" style="background:#ff6f00"></span><span class="final-date">Fri Jun 12, 7:00–9:59 PM</span><span class="final-course">MGT 159T</span><span class="final-loc">TBA</span></div>
+</div>
+
+<footer style="margin-top:24px;text-align:center;color:#999;font-size:0.8rem;">
+  Last updated: April 25, 2026 · <a href="archive/" style="color:#999;">Past quarters</a>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const HOUR_H = 50;
+const START_HOUR = 8;
+const END_HOUR = 21;
+const DAYS = ['MON','TUE','WED','THU','FRI'];
+
+// All events: [day(0=Mon), startHour(decimal), endHour(decimal), title, detail, location, type, filter, tooltip]
+const events = [
+  // ===== MONDAY =====
+  [0, 13, 13.833, 'DSC 106', 'Lecture', 'CTL 0125', 'lec', 'dsc106', 'DSC 106 Lecture\n1:00–1:50 PM\nCTL 0125 • Lau, Samuel', 'split-left'],
+  [0, 17, 19.833, 'MGT 159T', 'Lecture', 'OTRSN 1S114', 'lec', 'mgt159t', 'MGT 159T Lecture\n5:00–7:50 PM\nOTRSN 1S114 • Sanders, Robert'],
+
+  // Monday OH
+  [0, 16, 17, 'DSC 106 OH', 'Hemanth Bodala', 'HDSI 355', 'oh', 'dsc106-oh', 'DSC 106 Office Hours\nHemanth Bodala\n4:00–5:00 PM\nHDSI 355', 'split-third-3'],
+
+  // ===== TUESDAY =====
+  [1, 9.5, 10.833, 'DSC 152', 'Lecture', 'HSS 1330', 'lec', 'dsc152', 'DSC 152 Lecture\n9:30–10:50 AM\nHSS 1330 • Chi, Peter Benjamin'],
+  [1, 17, 19.833, 'USP 4', 'Lecture', 'ERCA 117', 'lec', 'usp4', 'USP 4 Lecture\nIntro to Geographic Information Systems\n5:00–7:50 PM\nERCA 117'],
+
+  // Tuesday OH
+  [1, 13, 14, 'DSC 106 OH', 'Susana Haing', 'HDSI 355', 'oh', 'dsc106-oh', 'DSC 106 Office Hours\nSusana Haing\n1:00–2:00 PM\nHDSI 355'],
+  [1, 15, 16, 'DSC 152 OH', 'Aditya', 'HDSI 355', 'oh', 'dsc152-oh', 'DSC 152 Office Hours\nAditya\n3:00–4:00 PM\nHDSI 355'],
+
+  // ===== WEDNESDAY =====
+  [2, 13, 13.833, 'DSC 106', 'Lecture', 'CTL 0125', 'lec', 'dsc106', 'DSC 106 Lecture\n1:00–1:50 PM\nCTL 0125 • Lau, Samuel'],
+  [2, 15, 16.833, 'DSC 152', 'Discussion', 'HDSI 336', 'disc', 'dsc152', 'DSC 152 Discussion\n3:00–4:50 PM\nHDSI 336'],
+
+  // Wednesday OH
+  [2, 14, 15, 'DSC 106 OH', 'Benjamin Pham', 'CTL 125', 'oh', 'dsc106-oh', 'DSC 106 Office Hours\nBenjamin Pham\n2:00–3:00 PM\nCatalyst (CTL) 125', 'split-left'],
+
+  // ===== THURSDAY =====
+  [3, 9.5, 10.833, 'DSC 152', 'Lecture', 'HSS 1330', 'lec', 'dsc152', 'DSC 152 Lecture\n9:30–10:50 AM\nHSS 1330 • Chi, Peter Benjamin'],
+
+  // Thursday OH
+  [3, 12.5, 13.5, 'DSC 152 OH', 'Peter', 'HDSI 355', 'oh', 'dsc152-oh', 'DSC 152 Office Hours\nPeter (Instructor)\n12:30–1:30 PM\nHDSI 355'],
+  [3, 15, 16, 'DSC 106 OH', 'Minyoung Kim', 'HDSI 355', 'oh', 'dsc106-oh', 'DSC 106 Office Hours\nMinyoung Kim\n3:00–4:00 PM\nHDSI 355'],
+
+  // ===== FRIDAY =====
+  [4, 13, 13.833, 'DSC 106', 'Lecture', 'CTL 0125', 'lec', 'dsc106', 'DSC 106 Lecture\n1:00–1:50 PM\nCTL 0125 • Lau, Samuel', 'split-right'],
+
+  // Friday OH
+  [4, 10, 11, 'DSC 106 OH', 'Minyoung Kim', 'HDSI 355', 'oh', 'dsc106-oh', 'DSC 106 Office Hours\nMinyoung Kim\n10:00–11:00 AM\nHDSI 355'],
+  [4, 12.5, 13.5, 'DSC 152 OH', 'Arunima', 'HDSI 355', 'oh', 'dsc152-oh', 'DSC 152 Office Hours\nArunima\n12:30–1:30 PM\nHDSI 355', 'split-left'],
+
+  // ===== MONDAY OH continued =====
+  [0, 14, 15, 'DSC 152 OH', 'Valerie', 'HDSI 355', 'oh', 'dsc152-oh', 'DSC 152 Office Hours\nValerie\n2:00–3:00 PM\nHDSI 355', 'split-right'],
+  [0, 15, 16, 'DSC 152 OH', 'Lucas', 'HDSI 355', 'oh', 'dsc152-oh', 'DSC 152 Office Hours\nLucas\n3:00–4:00 PM\nHDSI 355', 'split-third-1'],
+];
+
+const COLORS = {
+  dsc106: '#34a853',
+  'dsc106-oh': '#34a853',
+  dsc152: '#ea4335',
+  'dsc152-oh': '#ea4335',
+  mgt159t: '#ff6f00',
+  usp4: '#e91e63'
+};
+
+const cal = document.getElementById('cal');
+
+// Build grid: header row + time rows
+const corner = document.createElement('div');
+corner.className = 'day-header';
+corner.textContent = '';
+cal.appendChild(corner);
+
+DAYS.forEach(d => {
+  const h = document.createElement('div');
+  h.className = 'day-header';
+  h.textContent = d;
+  cal.appendChild(h);
+});
+
+// Time rows
+for (let hr = START_HOUR; hr < END_HOUR; hr++) {
+  const tc = document.createElement('div');
+  tc.className = 'time-col';
+  tc.style.gridRow = (hr - START_HOUR + 2);
+  tc.style.gridColumn = 1;
+  tc.style.height = HOUR_H + 'px';
+  const label = hr <= 12 ? (hr === 0 ? '12 AM' : (hr < 12 ? hr + ' AM' : '12 PM')) : (hr - 12) + ' PM';
+  tc.innerHTML = `<span>${label}</span>`;
+  cal.appendChild(tc);
+
+  for (let d = 0; d < DAYS.length; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'day-col';
+    cell.style.gridRow = (hr - START_HOUR + 2);
+    cell.style.gridColumn = d + 2;
+    cell.style.height = HOUR_H + 'px';
+    cell.dataset.day = d;
+    cell.dataset.hour = hr;
+    cal.appendChild(cell);
+  }
+}
+
+// Place events
+events.forEach((ev) => {
+  const [day, startH, endH, title, detail, loc, type, filter, tip, splitPos] = ev;
+  const color = COLORS[filter] || '#666';
+
+  const el = document.createElement('div');
+  const isConflict = detail.includes('⚠');
+  el.className = `event ${type} ${isConflict ? 'conflict-flag' : ''}`;
+  el.style.setProperty('--clr', color);
+  el.dataset.filter = filter;
+
+  const height = Math.max((endH - startH) * HOUR_H, 22);
+  el.style.height = height + 'px';
+
+  if (splitPos === 'split-left') {
+    el.style.left = '2px';
+    el.style.right = 'calc(50% + 1px)';
+  } else if (splitPos === 'split-right') {
+    el.style.left = 'calc(50% + 1px)';
+    el.style.right = '2px';
+  } else if (splitPos === 'split-third-1') {
+    el.style.left = '2px';
+    el.style.right = 'calc(66.67% + 1px)';
+  } else if (splitPos === 'split-third-2') {
+    el.style.left = 'calc(33.33% + 1px)';
+    el.style.right = 'calc(33.33% + 1px)';
+  } else if (splitPos === 'split-third-3') {
+    el.style.left = 'calc(66.67% + 1px)';
+    el.style.right = '2px';
+  }
+
+  el.innerHTML = `
+    <div class="ev-title">${title}</div>
+    ${height > 28 ? `<div class="ev-detail">${detail} • ${loc}</div>` : ''}
+    ${height > 44 ? `<div class="ev-time">${formatTime(startH)}–${formatTime(endH)}</div>` : ''}
+  `;
+
+  el.addEventListener('mouseenter', (e) => {
+    const tooltip = document.getElementById('tooltip');
+    tooltip.textContent = tip;
+    tooltip.style.whiteSpace = 'pre-line';
+    tooltip.classList.add('show');
+    positionTooltip(e);
+  });
+
+  el.addEventListener('mousemove', positionTooltip);
+
+  el.addEventListener('mouseleave', () => {
+    document.getElementById('tooltip').classList.remove('show');
+  });
+
+  const startHour = Math.floor(startH);
+  const parentCell = cal.querySelector(`.day-col[data-day="${day}"][data-hour="${startHour}"]`);
+  if (parentCell) {
+    const cellTopOffset = (startH - startHour) * HOUR_H;
+    el.style.top = cellTopOffset + 'px';
+    parentCell.style.position = 'relative';
+    parentCell.style.overflow = 'visible';
+    parentCell.style.zIndex = '1';
+    parentCell.appendChild(el);
+  }
+});
+
+function formatTime(h) {
+  const hr = Math.floor(h);
+  const min = Math.round((h - hr) * 60);
+  const ampm = hr >= 12 ? 'PM' : 'AM';
+  const displayHr = hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr);
+  return min === 0 ? `${displayHr} ${ampm}` : `${displayHr}:${min.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function positionTooltip(e) {
+  const tt = document.getElementById('tooltip');
+  let x = e.clientX + 12;
+  let y = e.clientY + 12;
+  if (x + 280 > window.innerWidth) x = e.clientX - 290;
+  if (y + 100 > window.innerHeight) y = e.clientY - 110;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+// Filter toggles
+const activeFilters = new Set([
+  'dsc106',
+  'dsc152',
+  'mgt159t',
+  'usp4',
+  'dsc106-oh',
+  'dsc152-oh'
+]);
+
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.filter;
+    if (activeFilters.has(f)) {
+      activeFilters.delete(f);
+      btn.classList.remove('active');
+      btn.style.opacity = '0.4';
+    } else {
+      activeFilters.add(f);
+      btn.classList.add('active');
+      btn.style.opacity = '1';
+    }
+    applyFilters();
+  });
+});
+
+function applyFilters() {
+  document.querySelectorAll('.event').forEach(el => {
+    const f = el.dataset.filter;
+    el.classList.toggle('hidden', !activeFilters.has(f));
+  });
+}
+</script>
+</body>
+</html>

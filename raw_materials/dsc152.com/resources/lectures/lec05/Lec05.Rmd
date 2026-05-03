@@ -1,0 +1,531 @@
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = TRUE)
+  knitr::opts_chunk$set(dev = 'pdf')
+  def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+  knitr::knit_hooks$set(chunk = function(x, options) {
+    x <- def.chunk.hook(x, options)
+    ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+  })
+```
+
+
+
+
+## Today's Question {.t}
+
+The overall question for today is: What is the relationship between \underline{statistical significance}
+and \underline{effect size}?
+
+\vspace{3mm}
+
+::: {.t}
+### Examples
+\vspace{-2mm}
+ - From last time: what if the true amount of sleep that UCSD students get is different from 6 hours, but by a very small amount?
+
+\vspace{3mm}
+
+ - Is this poker player a theoretically winning player?
+
+::: 
+
+\pause
+These two examples investigate the following concepts:
+ 
+ - Is there a sample size at which we would reject $H_0$ for even a miniscule difference from $H_0$?
+ 
+ - What should we do if we estimate a large effect size but do not reject $H_0$?
+
+
+## Example: Sleep of UCSD students {.t}
+Recall from last time that, as sample size increases, statistical power increases.
+
+\vspace{3mm}
+
+### This is true for ANY effect size!
+\vspace{-2mm}
+For example, what if the true average amount of sleep that UCSD students get is 5 hours and 45 minutes per night?
+
+ - Would we really care that this is different from our $H_0$ of 6 hours?
+ 
+\vspace{3mm}
+
+ - What would happen if we had an extremely large sample size?
+
+## Example: Sleep of UCSD students {.t}
+5 hours and 45 minutes of sleep corresponds to an effect size of $\frac{1}{4}$ of an hour. And suppose, for example, we were able to obtain a sample size of 500 students...
+
+```{r}
+power.t.test(n=500, delta=0.25, type="one.sample")
+```
+
+
+## Example: Sleep of UCSD students {.t}
+And now we can follow this logic to even more extremes...
+
+```{r, echo=FALSE, out.width="85%", fig.align='center'}
+delta <- c((5/60), (2/60), (1/60))
+n <- seq(100, 50000, by=1000)
+powers <- matrix(NA, nrow=length(delta), ncol=length(n))
+
+for(i in 1:length(delta)){
+  for(j in 1:length(n)){
+    powers[i, j] <- power.t.test(n=n[j], delta=delta[i], sd=1, sig.level=0.05, type="one.sample", alternative="two.sided")$power
+  }
+}
+
+plot(powers[1,] ~ n, pch=19, ylim=c(0,1), ylab="power", main=expression(paste("Power Curves with ", 
+                                                                              sigma, "=1, ", H[0], ": ", mu, "=6")), 
+     cex.main=2, cex.lab=2, cex.axis=2, cex=2)
+lines(powers[1,] ~ n)
+points(powers[2,] ~ n, pch=15, cex=2)
+lines(powers[2,] ~ n)
+points(powers[3,] ~ n, pch=17, cex=2)
+lines(powers[3,] ~ n)
+legend("right", pch=c(19, 15, 17), legend=c(expression(paste(mu, "=5hr55min")), 
+                                            expression(paste(mu, "=5hr58min")), 
+                                            expression(paste(mu, "=5hr59min"))), cex=2)
+```
+
+
+## Example: Sleep of UCSD students {.t}
+Key takeaways:
+
+ - At the very small effect size of 5 minutes, we attain nearly 100\% statistical power with sample sizes of less than n=5000 or so
+ 
+\vspace{3mm}
+
+ - With the miniscule effect size of 2 minutes, we attain nearly 100\% statistical power by n=20,000 
+
+\vspace{3mm} 
+ 
+ - With the even smaller effect size of 1 minute, we get quite close to 100\% statistical power by n=50,000
+ 
+\vspace{4mm} 
+And in our era of Big Data, sample sizes on this order are not uncommon!
+
+
+
+## Example: Sleep of UCSD students {.t}
+\label{yourturn}
+\framesubtitle{Your Turn}
+```{r, echo=FALSE}
+set.seed(1)
+sleep50k <- rnorm(n=50000, mean=(5 + 59/60), sd=1)
+```
+
+
+### Daily Check Question #1
+Open up an RStudio session (no need to start an R Markdown file), and then:
+
+ - Simulate a sample of size 50,000, with values of sleep that come from a $N\bigg(\mu = 5 \frac{59}{60}, \sigma^2 = 1\bigg)$ distribution.
+
+\vspace{2mm}
+ - Run a t-Test (you may use the `t.test` function) with our $H_0\colon \mu = 6$.
+
+\vspace{2mm}
+
+ - Put your responses in Question \#1 of the Daily Check \#5 assignment in Gradescope when you are ready to.
+
+
+## Example: Sleep of UCSD students {.t}
+::: {.t}
+### The point is:
+\vspace{-2mm}
+ - The p-value should not be the sole determining metric for whether we care about a result or not.
+ 
+\vspace{2mm}
+
+ - Particularly if our sample size is very large, we need to also look at the estimated effect size and ask whether that is big enough to care.
+:::
+
+To this end, confidence intervals are often much more useful and less misleading than p-values. For my specific simulation, the 95\% confidence interval is:
+
+```{r, size="small"}
+t.test(sleep50k, mu=6)$conf.int
+```
+
+
+## Quote of the Day
+\framesubtitle{Daily Check Question \#2}
+
+![](bacon.jpeg)
+
+
+
+## Bacon and Cancer
+![](guardianbacon.png)
+
+## Bacon and Cancer {.t}
+\framesubtitle{What was found in the actual research study?}
+
+![](carcinogenicity.png)
+\vspace{1mm}
+
+### What does an 18\% increase in risk of colon cancer actually mean?
+\vspace{-2mm}
+ - It's an 18\% increase above your starting risk of colon cancer
+
+\vspace{2mm}
+
+ - For example: from a baseline risk of 5\%, an 18\% increase would be $0.05 \times 1.18 \approx 0.06$
+
+
+## Bacon and Cancer {.t}
+\framesubtitle{So recall that the headline said...}
+
+\centering
+
+![](guardianbacon2.png){width=60%}
+
+
+### Why is this headline misleading?
+\vspace{-2mm}
+
+ - For a typical person, it is estimated that the effect size of 18\% corresponds to an overall increase in the lifetime risk of colon cancer from 5\% to 6\%.
+ 
+\vspace{1mm}
+
+ - This result had a highly \underline{statistically significant} p-value (much less than 0.05), because the sample size of their study was huge!
+ 
+\vspace{1mm}
+
+ - But compare this to the risk of lung cancer from smoking cigarettes, which is estimated to have an effect size of between 1500\% and 3000\%...
+
+
+## And so again...
+\framesubtitle{Daily Check Question \#2}
+
+![](bacon.jpeg)
+
+
+
+## Today's Question {.t}
+
+The overall question for today is: What is the relationship between \underline{statistical significance}
+and \underline{effect size}?
+
+\vspace{3mm}
+
+::: {.t}
+### Examples
+\vspace{-2mm}
+ - From last time: what if the true amount of sleep that UCSD students get is different from 6 hours, but by a very small amount?
+
+\vspace{3mm}
+
+ - Is this poker player a theoretically winning player?
+
+::: 
+
+
+## Today's Question {.t}
+
+The overall question for today is: What is the relationship between \underline{statistical significance}
+and \underline{effect size}?
+
+\vspace{3mm}
+
+::: {.t}
+### Examples
+\vspace{-2mm}
+ - From last time: what if the true amount of sleep that UCSD students get is different from 6 hours, but by a very small amount?
+
+\vspace{3mm}
+
+ - **Is this poker player a theoretically winning player?**
+
+::: 
+
+
+## Example: Poker {.t}
+
+Background: In November 2019, the state of Pennsylvania (where I lived at the time) introduced fully legalized and regulated online gambling, including poker.
+
+\vspace{5mm}
+
+![](pokerstars.png)
+
+
+## Example: Poker {.t}
+
+In my younger days, I played a lot of online poker (often on shady offshore sites), but even with the promise of a safe regulated environment, I did not initially feel inclined to start playing again. 
+
+Then, the pandemic hit in 2020...
+
+
+## Example: Poker {.t}
+![](poker6tables.png)
+
+
+
+
+## Example: Poker {.t}
+If you have never played poker before (or otherwise do not have much knowledge of it), here is what you need to know for the purpose of this example.
+
+### What you need to know:
+
+ - Poker is a card game (played with an ordinary 52-card deck of cards)
+ 
+\vspace{3mm}
+
+ - Money is potentially won or lost on each round of play
+
+\vspace{3mm}
+ 
+ - Each round of play is referred to as a "hand." 
+
+
+## Example: Poker {.t}
+
+::: {.t}
+### I have a history of being an overall winning player, but:
+
+ - it had been a long time since I had played regularly (since about 2014)
+
+\vspace{1mm}
+ - the population of players has changed over time (overall, players have gotten better over the years due to the ever increasing availability of information)
+:::
+
+
+So the question I had was, am I now (in 2020) a theoretically winning player?
+
+Ideally, I would like to know this as quickly as possible...
+
+https://pollev.com/chi
+
+
+## Example: Poker {.t}
+\framesubtitle{Some data}
+
+![](poker_df.png)
+
+### The "Stake" of "\$1 NL (6 max)" refers to the following:
+\vspace{-2mm}
+ - "\$1 NL" indicates a standard buy-in of \$100
+ - "6 max" has higher variance than "9 max" or "10 max"...
+
+## Example: Poker {.t}
+\framesubtitle{Some data}
+
+![](poker_df2.png)
+
+\pause
+
+### Sidenote: how were we all doing on May 7, 2020?
+\vspace{-2mm}
+ - We were about 1 month into stay-at-home orders
+ - I was under 2 months from becoming a dad
+ 
+
+
+
+## Example: Poker {.t}
+
+Recall: the question (from a few slides ago) was, "Am I a theoretically winning player in 2020?"
+
+How exactly would we formulate this as a statistical test?
+
+\vspace{4mm}
+
+https://pollev.com/chi
+
+\pause
+
+\vspace{8mm}
+
+### The data
+\vspace{-2mm}
+I have pulled the results from my first 10,000 hands at the stake of "\$1 NL (6 max)" (corresponding to approximately five weeks of data). Let's see what this sample tells us.
+
+
+## Example: Poker {.t}
+\framesubtitle{The data}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(readr)
+library(ggplot2)
+library(scales)
+Export_10k <- read_csv("ReportExport.csv")[1:10000,]
+won <- gsub("\\$", "", Export_10k$`My C Won`)
+won <- gsub("\\(", "-", won)
+won <- gsub("\\)", "", won)
+won <- as.numeric(won)
+
+df <- data.frame(won = won)
+ggplot(df, aes(x = won)) +
+  geom_histogram(binwidth=1) + 
+  labs(title="Distribution of money won/lost, n=10000", x = "Money won or lost on each hand") +
+  scale_x_continuous(labels = scales::label_dollar()) +
+  theme(text = element_text(size=20))
+```
+
+
+## Example: Poker {.t}
+\framesubtitle{What does the evidence suggest? (https://pollev.com/chi)}
+
+::: {.t}
+### Some summary statistics:
+\vspace{-1.5mm}
+```{r, size="small"}
+summary(won)
+```
+:::
+
+\pause
+
+
+::: {.t}
+### Here is the total amount of dollars I won over five weeks:
+\vspace{-1.5mm}
+```{r}
+sum(won)
+```
+:::
+
+
+\pause
+
+::: {.t}
+### Here is the standard deviation (per hand):
+\vspace{-1.5mm}
+```{r}
+sd(won)
+```
+:::
+
+## Example: Poker {.t}
+\framesubtitle{The analysis}
+
+```{r}
+t.test(won, alternative="greater")
+```
+
+## Example: Poker {.t}
+\framesubtitle{But wait, isn't it just because the effect size is really small?}
+
+::: {.t}
+### What's the effect size?
+\vspace{-2mm}
+```{r}
+mean(won)
+```
+:::
+
+ - So on average, I win about 10 cents per hand. That seems pretty small...
+
+\vspace{2mm}
+
+ - But recall, I play 6 tables at a time and get approximately 300 hands per hour, meaning that this translates to an hourly rate of about \$30/hour...
+
+
+## Example: Poker {.t}
+\framesubtitle{https://www.thepokerbank.com/strategy/other/winrate/}
+![](winrate.png)
+
+### Notes:
+\vspace{-2mm}
+ - bb/100 = "big blinds per 100 hands"
+ - In my case, $\approx 0.10$ per hand corresponds to 10 bb/100, which is on the very high end of what is attainable in the long run.
+ 
+## Example: Poker {.t}
+
+### Daily Check Question \#3
+\label{fail}
+\vspace{-2mm}
+So, we failed to reject $H_0$. What does that mean here?
+
+https://pollev.com/chi
+
+
+## Example: Poker {.t}
+\label{power}
+So how big of a sample do we need?
+
+### We can do a power calculation! (Daily Check Question \#4)
+\vspace{-2mm}
+How might we do that here?
+
+
+## Example: Poker {.t}
+\framesubtitle{Now, the full data}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+export_all <- read_csv("ReportExport.csv")
+won_all <- gsub("\\$", "", export_all$`My C Won`)
+won_all <- gsub("\\(", "-", won_all)
+won_all <- gsub("\\)", "", won_all)
+won_all <- as.numeric(won_all)
+
+df_all <- data.frame(won_all = won_all,
+                     hand = 1:length(won_all))
+
+df_all <- df_all %>% mutate(won_cum = cumsum(won_all))
+
+ggplot(data=df_all, aes(x=hand, y=won_cum)) + 
+  geom_line() + 
+  labs(title="Running total of money won starting from May 7, 2020", y = "Cumulative amount won") + 
+  scale_y_continuous(labels = scales::label_dollar()) +
+  theme(text = element_text(size=20))
+```
+
+## Example: Poker {.t}
+```{r}
+t.test(won_all, alternative="greater")
+```
+
+### Welp.
+\vspace{-2mm}
+I mean, losing more than \$1500 in the last 20k hands didn't help.
+
+## Recap
+
+::: {.t}
+### Parting thoughts
+\vspace{-2mm}
+
+ - Recall that a t-Test requires that the observations are independent in order to be valid. Do we think that condition is met here?
+   - We'll revisit this as time-series data in Week 9. 
+ 
+\vspace{3mm} 
+
+ - Situations with high variance can require a shockingly high sample size in order to attain traditional "statistical significance" at any reasonable $\alpha$ level. This includes:
+   - most gambling games
+   - financial market data
+   - social media engagement and impact
+   - insurance claim amounts
+   - etc.
+:::
+
+The primary point of both examples from today was: the \underline{p-value} is not everything!
+
+
+## Recap
+
+::: {.t}
+### Summary of today's Daily Check
+\vspace{-2mm}
+ - Overall conclusions from the t-Test on Slide \ref{yourturn}
+
+\vspace{2mm}
+
+ - Explanation of Quote of the Day in your own words
+ 
+\vspace{2mm}
+
+ - What we should or should not conclude from the result of failing to reject $H_0$ on Slide \ref{fail}
+ 
+\vspace{2mm}
+
+ - Explanation of power calculation and results on Slide \ref{power}
+:::
+
+\vspace{3mm}
+
+::: {.t}
+### Next time
+\vspace{-2mm}
+ - A/B testing
+   - Also known as \underline{experimental studies} (as opposed to observational)
+   - This is a very rich topic that we do not have time to treat fully; we will focus on the statistical inference aspects therein.
+ 
+:::
