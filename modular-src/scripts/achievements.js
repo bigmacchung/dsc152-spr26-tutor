@@ -64,6 +64,11 @@ function checkAchievements() {
     showAchievement('ESL PRACTICE BANK COMPLETE!', 'Simple language + math language + 90+ practice Qs all done.');
     launchConfetti();
   }
+  if (completedLevels.size === 59 && !window._ach59) {
+    window._ach59 = true;
+    showAchievement('FULL GUIDE MASTERED!', 'Quiz 1 + Quiz 2 ESL banks done. You have seen every concept twice.');
+    launchConfetti();
+  }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
     window._achAll = true;
     showAchievement('MIDTERM READY!', 'You completed everything. Go crush it Maxime!');

@@ -246,6 +246,77 @@ strong { color: #e2e8f0; }
 }
 .four-outcome-table th { background: #1c2030; color: #c084fc; }
 .four-outcome-table td { background: #141821; }
+
+/* ===== SEARCH BAR ===== */
+.search-bar {
+  position: relative; flex: 1 1 280px; max-width: 360px;
+  min-width: 200px;
+}
+#search-input {
+  width: 100%; padding: 8px 12px;
+  background: #141821; border: 1px solid #334155;
+  border-radius: 6px; color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif; font-size: 0.9rem;
+}
+#search-input::placeholder { color: #64748b; }
+#search-input:focus {
+  outline: none; border-color: #22d3ee;
+  box-shadow: 0 0 0 2px #22d3ee22;
+}
+#search-results {
+  display: none; position: absolute;
+  top: calc(100% + 4px); left: 0; right: 0;
+  background: #141821; border: 1px solid #22d3ee;
+  border-radius: 6px; max-height: 360px; overflow-y: auto;
+  z-index: 150; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.search-result {
+  padding: 10px 12px; cursor: pointer;
+  border-bottom: 1px solid #1e293b;
+  color: #e2e8f0; font-size: 0.85rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: #1c2030; }
+.search-phase {
+  display: inline-block; background: #22d3ee22;
+  color: #22d3ee; padding: 2px 8px; border-radius: 4px;
+  font-size: 0.72rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
+.search-empty {
+  padding: 14px; color: #94a3b8;
+  font-style: italic; text-align: center;
+  font-size: 0.85rem;
+}
+.search-snippet {
+  display: block; color: #94a3b8;
+  font-size: 0.78rem; margin-top: 4px;
+  font-style: italic;
+}
+.search-mark { background: #fbbf2466; color: #fbbf24; padding: 0 2px; }
+
+/* ===== CLOSE LEVEL BUTTON ===== */
+.close-btn {
+  display: block; margin: 18px auto 0;
+  padding: 8px 18px; background: transparent;
+  border: 1px solid #475569; color: #94a3b8;
+  border-radius: 8px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.close-btn:hover {
+  background: #1c2030; color: #e2e8f0;
+  border-color: #818cf8;
+}
+.complete-btn {
+  display: inline-block; padding: 10px 22px;
+  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  color: #0b0e14; border: none; border-radius: 8px;
+  cursor: pointer; font-weight: 700; font-size: 0.9rem;
+  margin-top: 12px;
+}
+.complete-btn:hover { filter: brightness(1.1); }
 </style>
 </head>
 <body>
@@ -263,6 +334,10 @@ strong { color: #e2e8f0; }
       <h1>DSC 152 Companion — Quiz 1 · Quiz 2 · Midterm</h1>
       <div class="subtitle">Lec 1–10 (Hypothesis Testing → Regression → Diagnostics) · Labs 1–3 · Built for Maxime</div>
       <a href="uber-apm-bridge.html" target="_blank" style="display:inline-block; margin-top:10px; padding:8px 16px; background:linear-gradient(135deg,#22d3ee,#818cf8); color:#0b0e14; text-decoration:none; font-weight:700; border-radius:6px; font-size:0.85rem;">→ Open the Uber APM Interview Bridge (new tab)</a>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="🔍 Search the guide... (e.g. p-value, bootstrap, LINE)" oninput="searchLevels()" onfocus="searchLevels()" onblur="setTimeout(()=>{document.getElementById('search-results').style.display='none';}, 200)">
+      <div id="search-results"></div>
     </div>
     <div class="xp-bar-container">
       <span class="level-display" id="level-disp">Level 1</span>
@@ -286,6 +361,7 @@ strong { color: #e2e8f0; }
   <div class="phase-tab" data-phase="9">Phase 9: Midterm Review</div>
   <div class="phase-tab" data-phase="10">Phase 10: Lab Deep Dives (Lab 4-5)</div>
   <div class="phase-tab" data-phase="11">Phase 11: ESL Practice Bank 🌍</div>
+  <div class="phase-tab" data-phase="12">Phase 12: ESL Bank Quiz 2 🌍</div>
 </div>
 
 <!-- ============================= MAIN CONTENT ============================= -->
@@ -7850,6 +7926,625 @@ x &lt;- <span class="fn">rnorm</span>(n, mean=mu_true, sd=sigma)
 
 </div> <!-- end phase-11 -->
 
+<!-- ============================================================ -->
+<!-- PHASE 12: ESL PRACTICE BANK QUIZ 2 (Levels 56-59) — Lec 6-10 -->
+<!-- ============================================================ -->
+<div class="phase-content" id="phase-12">
+
+<div class="box box-story" style="margin-bottom:24px;">
+  <div class="box-label">About this phase</div>
+  <p>Phase 12 = ESL practice bank for Quiz 2 / Midterm material (Lec 6–10). Same strict 8-section format as Phase 11. Phases 6–10 give the deep walkthroughs; this phase gives <strong>simple language + heavy practice</strong>.</p>
+</div>
+
+<!-- ==================== LEVEL 56 — SLR + Slope Inference ==================== -->
+<div class="level-card" id="level-56">
+<div class="level-header" onclick="toggleLevel(56)">
+  <span class="level-title"><span class="num">Level 56</span> — Simple Linear Regression + Inference for the Slope</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-56">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>You have two number columns: an <strong>x</strong> (predictor) and a <strong>y</strong> (outcome). You want to draw a line through the cloud of points.</p>
+  <p>The line has a starting height (intercept) and a tilt (slope). The slope says: "for every +1 in x, y goes up by this much."</p>
+  <p>The big question: <em>"Is the slope really not zero, or does it just look that way by accident?"</em></p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Model</strong>: \(y_i = \beta_0 + \beta_1 x_i + \epsilon_i\), \(\epsilon_i \sim N(0, \sigma^2)\)</li>
+    <li><strong>Estimated line</strong>: \(\hat y = \hat\beta_0 + \hat\beta_1 x\)</li>
+    <li><strong>Least squares</strong>: \(\hat\beta_1 = \dfrac{\sum (x_i - \bar x)(y_i - \bar y)}{\sum (x_i - \bar x)^2}\), \(\hat\beta_0 = \bar y - \hat\beta_1 \bar x\)</li>
+    <li><strong>Test for slope</strong>: \(H_0: \beta_1 = 0\), test stat \(t_s = \hat\beta_1 / SE(\hat\beta_1)\), df = \(n - 2\)</li>
+    <li><strong>R</strong>: <code>summary(lm(y ~ x))$coefficients[2, 4]</code> = slope p-value</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Simple</th><th>Math</th></tr>
+    <tr><td>"Best-fit line"</td><td>Least-squares regression line</td></tr>
+    <tr><td>"Tilt of the line"</td><td>Slope \(\hat\beta_1\) (sample) → \(\beta_1\) (true population)</td></tr>
+    <tr><td>"Where line crosses y-axis"</td><td>Intercept \(\hat\beta_0\)</td></tr>
+    <tr><td>"True relationship vs estimated"</td><td>\(\beta_1\) (no hat) vs \(\hat\beta_1\) (hat)</td></tr>
+    <tr><td>"Gap between point and line"</td><td>Residual \(\epsilon_i = y_i - \hat y_i\)</td></tr>
+    <tr><td>"Is the tilt real?"</td><td>Test \(H_0: \beta_1 = 0\)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — March Madness</div>
+  <p>n = 50 students. x = basketball knowledge (0–10), y = bracket score.</p>
+  <ul>
+    <li>R fits: \(\hat y = -100 + 38.4 \cdot x\). For each +1 knowledge → +38.4 bracket points (in this sample).</li>
+    <li>R reports p &lt; 0.001 for \(\hat\beta_1\). Reject \(H_0: \beta_1 = 0\).</li>
+    <li>Conclusion: "There is statistically significant evidence at α=0.05 that knowledge is associated with bracket score."</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Read R lm() output</div>
+<pre class="r-code">model &lt;- <span class="fn">lm</span>(bracket_score ~ knowledge, data=march_madness)
+<span class="fn">summary</span>(model)$coefficients
+<span class="cm">#               Estimate  Std. Error  t value  Pr(&gt;|t|)</span>
+<span class="cm"># (Intercept)   -100.2     45.3        -2.21    0.032</span>
+<span class="cm"># knowledge       38.4      6.7         5.74    &lt;0.001</span>
+
+<span class="cm"># Three things you must know how to extract:</span>
+<span class="fn">summary</span>(model)$coefficients[<span class="nb">2</span>, <span class="nb">1</span>]   <span class="cm"># β̂₁ estimate</span>
+<span class="fn">summary</span>(model)$coefficients[<span class="nb">2</span>, <span class="nb">2</span>]   <span class="cm"># SE of β̂₁</span>
+<span class="fn">summary</span>(model)$coefficients[<span class="nb">2</span>, <span class="nb">4</span>]   <span class="cm"># slope p-value</span>
+<span class="fn">confint</span>(model, <span class="st">"knowledge"</span>)              <span class="cm"># 95% CI for β₁</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What does \(\hat\beta_1\) (with hat) mean vs \(\beta_1\) (no hat)?</li>
+    <li>What does df = n − 2 represent for SLR?</li>
+    <li>True/false: Slope = 0 means no LINEAR relationship.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>R prints <code>Pr(&gt;|t|) = 0.0001</code> for the slope. State conclusion at α = 0.05.</li>
+    <li>If \(\hat\beta_1 = 5\) and SE(\(\hat\beta_1\)) = 1.5, what is the t-statistic?</li>
+    <li>Why must we have at least 3 data points to fit a SLR? (Hint: degrees of freedom.)</li>
+    <li>The 95% CI for slope is (1.2, 4.8). Would we reject \(H_0: \beta_1 = 0\) at α = 0.05?</li>
+    <li>Write the R command to extract just the slope p-value from a fitted model called <code>fit</code>.</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Spot the Output Reading</div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">R prints: <code>x &nbsp;&nbsp; 2.39 &nbsp;&nbsp; 0.24 &nbsp;&nbsp; 10.19 &nbsp;&nbsp; &lt;2e-16</code>. Which value is the t-statistic?</div>
+    <div class="quiz-opt" data-i="0">2.39</div>
+    <div class="quiz-opt" data-i="1">10.19</div>
+    <div class="quiz-opt" data-i="2">0.24</div>
+    <div class="quiz-opt" data-i="3">&lt;2e-16</div>
+    <div class="quiz-result" data-explain="Columns are: Estimate (β̂), Std. Error, t value, Pr(>|t|). The 3rd is t = β̂/SE = 2.39/0.24 = 10.19."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(R syntax)</strong> Fit SLR of <code>fev</code> on <code>age</code> in dataset <code>FEV</code>; store in <code>model</code>.</li>
+    <li><strong>(Formula)</strong> Write the model equation \(y_i = \ldots\) and define every symbol.</li>
+    <li><strong>(LSE)</strong> Write \(\hat\beta_1\) in summation form.</li>
+    <li><strong>(Test)</strong> What is the test statistic for \(H_0: \beta_1 = 0\)? What is its null distribution?</li>
+    <li><strong>(Interpretation)</strong> R returns \(\hat\beta_1 = 0.231\) for the model lm(fev ~ age). Write a one-sentence interpretation in plain English.</li>
+    <li><strong>(R reading)</strong> What does <code>summary(model)$r.squared</code> return?</li>
+    <li><strong>(CI)</strong> 95% CI for slope = (-0.05, 1.20). Conclusion at α = 0.05?</li>
+    <li><strong>(Conditions)</strong> List the 4 LINE conditions and what each means.</li>
+    <li><strong>(Vocabulary)</strong> Distinguish "parameter" vs "statistic" using \(\beta_1\) and \(\hat\beta_1\) as examples.</li>
+    <li><strong>(Trap)</strong> True or false: "Statistical significance of the slope means the relationship is causal." Justify.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>\(\hat\beta_1\) = sample estimate (a statistic). \(\beta_1\) = true population value (a parameter).</li>
+    <li>n total points, minus 2 estimated parameters (intercept and slope) = n − 2 df left for the residuals.</li>
+    <li>True. β₁ = 0 means no LINEAR association. There could still be a nonlinear one.</li>
+    <li>"Reject \(H_0\) at α = 0.05; statistically significant evidence that the slope is non-zero (p = 0.0001)."</li>
+    <li>t = 5/1.5 ≈ 3.33.</li>
+    <li>You need 2 points to define a line, plus at least 1 more to estimate residual variance (so df = n − 2 ≥ 1).</li>
+    <li>Yes — CI doesn't include 0.</li>
+    <li><code>summary(fit)$coefficients[2, 4]</code></li>
+    <li><code>model &lt;- lm(fev ~ age, data = FEV)</code></li>
+    <li>\(y_i = \beta_0 + \beta_1 x_i + \epsilon_i\). \(y_i\) outcome, \(x_i\) predictor, \(\beta_0\) true intercept, \(\beta_1\) true slope, \(\epsilon_i\) noise term.</li>
+    <li>\(\hat\beta_1 = \dfrac{\sum_i (x_i - \bar x)(y_i - \bar y)}{\sum_i (x_i - \bar x)^2}\)</li>
+    <li>\(t_s = \hat\beta_1 / SE(\hat\beta_1)\); under \(H_0\) it follows \(t_{n-2}\).</li>
+    <li>"Each additional year of age is associated with an estimated 0.231-liter increase in FEV (in this sample)."</li>
+    <li>The R² value — proportion of variance in y explained by the model.</li>
+    <li>Fail to reject \(H_0\) at α = 0.05; CI contains 0.</li>
+    <li>L=relationship is linear. I=observations are independent. N=residuals are normal (or n large for CLT). E=residual variance is constant across x.</li>
+    <li>Parameter = true population quantity (β₁, no hat). Statistic = sample estimate (β̂₁, with hat).</li>
+    <li>FALSE. Significance of slope means linear association exists in the data; only random assignment licenses causation.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Calling \(\hat\beta_1\) "the slope" without "estimated."</strong> The hat MATTERS — it distinguishes sample stat from true parameter.</li>
+    <li><strong>Reading the wrong column of <code>summary()$coefficients</code>.</strong> Memorize: [Estimate, SE, t, p].</li>
+    <li><strong>Saying "X causes Y" from regression.</strong> Regression detects association, not causation.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(56)">Mark Level 56 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 57 — MLR + Confounding ==================== -->
+<div class="level-card" id="level-57">
+<div class="level-header" onclick="toggleLevel(57)">
+  <span class="level-title"><span class="num">Level 57</span> — Multiple Regression + Confounding (the FEV / airquality story)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-57">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>One predictor (SLR) is rarely the full story. <strong>A third variable can hide behind your predictor and lie about its effect.</strong></p>
+  <p>Famous example: smokers in a kids' study seem to have BETTER lungs than non-smokers. Why? Because smokers are mostly TEENAGERS — older kids have bigger lungs. <strong>Age is the lurker.</strong></p>
+  <p>Fix: include age in the model. Then smoke's coefficient flips to negative (the truth).</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>MLR model</strong>: \(\hat y = \hat\beta_0 + \hat\beta_1 x_1 + \hat\beta_2 x_2 + \cdots + \hat\beta_p x_p\)</li>
+    <li><strong>Each \(\hat\beta_j\)</strong>: estimated change in y per +1 in \(x_j\), <strong>holding all other predictors fixed</strong>.</li>
+    <li><strong>Confounder</strong>: a variable Z that affects both X (the exposure) and Y (the outcome). Ignoring Z biases \(\hat\beta_x\).</li>
+    <li><strong>R</strong>: <code>lm(y ~ x1 + x2 + x3)</code> — the <code>+</code> means "include both."</li>
+    <li><strong>Conclusion language</strong>: "associated with… while adjusting for [Z]." Never "causes" without random assignment.</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Simple</th><th>Math</th></tr>
+    <tr><td>"Hidden variable affecting both X and Y"</td><td>Confounder Z</td></tr>
+    <tr><td>"Compare apples to apples"</td><td>Adjust for Z by including in model</td></tr>
+    <tr><td>"Effect with Z held constant"</td><td>\(\hat\beta_x\) in model with Z</td></tr>
+    <tr><td>"Bias in naive analysis"</td><td>\(\hat\beta_x\) (no Z) ≠ \(\hat\beta_x\) (with Z)</td></tr>
+    <tr><td>"Hot days are sunny days"</td><td>X (solar) and Z (temp) are positively correlated</td></tr>
+    <tr><td>"Pay for adjustment with bigger SE"</td><td>Variance inflation when X and Z highly correlated</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — FEV vs Smoke + Age</div>
+  <p>n = 654 children, ages 3-19.</p>
+  <ul>
+    <li>Naive: <code>lm(fev ~ smoke)</code> → smoke coef = +0.71 L (smokers seem BETTER!)</li>
+    <li>Adjusted: <code>lm(fev ~ smoke + age)</code> → smoke coef = −0.21 L (sign flips!)</li>
+    <li>Why? Smokers are systematically older. Age dominated the apparent effect.</li>
+    <li>Conclusion: "Smoking is associated with a 0.21-liter decrease in FEV, while adjusting for age (p = 0.010)."</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Read MLR output</div>
+<pre class="r-code">m1 &lt;- <span class="fn">lm</span>(fev ~ smoke,        data=FEV)  <span class="cm"># naive</span>
+m2 &lt;- <span class="fn">lm</span>(fev ~ smoke + age,  data=FEV)  <span class="cm"># adjusted</span>
+
+<span class="fn">summary</span>(m1)$coefficients[<span class="st">"smoke"</span>, <span class="st">"Estimate"</span>]
+<span class="cm"># [1] 0.71   ← positive, "smokers better"</span>
+
+<span class="fn">summary</span>(m2)$coefficients[<span class="st">"smoke"</span>, <span class="st">"Estimate"</span>]
+<span class="cm"># [1] -0.21  ← negative, "smokers worse, adjusting for age"</span>
+
+<span class="fn">confint</span>(m2, <span class="st">"smoke"</span>)
+<span class="cm"># [1] -0.37 -0.05</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What does the <code>+</code> in <code>lm(y ~ x1 + x2)</code> mean?</li>
+    <li>What does it mean to "hold x2 constant"?</li>
+    <li>True or false: a confounder must be observed to be adjusted for.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>In the FEV example, why does smoke's coefficient flip when age is added?</li>
+    <li>If smoke and age were uncorrelated, would the coefficient still flip?</li>
+    <li>Write the R command to fit <code>ozone ~ solar.R + temp + wind</code> on dataset <code>aq</code>.</li>
+    <li>Cost of adjustment: what happens to SE(\(\hat\beta_x\)) when X is highly correlated with the adjuster Z?</li>
+    <li>If the smoke coefficient (adjusted) has p = 0.20, what conclusion should you write?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Spot the Confounder</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">"Coffee drinkers have higher heart attack rates." Most likely confounder?</div>
+    <div class="quiz-opt" data-i="0">Caffeine content</div>
+    <div class="quiz-opt" data-i="1">Coffee temperature</div>
+    <div class="quiz-opt" data-i="2">Smoking (smokers tend to drink more coffee AND have higher heart attack rates)</div>
+    <div class="quiz-opt" data-i="3">Cup size</div>
+    <div class="quiz-result" data-explain="Smoking is the classic confounder of coffee→heart studies. Smokers drink more coffee AND have direct cardiovascular risk. Adjusting for smoking often eliminates the apparent coffee effect."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(Definition)</strong> What is a confounder? (1-sentence definition.)</li>
+    <li><strong>(R)</strong> Write the R code to fit MLR with 3 predictors and pretty-print coefficients with knitr's <code>kable</code>.</li>
+    <li><strong>(Interpretation)</strong> Conclusion sentence: \(\hat\beta_{\text{smoke}} = -0.21\) (adjusted), CI (-0.37, -0.05), p = 0.010. Write the proper exam-style conclusion.</li>
+    <li><strong>(Math)</strong> Write the formula for an MLR model with 3 predictors.</li>
+    <li><strong>(Causal)</strong> Why does adjustment NOT prove causation, even when significant?</li>
+    <li><strong>(Trap)</strong> True or false: "Adding more predictors always makes the model better." Justify.</li>
+    <li><strong>(R reading)</strong> Which row of <code>summary(model)$coefficients</code> matters for the test of "smoke effect"?</li>
+    <li><strong>(Simpson's)</strong> Distinguish "magnitude shrinking" confounder vs full "Simpson's paradox" sign flip with a one-line example each.</li>
+    <li><strong>(Wording)</strong> What's wrong with: "After adjusting, smoke causes a 0.21-liter decrease in FEV."</li>
+    <li><strong>(Adjustment cost)</strong> Why do statisticians warn against "throwing in every variable"?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>"AND" — include both predictors in the model.</li>
+    <li>Compare units that share the same value of x2 (e.g. compare smoke effect among children of the same age).</li>
+    <li>True. Unmeasured confounders cannot be adjusted for — random assignment is the only way to handle them.</li>
+    <li>Smokers are mostly teenagers (older kids). The naive model attributes age's effect to smoke. Adjusting splits the effects properly.</li>
+    <li>NO. If Z and X are uncorrelated, adjusting for Z doesn't change \(\hat\beta_x\).</li>
+    <li><code>lm(ozone ~ solar.R + temp + wind, data = aq)</code></li>
+    <li>SE inflates (variance inflation factor) — adjustment costs precision when X and Z overlap.</li>
+    <li>"Fail to reject \(H_0\) at α = 0.05 (p = 0.20). The data does not provide statistically significant evidence of a smoke effect after adjusting for age."</li>
+    <li>A variable that affects BOTH the predictor (X) and the outcome (Y); ignoring it biases \(\hat\beta_x\).</li>
+    <li><code>library(knitr); kable(summary(lm(y ~ x1 + x2 + x3, data=df))$coefficients)</code></li>
+    <li>"There is statistically significant evidence at the α = 0.05 level that smoking is associated with lower FEV (β̂ = -0.21 L, 95% CI: [-0.37, -0.05], p = 0.010), while adjusting for age."</li>
+    <li>\(y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 x_{3i} + \epsilon_i\)</li>
+    <li>Adjustment only handles MEASURED confounders. Unmeasured confounders, reverse causation, and selection bias remain.</li>
+    <li>FALSE. More predictors can introduce noise, multicollinearity, and reduce power. Add only what's scientifically justified.</li>
+    <li>The row labeled "smoke" — its p-value is your test of \(H_0: \beta_{\text{smoke}} = 0\).</li>
+    <li>Magnitude: "Solar's effect on ozone shrinks from 0.13 to 0.05 after adjusting for temp." Sign flip: "Penguin bill_length effect on bill_depth flips from negative to positive after adjusting for species."</li>
+    <li>Says "causes." Observational data only supports "associated with." Use proper exam wording.</li>
+    <li>(a) variance inflation hurts SEs; (b) over-adjustment can introduce its own bias (e.g. adjusting for a mediator); (c) more predictors → fewer df → less reliable test.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Saying "causes" from observational MLR.</strong> Always "associated with… while adjusting for…"</li>
+    <li><strong>Throwing in every variable.</strong> Causes variance inflation and over-adjustment.</li>
+    <li><strong>Adjusting for a mediator.</strong> If Z is BETWEEN X and Y in the causal chain, adjusting for Z hides the X effect.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(57)">Mark Level 57 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 58 — Partial F ==================== -->
+<div class="level-card" id="level-58">
+<div class="level-header" onclick="toggleLevel(58)">
+  <span class="level-title"><span class="num">Level 58</span> — Partial F-Test (categorical predictors with k > 2 levels)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-58">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>You have a category with 3+ groups (e.g. species: setosa, versicolor, virginica). You want one answer: <em>"Does species matter at all?"</em></p>
+  <p>R fits 2 dummy variables (one per non-reference group). The summary shows TWO p-values for species. You can't pick the smaller one — that's cheating.</p>
+  <p>The right answer: the <strong>partial F-test</strong> compares "model WITH species" vs "model WITHOUT species" and gives ONE p-value.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Dummy coding</strong>: a categorical with k levels becomes k − 1 binary indicators. Reference = baseline category.</li>
+    <li><strong>Hypothesis</strong>: \(H_0: \beta_{\text{level 2}} = \beta_{\text{level 3}} = \cdots = \beta_{\text{level k}} = 0\) (ALL dummies zero).</li>
+    <li><strong>F-statistic</strong>: \(F = \dfrac{(RSS_{\text{reduced}} - RSS_{\text{full}}) / p}{RSS_{\text{full}} / (n - k)}\) where \(p\) = # extra coefficients in full model, \(k\) = total coefs in full.</li>
+    <li><strong>Null distribution</strong>: \(F \sim F_{p, n-k}\)</li>
+    <li><strong>R</strong>: <code>anova(reduced_model, full_model)</code> — small first, full second.</li>
+    <li><strong>R for p-value</strong>: <code>pf(F, df1=p, df2=n-k, lower.tail=FALSE)</code></li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Simple</th><th>Math</th></tr>
+    <tr><td>"Does species matter at all?"</td><td>\(H_0: \beta_{\text{vers}} = \beta_{\text{virg}} = 0\)</td></tr>
+    <tr><td>"Big improvement from adding species"</td><td>Big drop in RSS from reduced to full</td></tr>
+    <tr><td>"Improvement vs noise floor"</td><td>F = (RSS reduction per df) / (residual variance)</td></tr>
+    <tr><td>"Cheating: pick best p-value"</td><td>Multiple-testing inflation of Type I error</td></tr>
+    <tr><td>"Three parallel lines"</td><td>Same slope on covariate, different intercepts per category</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Iris</div>
+  <p>n = 150 flowers (50 per species). Predict Petal.Length from Species + Petal.Width.</p>
+  <ul>
+    <li>Full: <code>lm(Petal.Length ~ Species + Petal.Width)</code> → 4 coefficients (intercept + 2 species dummies + width slope).</li>
+    <li>Reduced: <code>lm(Petal.Length ~ Petal.Width)</code> → 2 coefficients.</li>
+    <li>p = 2 (the 2 species dummies). k = 4. n = 150.</li>
+    <li><code>anova(reduced, full)</code> → F is huge, p &lt; 2e-16. Reject \(H_0\). Species matters even after Petal.Width.</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Compute partial F by hand</div>
+<pre class="r-code">full    &lt;- <span class="fn">lm</span>(Petal.Length ~ Species + Petal.Width, data=iris)
+reduced &lt;- <span class="fn">lm</span>(Petal.Length ~ Petal.Width,           data=iris)
+
+RSS_full    &lt;- <span class="fn">sum</span>(<span class="fn">residuals</span>(full)^<span class="nb">2</span>)
+RSS_reduced &lt;- <span class="fn">sum</span>(<span class="fn">residuals</span>(reduced)^<span class="nb">2</span>)
+n &lt;- <span class="fn">nrow</span>(iris)
+k &lt;- <span class="fn">length</span>(<span class="fn">coef</span>(full))
+p &lt;- k - <span class="fn">length</span>(<span class="fn">coef</span>(reduced))
+
+F_stat &lt;- ((RSS_reduced - RSS_full) / p) / (RSS_full / (n - k))
+pval   &lt;- <span class="fn">pf</span>(F_stat, df1=p, df2=n-k, lower.tail=<span class="kw">FALSE</span>)
+
+<span class="fn">anova</span>(reduced, full)   <span class="cm"># confirms manual computation</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>How many dummy variables does a 4-level categorical create?</li>
+    <li>What does the F-test compare?</li>
+    <li>True/false: a partial F-test answers the question "is at least one group different from the reference?"</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>Why is reading the smaller of 2 species p-values WRONG?</li>
+    <li>For iris with full = 4 coefs, reduced = 2 coefs, n = 150: what is df for the F-distribution?</li>
+    <li>If F = 5 on (2, 100), is this likely significant at α = 0.05? (Critical F ≈ 3.09.)</li>
+    <li>Write the R command for partial F using anova().</li>
+    <li>What R command computes the F p-value from a numeric F-statistic and degrees of freedom?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: When to Use F vs t</div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">"Does this 5-level treatment matter overall?" Best test?</div>
+    <div class="quiz-opt" data-i="0">Partial F-test (anova on reduced vs full)</div>
+    <div class="quiz-opt" data-i="1">4 individual t-tests (one per dummy)</div>
+    <div class="quiz-opt" data-i="2">Bonferroni-corrected t-tests</div>
+    <div class="quiz-result" data-explain="A single F-test asks 'all dummies zero?' once. Multiple t-tests inflate Type I and don't directly answer the joint question."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(R)</strong> Write the R command to test the joint significance of <code>Species</code> in <code>lm(Petal.Length ~ Species + Petal.Width)</code>.</li>
+    <li><strong>(Manual F)</strong> Write the F-statistic formula and define each symbol.</li>
+    <li><strong>(R)</strong> Compute the F p-value in R given F = 12.3, p = 2, n − k = 80.</li>
+    <li><strong>(Wording)</strong> Write the exam-style conclusion when the partial F p-value is &lt; 0.001.</li>
+    <li><strong>(Trap)</strong> True/false: "F &gt; 1 means significant." Justify.</li>
+    <li><strong>(Compare)</strong> What's the difference between a partial F-test and the F-statistic at the bottom of <code>summary(lm)</code>?</li>
+    <li><strong>(Vocab)</strong> What are the two degrees-of-freedom numbers \(df_1\) and \(df_2\) in an F-distribution?</li>
+    <li><strong>(Conceptual)</strong> Why don't we just look at \(R^2\) to decide if a categorical variable matters?</li>
+    <li><strong>(R interpretation)</strong> R's anova prints <code>F = 14.5, Pr(&gt;F) = 1e-6</code>. State conclusion.</li>
+    <li><strong>(Reference level)</strong> How does the choice of reference category affect the partial F-test? (Hint: it shouldn't.)</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>3 dummies (k − 1 = 4 − 1).</li>
+    <li>Improvement in fit (drop in RSS) per added df vs noise floor (residual variance per residual df).</li>
+    <li>True. F-test rejects when at least one β in the tested set is non-zero.</li>
+    <li>You're cherry-picking → inflated Type I error. Also doesn't answer the joint question.</li>
+    <li>df₁ = 2 (full has 2 more coefficients than reduced); df₂ = 150 − 4 = 146.</li>
+    <li>Yes, F = 5 &gt; 3.09. Significant at α = 0.05.</li>
+    <li><code>anova(reduced_model, full_model)</code></li>
+    <li><code>pf(F, df1, df2, lower.tail = FALSE)</code></li>
+    <li><code>anova(lm(Petal.Length ~ Petal.Width, data=iris), lm(Petal.Length ~ Species + Petal.Width, data=iris))</code></li>
+    <li>\(F = \dfrac{(RSS_{\text{red}} - RSS_{\text{full}}) / p}{RSS_{\text{full}} / (n - k)}\). RSS_red = SS errors of reduced model. p = added coefs in full. k = total coefs in full. n = sample size.</li>
+    <li><code>pf(12.3, df1 = 2, df2 = 80, lower.tail = FALSE)</code></li>
+    <li>"Reject \(H_0\) at α = 0.05; statistically significant evidence that the categorical predictor jointly contributes to the model (p &lt; 0.001)."</li>
+    <li>FALSE. F &gt; 1 just means the full model fits better than the reduced. You need the p-value to know if it's "significantly" better.</li>
+    <li>Partial F = is THIS subset of variables jointly significant? Bottom-of-summary F = is any predictor significant vs intercept-only?</li>
+    <li>df₁ = numerator df (number of extra parameters tested). df₂ = denominator df (residual df of full model = n − k).</li>
+    <li>R² always increases with more predictors; F-test corrects for that by penalizing extra coefficients.</li>
+    <li>"Reject \(H_0\) at α = 0.05; statistically significant evidence that the categorical variable jointly contributes (F = 14.5, p &lt; 0.001)."</li>
+    <li>Choice of reference doesn't change the F-statistic or p-value. The reference only relabels per-coefficient interpretation.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Reading per-row p-values from <code>summary()</code> when joint test is needed.</strong> Use anova() for the joint question.</li>
+    <li><strong>Forgetting <code>lower.tail = FALSE</code></strong> in <code>pf()</code>.</li>
+    <li><strong>Putting full model first in anova().</strong> Convention: smaller (reduced) first.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(58)">Mark Level 58 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 59 — LINE Diagnostics ==================== -->
+<div class="level-card" id="level-59">
+<div class="level-header" onclick="toggleLevel(59)">
+  <span class="level-title"><span class="num">Level 59</span> — LINE Diagnostics (when to TRUST your t-test on a slope)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-59">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>Your model gave you a slope and a p-value. <strong>Should you believe them?</strong></p>
+  <p>The classical t-test for the slope is valid only if 4 conditions hold (LINE). If they break, your "p &lt; 0.05" might be lying.</p>
+  <p>You check by looking at the <strong>residuals</strong> (the gaps between actual and predicted y). Patterns in residuals = broken conditions.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language — LINE</div>
+  <ul>
+    <li><strong>L</strong>inearity: \(E[y \mid x] = \beta_0 + \beta_1 x\) (the relationship really is a line).</li>
+    <li><strong>I</strong>ndependence: \(\epsilon_i\) independent of \(\epsilon_j\) for all \(i \neq j\).</li>
+    <li><strong>N</strong>ormality: \(\epsilon_i \sim N(0, \sigma^2)\) (or n large for CLT).</li>
+    <li><strong>E</strong>qual variance: \(\text{Var}(\epsilon_i) = \sigma^2\) constant across all x.</li>
+    <li><strong>Diagnostics</strong>: residuals-vs-fitted (L, E), Q-Q plot (N), residuals-vs-order (I), Shapiro-Wilk test (formal N test).</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>What you see</th><th>Diagnosis</th><th>LINE letter broken</th></tr>
+    <tr><td>Residuals form a curve, not a flat band</td><td>Relationship is nonlinear</td><td><strong>L</strong></td></tr>
+    <tr><td>Cyclic / time pattern in residuals vs order</td><td>Adjacent observations correlated</td><td><strong>I</strong></td></tr>
+    <tr><td>Q-Q plot curves away from diagonal</td><td>Residuals not normal (skewed or heavy tails)</td><td><strong>N</strong></td></tr>
+    <tr><td>Residuals fan out (variance grows with x)</td><td>Heteroskedasticity</td><td><strong>E</strong></td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — airquality</div>
+  <p>You fit <code>lm(Ozone ~ Temp)</code> on n = 111. Look at residuals:</p>
+  <ul>
+    <li>Residuals vs fitted: clear curvature AND fan shape → L and E broken.</li>
+    <li>Q-Q plot: heavy tails → N broken (but n = 111 is large, so CLT might save β̂₁).</li>
+    <li>You CAN report the t-test p-value, but you MUST flag the diagnostic concerns and try a robust alternative (bootstrap CI or robust SE).</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Generate the 4 diagnostic plots</div>
+<pre class="r-code">model &lt;- <span class="fn">lm</span>(Ozone ~ Temp, data=aq)
+res &lt;- model$residuals
+fit &lt;- model$fitted.values
+
+<span class="fn">par</span>(mfrow=<span class="fn">c</span>(<span class="nb">2</span>, <span class="nb">2</span>))   <span class="cm"># 2x2 grid</span>
+
+<span class="fn">plot</span>(res ~ fit, main=<span class="st">"L &amp; E"</span>); <span class="fn">abline</span>(h=<span class="nb">0</span>, lty=<span class="nb">2</span>)
+<span class="fn">qqnorm</span>(res, main=<span class="st">"N"</span>);    <span class="fn">qqline</span>(res, col=<span class="st">"red"</span>)
+<span class="fn">hist</span>(res, breaks=<span class="nb">20</span>, main=<span class="st">"N (histogram)"</span>)
+<span class="fn">plot</span>(res ~ <span class="fn">seq_along</span>(res), main=<span class="st">"I"</span>); <span class="fn">abline</span>(h=<span class="nb">0</span>, lty=<span class="nb">2</span>)
+
+<span class="fn">par</span>(mfrow=<span class="fn">c</span>(<span class="nb">1</span>, <span class="nb">1</span>))
+
+<span class="fn">shapiro.test</span>(res)            <span class="cm"># formal normality test</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What does "L" stand for in LINE?</li>
+    <li>What's a residual?</li>
+    <li>True/false: with n = 1000, the t-test for slope is valid even if residuals are slightly skewed.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>If residuals fan out, which letter is broken? What does that mean for SE estimates?</li>
+    <li>If Q-Q plot shows S-curve, what's broken? Is it serious if n = 5? If n = 5000?</li>
+    <li>What does Shapiro-Wilk test? What's its null hypothesis?</li>
+    <li>Why is the I (independence) condition the hardest to diagnose from data alone?</li>
+    <li>Write R code to extract residuals from <code>fit</code> and plot them against order.</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Name the Violation</div>
+  <div class="quiz-box" data-answer="3">
+    <div class="quiz-q">A residual-vs-fitted plot looks like a megaphone (small spread on left, big on right). Diagnosis?</div>
+    <div class="quiz-opt" data-i="0">L (curvature)</div>
+    <div class="quiz-opt" data-i="1">I (autocorrelation)</div>
+    <div class="quiz-opt" data-i="2">N (non-normality)</div>
+    <div class="quiz-opt" data-i="3">E (heteroskedasticity)</div>
+    <div class="quiz-result" data-explain="Megaphone / fan = variance grows with fitted value = E broken."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">Q-Q plot shows points curving up at both ends (S-shape).</div>
+    <div class="quiz-opt" data-i="0">N (heavy tails)</div>
+    <div class="quiz-opt" data-i="1">L (curvature)</div>
+    <div class="quiz-opt" data-i="2">E (heteroskedasticity)</div>
+    <div class="quiz-result" data-explain="Q-Q plot is the dedicated tool for normality. S-shape = heavier tails than normal = N broken. (Big n softens the impact via CLT.)"></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(Conditions)</strong> List LINE in full sentences.</li>
+    <li><strong>(Diagnostics)</strong> For each LINE letter, name the standard diagnostic plot.</li>
+    <li><strong>(R)</strong> Write R code to make the residual-vs-fitted and Q-Q plots side-by-side.</li>
+    <li><strong>(Conditional)</strong> If diagnostics show heteroskedasticity (E broken), what's a robust alternative for testing the slope?</li>
+    <li><strong>(Vocab)</strong> What's the difference between "valid" and "powerful"?</li>
+    <li><strong>(Conceptual)</strong> Why do diagnostic plots use residuals and not raw y?</li>
+    <li><strong>(Trap)</strong> True/false: "p &lt; 0.05 means the model is good." Justify.</li>
+    <li><strong>(Independence)</strong> Give 2 examples of data structures that break independence.</li>
+    <li><strong>(Shapiro)</strong> Shapiro-Wilk's p = 0.001 with n = 5000. What do you conclude visually vs formally?</li>
+    <li><strong>(Synthesis)</strong> Your slope p &lt; 0.001 but residuals show fan + curvature. Write a reasonable conclusion sentence.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>Linearity.</li>
+    <li>Residual = observed − predicted, \(\epsilon_i = y_i - \hat y_i\).</li>
+    <li>True. CLT makes \(\hat\beta_1\) approximately normal at large n even if individual residuals aren't.</li>
+    <li>E broken. Standard SE formula assumes equal variance — if it's wrong, SEs are biased and p-values are off.</li>
+    <li>N broken. n=5: serious, t-test unreliable. n=5000: probably OK by CLT, but still flag.</li>
+    <li>Tests if a sample is from a normal distribution. \(H_0\): sample is normal.</li>
+    <li>Need to know how data was collected (time-ordered? clustered? same subject?). Plot can only catch time-ordered patterns.</li>
+    <li><code>plot(residuals(fit) ~ seq_along(residuals(fit))); abline(h=0, lty=2)</code></li>
+    <li>L: relationship is linear. I: observations are independent. N: residuals are normally distributed (or n large for CLT). E: residual variance is constant across x.</li>
+    <li>L: residuals vs fitted (look for curvature). I: residuals vs order. N: Q-Q plot. E: residuals vs fitted (look for fan).</li>
+    <li><code>par(mfrow=c(1,2)); plot(model, which=1); plot(model, which=2)</code></li>
+    <li>Bootstrap CI for the slope, robust standard errors (sandwich), or weighted least squares.</li>
+    <li>Valid = correct Type I rate (test isn't lying about α). Powerful = high probability of detecting real effects.</li>
+    <li>Residuals isolate noise from systematic effects already explained by the model.</li>
+    <li>FALSE. Significance of slope says nothing about model fit; you need diagnostics to check the model is appropriate.</li>
+    <li>(a) Repeated measurements on same subject. (b) Time-series (consecutive days). (c) Clustered (students within classrooms).</li>
+    <li>Shapiro reject N at α = 0.05, but at n = 5000 even tiny deviations reject. Use Q-Q plot — if it looks straight visually, you're fine; trust visual at large n.</li>
+    <li>"There is statistically significant evidence at α = 0.05 of an association (β̂ = X, p &lt; 0.001). However, residual diagnostics show curvature and heteroskedasticity, suggesting the linear model may be misspecified and standard errors may be biased. We confirm the result using a bootstrap CI / robust SE: [estimate range]."</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Skipping diagnostics</strong> when reporting p-values. Diagnostics are part of the analysis, not optional.</li>
+    <li><strong>Trusting Shapiro-Wilk at large n.</strong> It rejects everything; use Q-Q plot visually.</li>
+    <li><strong>Assuming "no fan visible" = E satisfied.</strong> Subtle heteroskedasticity hides; always sanity-check with robust SE.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(59)">Mark Level 59 Complete — Full Guide ESL Done!</button>
+</div></div>
+
+</div> <!-- end phase-12 -->
+
 </div> <!-- end main -->
 
 
@@ -7863,7 +8558,7 @@ let completedLevels = new Set();
 let totalQuizzes = 0;
 let correctQuizzes = 0;
 const XP_PER_LEVEL = 100;
-const TOTAL_LEVELS = 55;
+const TOTAL_LEVELS = 59;
 
 // ===== PHASE TABS =====
 document.querySelectorAll('.phase-tab').forEach(tab => {
@@ -8012,6 +8707,11 @@ function checkAchievements() {
   if (completedLevels.size === 55 && !window._ach55) {
     window._ach55 = true;
     showAchievement('ESL PRACTICE BANK COMPLETE!', 'Simple language + math language + 90+ practice Qs all done.');
+    launchConfetti();
+  }
+  if (completedLevels.size === 59 && !window._ach59) {
+    window._ach59 = true;
+    showAchievement('FULL GUIDE MASTERED!', 'Quiz 1 + Quiz 2 ESL banks done. You have seen every concept twice.');
     launchConfetti();
   }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
@@ -8510,6 +9210,117 @@ function completeLevel(id){
   showAchievement('Level Complete!', 'Bonus XP earned. Keep going.');
 }
 
+// =================================================================
+// =====     CLOSE BUTTONS  +  SEARCH                          =====
+// =================================================================
+
+// ----- Close-level button: collapses a level body and scrolls to header -----
+function closeLevel(num) {
+  const body = document.getElementById('level-body-' + num);
+  if (!body) return;
+  body.classList.remove('open');
+  const card = document.getElementById('level-' + num);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Auto-append a close button to every level body (so we don't need to edit 63 cards)
+function addCloseButtons() {
+  document.querySelectorAll('.level-body').forEach(body => {
+    if (body.querySelector('.close-btn')) return;  // idempotent
+    const m = body.id.match(/level-body-(.+)/);
+    if (!m) return;
+    const num = m[1];
+    const btn = document.createElement('button');
+    btn.className = 'close-btn';
+    btn.textContent = '▲ Close this level';
+    btn.setAttribute('data-level', num);
+    btn.addEventListener('click', () => closeLevel(num));
+    body.appendChild(btn);
+  });
+}
+
+// ----- Search across all levels -----
+let SEARCH_INDEX = [];
+
+function buildSearchIndex() {
+  SEARCH_INDEX = [];
+  document.querySelectorAll('.level-card').forEach(card => {
+    const m = card.id.match(/level-(.+)/);
+    if (!m) return;
+    const num = m[1];
+    const phaseEl = card.closest('.phase-content');
+    const phase = phaseEl ? phaseEl.id.replace('phase-', '') : '?';
+    const titleEl = card.querySelector('.level-title');
+    const title = titleEl ? titleEl.textContent.trim() : ('Level ' + num);
+    SEARCH_INDEX.push({
+      cardId: card.id,
+      bodyId: 'level-body-' + num,
+      num: num,
+      phase: phase,
+      title: title,
+      text: card.textContent.toLowerCase()
+    });
+  });
+}
+
+function searchLevels() {
+  const inp = document.getElementById('search-input');
+  const results = document.getElementById('search-results');
+  if (!inp || !results) return;
+  const q = inp.value.trim().toLowerCase();
+  if (q.length < 2) { results.style.display = 'none'; return; }
+  if (SEARCH_INDEX.length === 0) buildSearchIndex();
+  const matches = SEARCH_INDEX.filter(d => d.text.includes(q));
+  if (matches.length === 0) {
+    results.innerHTML = '<div class="search-empty">No matches for "' + escapeHtml(q) + '"</div>';
+    results.style.display = 'block';
+    return;
+  }
+  // Snippet: text around first match
+  results.innerHTML = matches.slice(0, 50).map(m => {
+    const idx = m.text.indexOf(q);
+    let snippet = '';
+    if (idx >= 0) {
+      const a = Math.max(0, idx - 40);
+      const b = Math.min(m.text.length, idx + q.length + 60);
+      const around = m.text.substring(a, b).replace(/\s+/g, ' ');
+      const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+      snippet = (a > 0 ? '…' : '') + escapeHtml(around).replace(re, '<span class="search-mark">$1</span>') + (b < m.text.length ? '…' : '');
+    }
+    return '<div class="search-result" onclick="goToLevel(\'' + m.phase + '\',\'' + m.num + '\')">' +
+           '<div style="flex:1; min-width:0;">' +
+           '<span class="search-phase">P' + m.phase + ' · L' + m.num + '</span>' +
+           ' <strong>' + escapeHtml(m.title) + '</strong>' +
+           '<span class="search-snippet">' + snippet + '</span>' +
+           '</div></div>';
+  }).join('');
+  results.style.display = 'block';
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+function goToLevel(phase, num) {
+  // Switch tab
+  document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.phase-content').forEach(c => c.classList.remove('active'));
+  const tab = document.querySelector('.phase-tab[data-phase="' + phase + '"]');
+  const pane = document.getElementById('phase-' + phase);
+  if (tab) tab.classList.add('active');
+  if (pane) pane.classList.add('active');
+  // Open the level
+  const body = document.getElementById('level-body-' + num);
+  if (body) body.classList.add('open');
+  // Scroll to the card
+  const card = document.getElementById('level-' + num);
+  if (card) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  // Clear search
+  document.getElementById('search-results').style.display = 'none';
+  const inp = document.getElementById('search-input');
+  if (inp) inp.value = '';
+}
+
 // ===== INIT =====
 updateDisplay();
 document.getElementById('level-body-1').classList.add('open');
@@ -8521,6 +9332,10 @@ confGenerate(); confUpdate();
 pengGenerate(); pengUpdate();
 fwUpdate();
 diagInit();
+
+// Close buttons on every level + search index
+addCloseButtons();
+buildSearchIndex();
 </script>
 
 </body>

@@ -1,0 +1,70 @@
+/* ===== SEARCH BAR ===== */
+.search-bar {
+  position: relative; flex: 1 1 280px; max-width: 360px;
+  min-width: 200px;
+}
+#search-input {
+  width: 100%; padding: 8px 12px;
+  background: #141821; border: 1px solid #334155;
+  border-radius: 6px; color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, sans-serif; font-size: 0.9rem;
+}
+#search-input::placeholder { color: #64748b; }
+#search-input:focus {
+  outline: none; border-color: #22d3ee;
+  box-shadow: 0 0 0 2px #22d3ee22;
+}
+#search-results {
+  display: none; position: absolute;
+  top: calc(100% + 4px); left: 0; right: 0;
+  background: #141821; border: 1px solid #22d3ee;
+  border-radius: 6px; max-height: 360px; overflow-y: auto;
+  z-index: 150; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.search-result {
+  padding: 10px 12px; cursor: pointer;
+  border-bottom: 1px solid #1e293b;
+  color: #e2e8f0; font-size: 0.85rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.search-result:last-child { border-bottom: none; }
+.search-result:hover { background: #1c2030; }
+.search-phase {
+  display: inline-block; background: #22d3ee22;
+  color: #22d3ee; padding: 2px 8px; border-radius: 4px;
+  font-size: 0.72rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
+.search-empty {
+  padding: 14px; color: #94a3b8;
+  font-style: italic; text-align: center;
+  font-size: 0.85rem;
+}
+.search-snippet {
+  display: block; color: #94a3b8;
+  font-size: 0.78rem; margin-top: 4px;
+  font-style: italic;
+}
+.search-mark { background: #fbbf2466; color: #fbbf24; padding: 0 2px; }
+
+/* ===== CLOSE LEVEL BUTTON ===== */
+.close-btn {
+  display: block; margin: 18px auto 0;
+  padding: 8px 18px; background: transparent;
+  border: 1px solid #475569; color: #94a3b8;
+  border-radius: 8px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.close-btn:hover {
+  background: #1c2030; color: #e2e8f0;
+  border-color: #818cf8;
+}
+.complete-btn {
+  display: inline-block; padding: 10px 22px;
+  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  color: #0b0e14; border: none; border-radius: 8px;
+  cursor: pointer; font-weight: 700; font-size: 0.9rem;
+  margin-top: 12px;
+}
+.complete-btn:hover { filter: brightness(1.1); }

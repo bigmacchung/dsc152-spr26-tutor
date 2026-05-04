@@ -13,3 +13,7 @@ confGenerate(); confUpdate();
 pengGenerate(); pengUpdate();
 fwUpdate();
 diagInit();
+
+// Close buttons on every level + global search index
+addCloseButtons();
+buildSearchIndex();
