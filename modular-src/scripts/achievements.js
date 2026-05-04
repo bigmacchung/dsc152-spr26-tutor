@@ -59,6 +59,11 @@ function checkAchievements() {
     showAchievement('LAB MASTER!', 'All 4 Lab Deep Dives complete. Quiz 2 + labs locked in.');
     launchConfetti();
   }
+  if (completedLevels.size === 55 && !window._ach55) {
+    window._ach55 = true;
+    showAchievement('ESL PRACTICE BANK COMPLETE!', 'Simple language + math language + 90+ practice Qs all done.');
+    launchConfetti();
+  }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
     window._achAll = true;
     showAchievement('MIDTERM READY!', 'You completed everything. Go crush it Maxime!');

@@ -285,6 +285,7 @@ strong { color: #e2e8f0; }
   <div class="phase-tab" data-phase="8">Phase 8: Lec 10 + Quiz 2 Practice</div>
   <div class="phase-tab" data-phase="9">Phase 9: Midterm Review</div>
   <div class="phase-tab" data-phase="10">Phase 10: Lab Deep Dives (Lab 4-5)</div>
+  <div class="phase-tab" data-phase="11">Phase 11: ESL Practice Bank 🌍</div>
 </div>
 
 <!-- ============================= MAIN CONTENT ============================= -->
@@ -6925,6 +6926,930 @@ typeI_hetero &lt;- <span class="fn">sim_typeI</span>(gen_hetero, reps=<span clas
 
 </div> <!-- end phase-10 -->
 
+<!-- ============================================================ -->
+<!-- PHASE 11: ESL PRACTICE BANK (Levels 50-55) — Quiz 1 in 8-section format -->
+<!-- ============================================================ -->
+<div class="phase-content" id="phase-11">
+
+<div class="box box-story" style="margin-bottom:24px;">
+  <div class="box-label">About this phase</div>
+  <p>Phase 11 is for <strong>ESL students and exam prep</strong>. Each level uses a strict 8-section format:</p>
+  <ol>
+    <li>🧠 Simple Explanation (very easy English)</li>
+    <li>📐 Math Language (exam vocabulary + formulas)</li>
+    <li>🔗 Connection (simple ↔ math, side-by-side)</li>
+    <li>🍎 Intuitive Example (small numbers, step by step)</li>
+    <li>🎮 Interactive Component (when useful)</li>
+    <li>❓ Practice Questions (Basic, Medium, Game, Exam-style)</li>
+    <li>✅ Answers + Explanation</li>
+    <li>⚠️ Common Mistakes</li>
+  </ol>
+  <p>Existing Levels 1–25 give the deep walkthrough. Phase 11 is the <strong>review + drill</strong> layer.</p>
+</div>
+
+<!-- ==================== LEVEL 50 — Hypothesis Testing ==================== -->
+<div class="level-card" id="level-50">
+<div class="level-header" onclick="toggleLevel(50)">
+  <span class="level-title"><span class="num">Level 50</span> — Hypothesis Testing 101 (H₀, H_A, p-value)</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-50">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>You have a <strong>guess</strong> about the world. You collect data. You ask: <em>"If my guess is wrong, would I see numbers like these?"</em></p>
+  <p>If the data looks weird under the wrong guess, you reject the guess. If the data looks normal under the wrong guess, you keep the guess.</p>
+  <p>That is hypothesis testing. One guess. One question. One answer.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Null hypothesis</strong> \(H_0\): the "boring" claim. Usually "no effect" or "equal to zero".</li>
+    <li><strong>Alternative hypothesis</strong> \(H_A\): the "interesting" claim. The thing you suspect.</li>
+    <li><strong>Test statistic</strong>: a number computed from data (e.g. \(t_s = (\bar x - \mu_0) / (s/\sqrt n)\)).</li>
+    <li><strong>p-value</strong>: \(P(\text{test stat at least this extreme} \mid H_0 \text{ true})\).</li>
+    <li><strong>Significance level</strong> \(\alpha\): the cutoff (usually 0.05). If \(p &lt; \alpha\), <strong>reject \(H_0\)</strong>.</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection — Simple ↔ Math</div>
+  <table class="cmp-table">
+    <tr><th>Simple Idea</th><th>Math Language</th></tr>
+    <tr><td>"My boring guess"</td><td>\(H_0\) (null hypothesis)</td></tr>
+    <tr><td>"My interesting guess"</td><td>\(H_A\) (alternative hypothesis)</td></tr>
+    <tr><td>"How weird is my data, assuming the boring guess?"</td><td>p-value</td></tr>
+    <tr><td>"My weirdness threshold"</td><td>\(\alpha\) (significance level, usually 0.05)</td></tr>
+    <tr><td>"Reject the boring guess"</td><td>"reject \(H_0\) at the \(\alpha = 0.05\) level"</td></tr>
+    <tr><td>"Cannot reject the boring guess"</td><td>"fail to reject \(H_0\)" (NOT "accept \(H_0\)")</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Coin Flip</div>
+  <p>You suspect a coin is unfair. You flip it 6 times and get 6 heads.</p>
+  <ol>
+    <li>Boring guess (\(H_0\)): coin is fair, \(p = 0.5\).</li>
+    <li>Interesting guess (\(H_A\)): coin is not fair, \(p \neq 0.5\).</li>
+    <li>If the coin IS fair, P(6 heads in 6 flips) = \((0.5)^6\) = 0.0156. P(0 heads) = 0.0156. Two-sided p-value ≈ 0.031.</li>
+    <li>0.031 &lt; 0.05 → reject \(H_0\). Coin is unfair.</li>
+  </ol>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Try Different Coin Flip Counts</div>
+  <p>Click a button to see what p-value you'd get for k heads out of 6 flips, under \(H_0: p = 0.5\):</p>
+  <div style="display:flex; gap:6px; flex-wrap:wrap; margin:10px 0;">
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='0 heads → p = 0.031 → REJECT H₀'">0 H</button>
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='1 head → p = 0.219 → fail to reject'">1 H</button>
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='2 heads → p = 0.688 → fail to reject'">2 H</button>
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='3 heads → p = 1.000 → fail to reject'">3 H</button>
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='4 heads → p = 0.688 → fail to reject'">4 H</button>
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='5 heads → p = 0.219 → fail to reject'">5 H</button>
+    <button class="step-reveal-btn" onclick="document.getElementById('coin-out').textContent='6 heads → p = 0.031 → REJECT H₀'">6 H</button>
+  </div>
+  <div id="coin-out" style="font-family:'SF Mono',monospace; padding:10px; background:#080b12; border-radius:6px; color:#22d3ee; min-height:1.5em;">Click a button.</div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic (understanding)</div>
+  <ol>
+    <li>What does \(H_0\) usually claim? (a) the interesting effect (b) no effect / boring claim (c) the alternative</li>
+    <li>If p = 0.02 and \(\alpha = 0.05\), what do we do?</li>
+    <li>True or false: "Failing to reject \(H_0\)" means \(H_0\) is true.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium (application)</div>
+  <ol start="4">
+    <li>You flip a coin 10 times and get 8 heads. \(H_0: p=0.5\). The two-sided p-value is about 0.11. What do you conclude at \(\alpha = 0.05\)?</li>
+    <li>You measure mean sleep in n=20 students. \(H_0: \mu = 7\). The t-test gives p = 0.003. State the conclusion in one sentence with proper terminology.</li>
+    <li>What is the difference between a one-sided and a two-sided test?</li>
+    <li>If the test statistic falls INSIDE the rejection region, what is the relationship between p and \(\alpha\)?</li>
+    <li>Give a real-life example where \(H_A\) is "the new drug works better than the old drug."</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: "Pick the Right H₀"</div>
+  <p>For each scenario, click which is the correct \(H_0\):</p>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">Scenario: "Does this new fertilizer increase plant growth above the old fertilizer's average of 30 cm?"</div>
+    <div class="quiz-opt" data-i="0">\(H_0: \mu &gt; 30\)</div>
+    <div class="quiz-opt" data-i="1">\(H_0: \mu = 30\)</div>
+    <div class="quiz-opt" data-i="2">\(H_0: \mu \neq 30\)</div>
+    <div class="quiz-result" data-explain="H₀ is the boring claim — 'the new fertilizer is no better than 30 cm.' That maps to μ = 30. The alternative H_A: μ > 30 captures the interesting hope."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">Scenario: "Does coding exercises change student scores compared to handwritten?"</div>
+    <div class="quiz-opt" data-i="0">\(H_0: \mu_1 = \mu_2\)</div>
+    <div class="quiz-opt" data-i="1">\(H_0: \mu_1 &gt; \mu_2\)</div>
+    <div class="quiz-opt" data-i="2">\(H_0: \mu_1 - \mu_2 = 5\)</div>
+    <div class="quiz-result" data-explain="'Change' is two-sided — the boring claim is the means are equal. H_A: μ_1 ≠ μ_2."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (heavy! 6 questions)</div>
+  <ol start="9">
+    <li><strong>(R-output reading)</strong> An R t.test prints <code>p-value = 0.0034</code>. State your conclusion in proper exam wording at \(\alpha = 0.05\).</li>
+    <li><strong>(Vocabulary)</strong> Define "test statistic" in one sentence using the words "data" and "distribution".</li>
+    <li><strong>(Conceptual)</strong> Explain why we say "fail to reject \(H_0\)" instead of "accept \(H_0\)". (2 sentences max.)</li>
+    <li><strong>(Computation)</strong> Under \(H_0: p = 0.5\) for n=4 coin flips, list the rejection region for a two-sided test at \(\alpha = 0.125\).</li>
+    <li><strong>(Wording trap)</strong> True or false: "p = 0.04 means the alternative hypothesis is 96% likely to be true." Justify in one sentence.</li>
+    <li><strong>(R syntax)</strong> What does the R command <code>t.test(x, mu = 6)$p.value</code> return?</li>
+    <li><strong>(Symbol meaning)</strong> Write the formula for the one-sample t-test statistic, label every symbol.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers + Explanations</div>
+  <ol>
+    <li><strong>(b)</strong> \(H_0\) = boring claim / no effect.</li>
+    <li><strong>Reject \(H_0\)</strong>. Since p &lt; α (0.02 &lt; 0.05).</li>
+    <li><strong>False.</strong> "Fail to reject" means data didn't give us enough evidence — H₀ may still be false (we just had low power or small effect).</li>
+    <li><strong>Fail to reject \(H_0\) at α = 0.05</strong>. p = 0.11 ≥ 0.05.</li>
+    <li>"There is statistically significant evidence at the α = 0.05 level that the population mean sleep differs from 7 hours (p = 0.003)." Don't say "proves."</li>
+    <li>One-sided tests an interesting direction (e.g. \(H_A: \mu &gt; \mu_0\)). Two-sided tests "any difference" (\(H_A: \mu \neq \mu_0\)). Two-sided p-value is roughly twice one-sided.</li>
+    <li>If the test stat is in the rejection region, then <strong>p &lt; α</strong>. The two are equivalent statements.</li>
+    <li>"The new drug lowers blood pressure more than the old drug." \(H_0: \mu_{\text{new}} = \mu_{\text{old}}\); \(H_A: \mu_{\text{new}} &lt; \mu_{\text{old}}\) (one-sided).</li>
+    <li>"There is statistically significant evidence at the α = 0.05 level to reject \(H_0\) (p = 0.0034)."</li>
+    <li>The test statistic is a number computed from the data that we compare to a known distribution under \(H_0\) to get a p-value.</li>
+    <li>"Accept \(H_0\)" implies certainty. "Fail to reject" honestly says: maybe \(H_0\) is true, OR maybe we just didn't have enough data to detect a real effect.</li>
+    <li>{0, 4} (the two extremes). Under \(H_0\), P(X=0) + P(X=4) = 0.0625 + 0.0625 = 0.125 = α.</li>
+    <li><strong>False.</strong> The p-value is \(P(\text{data} \mid H_0)\), NOT \(P(H_A \mid \text{data})\). Confusing the two is the most common stats error.</li>
+    <li>The p-value for the test \(H_0: \mu = 6\), as a single number.</li>
+    <li>\(t_s = \dfrac{\bar x - \mu_0}{s/\sqrt n}\). \(\bar x\) = sample mean, \(\mu_0\) = hypothesized population mean, \(s\) = sample SD, \(n\) = sample size, \(s/\sqrt n\) = standard error of the mean.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>"p is the probability \(H_0\) is true"</strong> — wrong. The p-value assumes \(H_0\) IS true; it doesn't tell you the probability of that.</li>
+    <li><strong>"Accept \(H_0\)"</strong> — never write this. Use "fail to reject \(H_0\)."</li>
+    <li><strong>Forgetting the two-sided ×2</strong> — for a two-sided test you double the one-sided p-value (or use the two-tail probability directly).</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(50)">Mark Level 50 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 51 — Type I & II Errors ==================== -->
+<div class="level-card" id="level-51">
+<div class="level-header" onclick="toggleLevel(51)">
+  <span class="level-title"><span class="num">Level 51</span> — Type I & Type II Errors</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-51">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>Every test can be wrong in <strong>two ways</strong>:</p>
+  <ul>
+    <li><strong>Type I</strong>: you think there IS an effect, but there isn't. (False alarm.)</li>
+    <li><strong>Type II</strong>: you think there is NO effect, but there is. (Missed it.)</li>
+  </ul>
+  <p>Like a smoke alarm: Type I = beeps when no fire. Type II = silent during a fire.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Type I error rate</strong>: \(\alpha = P(\text{reject } H_0 \mid H_0 \text{ true})\). Usually fixed at 0.05.</li>
+    <li><strong>Type II error rate</strong>: \(\beta = P(\text{fail to reject } H_0 \mid H_A \text{ true})\).</li>
+    <li><strong>Power</strong>: \(1 - \beta = P(\text{reject } H_0 \mid H_A \text{ true})\). The "good" probability.</li>
+    <li><strong>Validity</strong>: a test is valid if its actual Type I rate equals its nominal \(\alpha\).</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="four-outcome-table">
+    <tr><th></th><th>\(H_0\) is TRUE</th><th>\(H_0\) is FALSE</th></tr>
+    <tr><th>We REJECT \(H_0\)</th><td style="color:#f87171;">Type I (false alarm)<br>Probability = α</td><td style="color:#4ade80;">Correct! <br>Probability = 1 − β = power</td></tr>
+    <tr><th>We FAIL to reject \(H_0\)</th><td style="color:#4ade80;">Correct! <br>Probability = 1 − α</td><td style="color:#f87171;">Type II (miss)<br>Probability = β</td></tr>
+  </table>
+  <p style="margin-top:8px;"><strong>"False alarm rate"</strong> = α &nbsp;·&nbsp; <strong>"Miss rate"</strong> = β &nbsp;·&nbsp; <strong>"Hit rate"</strong> = 1 − β = power</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Spam Filter</div>
+  <p>Email "is spam" or "is not spam." Filter says "spam" or "not spam."</p>
+  <ul>
+    <li>Type I (false positive): legit email goes to spam folder.</li>
+    <li>Type II (false negative): real spam reaches inbox.</li>
+    <li>Lowering α (be picky) → fewer Type I, but more Type II.</li>
+    <li>Raising α → catch more real spam, but more legit emails get filtered.</li>
+  </ul>
+  <p>Most filters use ~α = 0.01 (only 1% of safe emails get flagged).</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>If \(H_0\) is true and we reject it, what kind of error?</li>
+    <li>If \(H_A\) is true and we fail to reject \(H_0\), what kind of error?</li>
+    <li>Power = ?</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>If we make α smaller (say from 0.05 to 0.01), what happens to Type II error rate, all else equal?</li>
+    <li>A test has α = 0.05 and power = 0.80. What is β?</li>
+    <li>The smoke alarm in your kitchen rings every time you fry an egg. Is this a Type I or Type II problem?</li>
+    <li>Why is α set BEFORE collecting data, not after?</li>
+    <li>You run a Monte Carlo simulation under \(H_0\) and 12% of runs reject. What does this tell you about test validity?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Spot the Error Type</div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">A doctor decides a healthy patient has cancer. What error type?</div>
+    <div class="quiz-opt" data-i="0">Type I (false positive)</div>
+    <div class="quiz-opt" data-i="1">Type II (false negative)</div>
+    <div class="quiz-opt" data-i="2">Neither</div>
+    <div class="quiz-result" data-explain="H₀: 'patient is healthy.' Doctor REJECTS H₀ when H₀ is TRUE → Type I."></div>
+  </div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">A judge declares a guilty defendant 'not guilty.' What error type?</div>
+    <div class="quiz-opt" data-i="0">Type I</div>
+    <div class="quiz-opt" data-i="1">Type II</div>
+    <div class="quiz-opt" data-i="2">Neither</div>
+    <div class="quiz-result" data-explain="In law, H₀ = 'innocent until proven guilty.' Judge fails to reject H₀ when H₀ is FALSE → Type II."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(Definition)</strong> Define α and β in one sentence each, using \(P(\cdot \mid \cdot)\) notation.</li>
+    <li><strong>(Tradeoff)</strong> Explain in 2 sentences why decreasing α increases β.</li>
+    <li><strong>(Validity)</strong> What does it mean for a test to be "valid"?</li>
+    <li><strong>(R simulation)</strong> Write 1 line of R code that estimates the empirical Type I error of <code>t.test(x, mu=0)</code> when x is generated from a Gamma distribution under \(H_0\). (Pseudocode OK.)</li>
+    <li><strong>(Wording)</strong> Distinguish "the test is invalid" vs "the test has low power" in 1-2 sentences each.</li>
+    <li><strong>(Numerical)</strong> A test is run 1000 times under \(H_0\) and rejects 73 times. Estimate empirical α and provide a 95% CI for it. (Hint: \(\hat\alpha \pm 1.96\sqrt{\hat\alpha(1-\hat\alpha)/1000}\).)</li>
+    <li><strong>(Conceptual)</strong> Power and α are related but not the same. Why can't we directly "increase power" by changing α?</li>
+    <li><strong>(Trap)</strong> True or false: "If a test is valid, β is also small." Justify.</li>
+    <li><strong>(Symbol)</strong> What does \(1 - \beta\) represent in plain English?</li>
+    <li><strong>(Real)</strong> The FDA approves a drug. Two years later it turns out the drug doesn't work. Which error type? Why is this so costly?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>Type I.</li>
+    <li>Type II.</li>
+    <li>1 − β = P(reject \(H_0\) | \(H_A\) true).</li>
+    <li>β increases — the rejection region shrinks, so true effects are harder to detect.</li>
+    <li>β = 1 − 0.80 = 0.20.</li>
+    <li>Type I — alarm rings when there's no fire.</li>
+    <li>Setting α post-hoc (after seeing data) lets you cherry-pick a threshold that makes your result "significant" — that's p-hacking.</li>
+    <li>The test is INVALID — actual Type I rate (12%) far exceeds nominal α (5%). Reported p-values can't be trusted.</li>
+    <li>α = P(reject \(H_0\) | \(H_0\) true). β = P(fail to reject \(H_0\) | \(H_A\) true).</li>
+    <li>Smaller α → narrower rejection region → harder to reject when \(H_A\) is true → more misses.</li>
+    <li>Actual Type I rate = nominal α (e.g., a "level 0.05 test" really rejects 5% of the time under \(H_0\)).</li>
+    <li><code>mean(replicate(1000, t.test(rgamma(20, 1.2, 5), mu = mean_of_gamma)$p.value &lt; 0.05))</code></li>
+    <li>"Invalid" = the test's α is wrong (false alarm rate ≠ nominal). "Low power" = the test is valid but its β is too high (often misses real effects).</li>
+    <li>\(\hat\alpha = 0.073\); 95% CI ≈ \(0.073 \pm 1.96\sqrt{0.073 \cdot 0.927/1000} = (0.057, 0.089)\). Includes 0.05? No — test may be slightly anti-conservative.</li>
+    <li>You CAN raise α to 0.10 to get more power, but then more false positives. The α–β tradeoff is the price.</li>
+    <li>FALSE. Validity only means α is correct; β depends on effect size and sample size, independent of validity.</li>
+    <li>Power — probability of correctly rejecting \(H_0\) when \(H_A\) is true.</li>
+    <li>Type I error. Costly because patients took an ineffective treatment, money was spent, trust eroded.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Confusing α with the p-value.</strong> α is set BEFORE data; p is computed AFTER.</li>
+    <li><strong>Thinking "low p" = "high power."</strong> Power is a property of the TEST, not of one result.</li>
+    <li><strong>Believing α = 0 is best.</strong> α = 0 means you NEVER reject — your test has no power at all.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(51)">Mark Level 51 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 52 — One-Sample t-Test ==================== -->
+<div class="level-card" id="level-52">
+<div class="level-header" onclick="toggleLevel(52)">
+  <span class="level-title"><span class="num">Level 52</span> — The One-Sample t-Test</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-52">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>You measured a number for n people (sleep hours, test scores, anything). You want to know: <em>"Is the average really different from some target value?"</em></p>
+  <p>The t-test compares (your average − target) to (how spread out your data is). If the difference is big and the spread is small, you reject the boring guess.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Hypotheses:</strong> \(H_0: \mu = \mu_0\) vs \(H_A: \mu \neq \mu_0\).</li>
+    <li><strong>Test statistic:</strong> \(t_s = \dfrac{\bar x - \mu_0}{s/\sqrt n}\)</li>
+    <li><strong>Standard error of the mean</strong>: \(SE(\bar x) = s / \sqrt n\)</li>
+    <li><strong>Null distribution</strong>: \(t_s \sim t_{n-1}\) (t-distribution with n − 1 degrees of freedom).</li>
+    <li><strong>p-value (two-sided)</strong>: \(2 \cdot P(|T_{n-1}| \geq |t_s|)\)</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Simple Idea</th><th>Math Language</th></tr>
+    <tr><td>"How far is my mean from the target?"</td><td>numerator: \(\bar x - \mu_0\)</td></tr>
+    <tr><td>"How spread out is my sample?"</td><td>\(s\) = sample standard deviation</td></tr>
+    <tr><td>"How precise is my mean estimate?"</td><td>\(SE(\bar x) = s/\sqrt n\) — shrinks as n grows</td></tr>
+    <tr><td>"Many SEs away from the target"</td><td>\(t_s\) (units: standard errors)</td></tr>
+    <tr><td>"How many SEs is too many?"</td><td>compare \(|t_s|\) to critical value from \(t_{n-1}\)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — UCSD Sleep</div>
+  <p>5 students report sleep: 3, 7, 1, 2, 2 hours. Target: \(\mu_0 = 6\) (recommended).</p>
+  <ol>
+    <li>\(\bar x = (3+7+1+2+2)/5 = 3\)</li>
+    <li>\(s = 2.55\) (compute from variance)</li>
+    <li>\(SE = 2.55/\sqrt 5 = 1.14\)</li>
+    <li>\(t_s = (3 - 6)/1.14 = -2.63\)</li>
+    <li>df = 4. Two-sided p ≈ 0.058 → fail to reject at α = 0.05 (just barely).</li>
+  </ol>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — R command builder</div>
+  <p>What does each piece of <code>t.test(x, mu = 6)$p.value</code> do? Click to reveal:</p>
+  <button class="step-reveal-btn" onclick="document.getElementById('tt-1').classList.toggle('show')">t.test(...)</button>
+  <div id="tt-1" class="step-hidden"><p>Runs the t-test and returns a list with stats, p-value, CI, etc.</p></div>
+  <button class="step-reveal-btn" onclick="document.getElementById('tt-2').classList.toggle('show')">x</button>
+  <div id="tt-2" class="step-hidden"><p>The numeric vector of your data (e.g. <code>c(3, 7, 1, 2, 2)</code>).</p></div>
+  <button class="step-reveal-btn" onclick="document.getElementById('tt-3').classList.toggle('show')">mu = 6</button>
+  <div id="tt-3" class="step-hidden"><p>The hypothesized μ₀. <strong>If omitted, R defaults to μ₀ = 0!</strong> Don't forget this.</p></div>
+  <button class="step-reveal-btn" onclick="document.getElementById('tt-4').classList.toggle('show')">$p.value</button>
+  <div id="tt-4" class="step-hidden"><p>Extracts just the p-value from the list. Other useful: <code>$conf.int</code>, <code>$statistic</code>.</p></div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What does "df" stand for, and what's df for a one-sample t-test with n=10?</li>
+    <li>What does the denominator \(s/\sqrt n\) measure?</li>
+    <li>True or false: "as n grows, \(s/\sqrt n\) shrinks."</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>If \(\bar x = 4\), \(\mu_0 = 5\), \(s = 2\), \(n = 16\): compute \(t_s\).</li>
+    <li>For \(t_s = -2\) and df = 30, is the two-sided p-value above or below 0.05? (Hint: critical value ≈ 2.04 at α = 0.05.)</li>
+    <li>What conditions are required for the one-sample t-test to be valid?</li>
+    <li>If you double the sample size, what happens to SE? To \(t_s\) if \(\bar x\) and \(s\) stay the same?</li>
+    <li>R returns <code>p.value = 0.062</code>. State your conclusion at α = 0.05 in proper exam wording.</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Pick the SE Effect</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">You quadruple n (×4). What happens to \(SE(\bar x) = s/\sqrt n\)?</div>
+    <div class="quiz-opt" data-i="0">Multiplied by 4</div>
+    <div class="quiz-opt" data-i="1">Divided by 2</div>
+    <div class="quiz-opt" data-i="2">Divided by 2 (since \(\sqrt 4 = 2\))</div>
+    <div class="quiz-opt" data-i="3">Unchanged</div>
+    <div class="quiz-result" data-explain="SE = s/√n. If n becomes 4n, denominator becomes √(4n) = 2√n. So SE is divided by 2."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(R)</strong> Write the R code to perform a one-sample t-test on data vector <code>x</code> against \(\mu_0 = 100\) and store ONLY the p-value in a variable <code>p</code>.</li>
+    <li><strong>(Formula)</strong> Write \(t_s\) and label every symbol.</li>
+    <li><strong>(Sampling distribution)</strong> Under \(H_0\), what distribution does \(t_s\) follow? With what parameter?</li>
+    <li><strong>(Power thinking)</strong> If you fail to reject \(H_0\) with n = 5, name two ways to potentially reject it on a future study.</li>
+    <li><strong>(Wording)</strong> Write a one-sentence conclusion for: \(\bar x = 4\), \(\mu_0 = 6\), p = 0.041, in proper exam vocabulary.</li>
+    <li><strong>(Conditions)</strong> The data is heavily right-skewed and n = 8. Is the t-test valid? What's a better choice?</li>
+    <li><strong>(Sign)</strong> What does it mean if your t-statistic is negative?</li>
+    <li><strong>(Critical value)</strong> For a two-sided test at α = 0.05 and df = 9, what is the critical value? (Use a t-table or qt(0.975, 9).)</li>
+    <li><strong>(Reading R output)</strong> R's t.test prints <code>95 percent confidence interval: 0.5 4.5</code>. Does this CI suggest you would reject \(H_0: \mu = 0\)?</li>
+    <li><strong>(Comparison)</strong> What is the relationship between a 95% CI for μ and the p-value of the t-test \(H_0: \mu = \mu_0\)?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>Degrees of freedom. df = n − 1 = 9.</li>
+    <li>Standard error of the mean — how precise our estimate of μ is.</li>
+    <li>True. Larger n → smaller SE → tighter estimate.</li>
+    <li>\(t_s = (4-5)/(2/\sqrt{16}) = -1 / 0.5 = -2\).</li>
+    <li>Below 0.05 (just barely): |t| = 2 ≥ 2.04? Slightly less, so just above. (Borderline; conclude with caution.)</li>
+    <li>Independence + Normality of \(\bar x\) (either underlying normal or large n via CLT).</li>
+    <li>SE divided by \(\sqrt 2\) ≈ 0.71×. \(t_s\) multiplied by \(\sqrt 2\) ≈ 1.41×.</li>
+    <li>"We fail to reject \(H_0\) at the α = 0.05 level (p = 0.062). The data does not provide statistically significant evidence that the population mean differs from \(\mu_0\)."</li>
+    <li><code>p &lt;- t.test(x, mu = 100)$p.value</code></li>
+    <li>\(t_s = (\bar x - \mu_0) / (s/\sqrt n)\). \(\bar x\) sample mean, \(\mu_0\) hypothesized mean, \(s\) sample SD, \(n\) sample size.</li>
+    <li>t-distribution with n − 1 degrees of freedom: \(t_s \sim t_{n-1}\).</li>
+    <li>(a) Increase n. (b) Reduce noise (better measurement, control covariates).</li>
+    <li>"There is statistically significant evidence at the α = 0.05 level that the population mean differs from 6 (p = 0.041)."</li>
+    <li>Not safely valid — small n + skew means CLT hasn't kicked in. Use sign test (Lec 3) or bootstrap.</li>
+    <li>Your sample mean is BELOW the hypothesized μ₀.</li>
+    <li>qt(0.975, 9) ≈ 2.262.</li>
+    <li>Yes — CI does NOT contain 0, so reject \(H_0: \mu = 0\) at α = 0.05.</li>
+    <li>The 95% CI contains exactly the values of \(\mu_0\) for which we would fail to reject at α = 0.05. CI ↔ test inversion.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Forgetting <code>mu = ...</code></strong>. Without it, R tests \(H_0: \mu = 0\), not what you wanted.</li>
+    <li><strong>Using df = n</strong>. Always n − 1 for one-sample.</li>
+    <li><strong>Using one-sided p when problem says "differs"</strong>. "Differs" → two-sided.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(52)">Mark Level 52 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 53 — Bootstrap vs Permutation ==================== -->
+<div class="level-card" id="level-53">
+<div class="level-header" onclick="toggleLevel(53)">
+  <span class="level-title"><span class="num">Level 53</span> — Bootstrap CIs vs Permutation Tests</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-53">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>Both methods use <strong>resampling</strong>. Both build a fake distribution from your real data. But they answer DIFFERENT questions.</p>
+  <ul>
+    <li><strong>Bootstrap</strong>: "How precise is my estimate?" → builds a confidence interval.</li>
+    <li><strong>Permutation</strong>: "Could this difference be by chance?" → builds a p-value for two-group comparison.</li>
+  </ul>
+  <p>Same recipe (sample, repeat, summarize). Different goal.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Bootstrap</strong>: sample WITH replacement from data, recompute statistic, repeat. CI = quantiles of bootstrap distribution.</li>
+    <li><strong>Permutation</strong>: shuffle group labels (sample WITHOUT replacement), recompute test statistic, repeat. p-value = fraction at least as extreme as observed.</li>
+    <li><strong>Bootstrap CI (percentile)</strong>: \([\hat\theta_{(0.025)}, \hat\theta_{(0.975)}]\) — 2.5th and 97.5th percentiles of bootstrap stats.</li>
+    <li><strong>Permutation p</strong>: \(\hat p = \dfrac{1}{B}\sum_{b=1}^B \mathbb{1}\{|T_b^*| \geq |T_{\text{obs}}|\}\)</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Aspect</th><th>Bootstrap</th><th>Permutation</th></tr>
+    <tr><td>Resampling</td><td>WITH replacement (<code>replace=TRUE</code>)</td><td>WITHOUT replacement (<code>sample(x)</code>)</td></tr>
+    <tr><td>What it builds</td><td>Sampling distribution of a statistic</td><td>Null distribution under \(H_0\): no group effect</td></tr>
+    <tr><td>Output</td><td>Confidence interval</td><td>p-value</td></tr>
+    <tr><td>Group setup</td><td>Single sample</td><td>Two (or more) groups</td></tr>
+    <tr><td>Used for</td><td>"How precise?"</td><td>"Real or chance?"</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example</div>
+  <p><strong>Bootstrap (CI for mean sleep)</strong>: data = c(3,7,1,2,2). Resample 1000 times WITH replacement, compute mean each time. The 2.5th and 97.5th percentiles ≈ (1.4, 5.0) = your 95% CI.</p>
+  <p><strong>Permutation (handwritten vs coding)</strong>: data = c(2,5,3,-3,8) and c(9,10,-1,14,6). Observed mean diff = 4.6. Shuffle labels 1000 times. Count how often |shuffled diff| ≥ 4.6. Say 110 of 1000 → p = 0.11. Fail to reject.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Build the right loop in R</div>
+  <p>For BOOTSTRAP CI of the mean (single sample):</p>
+<pre class="r-code">x &lt;- <span class="fn">c</span>(<span class="nb">3</span>,<span class="nb">7</span>,<span class="nb">1</span>,<span class="nb">2</span>,<span class="nb">2</span>)
+boot_means &lt;- <span class="fn">numeric</span>(<span class="nb">1000</span>)
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">1000</span>) {
+  resample &lt;- <span class="fn">sample</span>(x, <span class="fn">length</span>(x), replace=<span class="kw">TRUE</span>)  <span class="cm"># ← WITH replacement</span>
+  boot_means[i] &lt;- <span class="fn">mean</span>(resample)
+}
+<span class="fn">quantile</span>(boot_means, <span class="fn">c</span>(<span class="nb">0.025</span>, <span class="nb">0.975</span>))
+</pre>
+  <p>For PERMUTATION (two-sample):</p>
+<pre class="r-code">obs_diff &lt;- <span class="fn">mean</span>(group1) - <span class="fn">mean</span>(group2)
+combined &lt;- <span class="fn">c</span>(group1, group2)
+n1 &lt;- <span class="fn">length</span>(group1)
+perm_diffs &lt;- <span class="fn">numeric</span>(<span class="nb">1000</span>)
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">1000</span>) {
+  shuffled &lt;- <span class="fn">sample</span>(combined)                     <span class="cm"># ← WITHOUT replacement (default)</span>
+  perm_diffs[i] &lt;- <span class="fn">mean</span>(shuffled[<span class="nb">1</span>:n1]) - <span class="fn">mean</span>(shuffled[(n1+<span class="nb">1</span>):<span class="fn">length</span>(shuffled)])
+}
+<span class="fn">mean</span>(<span class="fn">abs</span>(perm_diffs) &gt;= <span class="fn">abs</span>(obs_diff))
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>Bootstrap is sampling _____ replacement; Permutation is sampling _____ replacement.</li>
+    <li>Which one gives a CI? Which one gives a p-value?</li>
+    <li>Why must each resample have the same length as the original sample?</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>You're testing whether two diets differ in weight loss. You shuffle the diet labels 5000 times. Bootstrap or permutation?</li>
+    <li>You want a 95% CI for the median yearly income. Bootstrap or permutation?</li>
+    <li>R command for shuffle (without replacement) of a vector v: <code>sample(__, replace = ___)</code>.</li>
+    <li>If observed mean diff = 4.6 and your null distribution has mean 0 with SD 2.5, will the p-value be small or big?</li>
+    <li>How many bootstrap samples do you need to estimate a 95% CI to within ±0.01? (Rough estimate.)</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Method Match</div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">"Estimate the SE of the median home price in San Diego." Best tool?</div>
+    <div class="quiz-opt" data-i="0">Bootstrap (sd of bootstrap medians)</div>
+    <div class="quiz-opt" data-i="1">Permutation</div>
+    <div class="quiz-opt" data-i="2">t-test</div>
+    <div class="quiz-result" data-explain="Bootstrap is the workhorse for SE/CI of any statistic — including ones (like the median) without a clean closed-form formula."></div>
+  </div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">"Test if average sleep differs between med students and engineering students."</div>
+    <div class="quiz-opt" data-i="0">Bootstrap CI</div>
+    <div class="quiz-opt" data-i="1">Permutation test (or two-sample t-test)</div>
+    <div class="quiz-opt" data-i="2">Sign test</div>
+    <div class="quiz-result" data-explain="Two-group comparison → permutation test (or two-sample t-test if conditions hold)."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(Code trap)</strong> Write the R command for ONE bootstrap resample of vector <code>x</code>.</li>
+    <li><strong>(Code trap)</strong> Write the R command for ONE permutation of group labels in vector <code>group</code>.</li>
+    <li><strong>(CI extraction)</strong> Given <code>boot_stats</code> = vector of 1000 bootstrap statistics, write 1 line to extract the 95% percentile CI.</li>
+    <li><strong>(Conceptual)</strong> Why is bootstrap with WITHOUT replacement basically useless? (Hint: think about what each resample looks like.)</li>
+    <li><strong>(Permutation null)</strong> What is the null hypothesis the permutation test is testing? Be precise.</li>
+    <li><strong>(R reading)</strong> If a student wrote <code>sample(group, replace = TRUE)</code> inside a permutation loop, what's wrong?</li>
+    <li><strong>(Numerical)</strong> 1000 perm shuffles. 25 produce a |stat| ≥ |observed|. What's the p-value?</li>
+    <li><strong>(Validity)</strong> Bootstrap CIs assume the sample is _____ of the population. What word goes in the blank, and what condition might break it?</li>
+    <li><strong>(Comparison)</strong> Both bootstrap and permutation are "non-parametric." What does that mean here?</li>
+    <li><strong>(Two-sided)</strong> Why do we use <code>abs(perm) &gt;= abs(obs)</code> in the permutation p-value formula instead of just <code>perm &gt;= obs</code>?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>WITH; WITHOUT.</li>
+    <li>Bootstrap → CI. Permutation → p-value.</li>
+    <li>Statistical theory: the resample distribution mimics the sampling distribution only at the same n.</li>
+    <li>Permutation (two groups, testing if they differ).</li>
+    <li>Bootstrap (CI for a single statistic from one sample).</li>
+    <li><code>sample(v, replace = FALSE)</code> (or just <code>sample(v)</code>).</li>
+    <li>Small p-value — observed is &gt; 1.84 SDs from 0, well into the tail.</li>
+    <li>Around 1000–10000 resamples typically. Monte Carlo error scales like \(1/\sqrt B\).</li>
+    <li><code>sample(x, length(x), replace = TRUE)</code></li>
+    <li><code>sample(group)</code></li>
+    <li><code>quantile(boot_stats, c(0.025, 0.975))</code></li>
+    <li>Without replacement, every resample is a permutation of the original — same numbers, same statistic. No variation, no info.</li>
+    <li>Under exchangeability of labels — the two distributions are identical (often phrased as "no group effect on the test statistic").</li>
+    <li>It's a bootstrap, not a permutation. Group sizes drift; the null hypothesis isn't tested correctly.</li>
+    <li>p = 25/1000 = 0.025.</li>
+    <li>"REPRESENTATIVE" of the population. Breaks if your sample is biased (e.g., self-selected, missing key subgroups).</li>
+    <li>Neither requires a parametric distribution assumption (no "data must be normal"). Only conditions are about how the data was collected.</li>
+    <li>Two-sided test — we care about extremes in BOTH directions, hence absolute value.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Confusing replace=TRUE and replace=FALSE.</strong> Bootstrap = TRUE, Permutation = FALSE.</li>
+    <li><strong>Resampling at the wrong size.</strong> Bootstrap samples MUST be the same length as original.</li>
+    <li><strong>Reading bootstrap as a p-value.</strong> Bootstrap quantiles give CI, not p-value (unless you do bootstrap hypothesis test, which is rarely good).</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(53)">Mark Level 53 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 54 — Statistical Power ==================== -->
+<div class="level-card" id="level-54">
+<div class="level-header" onclick="toggleLevel(54)">
+  <span class="level-title"><span class="num">Level 54</span> — Statistical Power</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-54">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>Power is the probability your test will FIND a real effect when one exists. High power = good test. Low power = your test misses real things often.</p>
+  <p>Power depends on: <strong>sample size</strong>, <strong>effect size</strong>, <strong>noise</strong>, and <strong>α</strong>.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Power</strong> \(= 1 - \beta = P(\text{reject } H_0 \mid H_A \text{ true})\)</li>
+    <li><strong>Four inputs</strong>: sample size \(n\), effect size \(\delta = |\mu_A - \mu_0|\), residual SD \(\sigma\), significance \(\alpha\).</li>
+    <li><strong>Effect size (standardized)</strong>: Cohen's d = \(\delta / \sigma\). d ≈ 0.2 small, 0.5 medium, 0.8 large.</li>
+    <li><strong>Power formula (one-sample t)</strong>: \(P(T \geq t_{\alpha/2, n-1} \mid \text{ncp} = \delta\sqrt n / \sigma)\) where T is non-central t.</li>
+    <li><strong>R command</strong>: <code>power.t.test(n, delta, sd, sig.level, type="one.sample")</code></li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Simple Idea</th><th>Math Language</th></tr>
+    <tr><td>"More data = easier to find effects"</td><td>Power increases with \(n\)</td></tr>
+    <tr><td>"Bigger effect = easier to spot"</td><td>Power increases with \(\delta\)</td></tr>
+    <tr><td>"More noise = harder to spot"</td><td>Power decreases with \(\sigma\)</td></tr>
+    <tr><td>"Wider rejection region = easier to reject"</td><td>Power increases with \(\alpha\) (but more Type I)</td></tr>
+    <tr><td>"My test missed it"</td><td>Type II error (probability β = 1 − power)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Detect a 5% sleep deficit</div>
+  <p>Truth: \(\mu_A = 6.7\), \(\mu_0 = 7.0\). So \(\delta = 0.3\) hours. Suppose \(\sigma = 1.0\), \(\alpha = 0.05\).</p>
+  <ul>
+    <li>n = 20: power ≈ 0.27 (you'll miss the effect 73% of the time!)</li>
+    <li>n = 100: power ≈ 0.86</li>
+    <li>n = 200: power ≈ 0.99</li>
+  </ul>
+  <p>Same effect, different ability to detect, all due to sample size.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Try power.t.test in R</div>
+<pre class="r-code"><span class="fn">power.t.test</span>(n=<span class="nb">20</span>,  delta=<span class="nb">0.3</span>, sd=<span class="nb">1</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$power
+<span class="cm"># [1] 0.27</span>
+
+<span class="fn">power.t.test</span>(n=<span class="nb">100</span>, delta=<span class="nb">0.3</span>, sd=<span class="nb">1</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$power
+<span class="cm"># [1] 0.86</span>
+
+<span class="cm"># Solve for required n given desired power:</span>
+<span class="fn">power.t.test</span>(power=<span class="nb">0.80</span>, delta=<span class="nb">0.3</span>, sd=<span class="nb">1</span>, sig.level=<span class="nb">0.05</span>, type=<span class="st">"one.sample"</span>)$n
+<span class="cm"># [1] 87.7  → need n ≥ 88</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>Power = ?</li>
+    <li>List the 4 inputs to a power calculation.</li>
+    <li>If true effect is HUGE, will power be high or low? (Assume normal n and noise.)</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>You design a study with n = 20 and the calculated power is 0.30. Should you proceed? Why/why not?</li>
+    <li>Cohen's d = 0.5. Is this a small, medium, or large effect?</li>
+    <li>You quadruple sample size. Roughly what happens to power if it was 0.40?</li>
+    <li>Why do we want power calculations BEFORE we collect data?</li>
+    <li>If you increase α from 0.05 to 0.10, power _____.</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Predict Power</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">δ = 1, σ = 1, n = 5, α = 0.05. Approximately what is power?</div>
+    <div class="quiz-opt" data-i="0">~0.05</div>
+    <div class="quiz-opt" data-i="1">~0.30</div>
+    <div class="quiz-opt" data-i="2">~0.55</div>
+    <div class="quiz-opt" data-i="3">~0.95</div>
+    <div class="quiz-result" data-explain="Cohen's d = 1 (large), but small n = 5 limits detection. Power ≈ 0.55. Big effects + tiny n = moderate power."></div>
+  </div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">δ = 0.1, σ = 1, n = 1000, α = 0.05. Power?</div>
+    <div class="quiz-opt" data-i="0">~0.05</div>
+    <div class="quiz-opt" data-i="1">~0.88</div>
+    <div class="quiz-opt" data-i="2">~0.30</div>
+    <div class="quiz-result" data-explain="Tiny effect (d=0.1) but huge n inflates power to ~88%. This is the Big Data Trap from Lec 5."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(Definition)</strong> Define power using \(P(\cdot \mid \cdot)\) notation.</li>
+    <li><strong>(R)</strong> Write the R code to find the required sample size for power = 0.90, δ = 0.5, σ = 1.5, α = 0.05, one-sample.</li>
+    <li><strong>(Conceptual)</strong> Why is "power" the term used instead of "1 − Type II rate" in everyday speech?</li>
+    <li><strong>(Cohen's d)</strong> A study finds δ = 4 cm with σ = 5. Is the standardized effect size small, medium, or large?</li>
+    <li><strong>(Trap)</strong> True or false: "Power calculated AFTER seeing the data tells me how reliable the result is." Justify.</li>
+    <li><strong>(Power curve)</strong> Sketch (or describe) what happens to power as n grows from 5 to 500, holding δ and σ fixed.</li>
+    <li><strong>(Tradeoff)</strong> Name the cost of increasing α to gain power.</li>
+    <li><strong>(Sim code)</strong> Write the skeleton (in R or pseudocode) for a simulation that estimates the power of a one-sample t-test.</li>
+    <li><strong>(Wording)</strong> "A study had power 0.20." What does this mean in plain English?</li>
+    <li><strong>(Research planning)</strong> Power = 0.50 is rarely accepted. Why? What's the conventional minimum target for a study?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>P(reject \(H_0\) | \(H_A\) true).</li>
+    <li>n, δ (effect size), σ (noise SD), α (significance level).</li>
+    <li>High power.</li>
+    <li>NO — likely waste of resources. Either increase n, refine measurement, or restructure.</li>
+    <li>Medium.</li>
+    <li>Quadrupling n roughly doubles \(t_s\), often pushing power well above 0.80 (e.g., 0.40 → 0.85+).</li>
+    <li>To plan a study large enough to detect realistic effects — avoiding underpowered studies that waste resources and produce inconclusive results.</li>
+    <li>Increases (but Type I rate also goes up).</li>
+    <li>Power = P(reject \(H_0\) | \(H_A\) true) = P(test stat in rejection region | \(H_A\) true).</li>
+    <li><code>power.t.test(power = 0.90, delta = 0.5, sd = 1.5, sig.level = 0.05, type = "one.sample")$n</code></li>
+    <li>"Power" is more positive — emphasizes the test's ability to DETECT, rather than its rate of FAILING.</li>
+    <li>d = 4/5 = 0.8 → large.</li>
+    <li>FALSE. Post-hoc power is essentially redundant with the p-value (they're 1-to-1) and provides no new info on reliability. Power is a study-design tool.</li>
+    <li>S-shaped curve: starts near α = 0.05 at small n, grows steeply, asymptotes to 1.0 at large n.</li>
+    <li>More Type I errors (false positives).</li>
+    <li><code>mean(replicate(2000, t.test(rnorm(n, mu_A, sd), mu = mu_0)$p.value &lt; 0.05))</code></li>
+    <li>The study will only correctly detect a real effect 20% of the time — almost certainly missed it even if real.</li>
+    <li>0.80 — gives 80% chance of detecting a real effect of the assumed size. Below 0.80 means too high a miss rate.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Computing power AFTER seeing data ("post-hoc power")</strong> — circular and uninformative.</li>
+    <li><strong>Confusing "high p" with "low power"</strong>. They're related but not identical; power is a property of the test design.</li>
+    <li><strong>Using power = 0.50 or worse</strong>. You're equally likely to detect or miss.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(54)">Mark Level 54 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 55 — Big Data Trap ==================== -->
+<div class="level-card" id="level-55">
+<div class="level-header" onclick="toggleLevel(55)">
+  <span class="level-title"><span class="num">Level 55</span> — The Big Data Trap (Significance ≠ Importance)</span>
+  <span class="level-xp">+100 XP</span>
+</div>
+<div class="level-body" id="level-body-55">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>With huge n, even tiny differences become "statistically significant." But "significant" doesn't mean "important."</p>
+  <p>Example: A study of 10 million people shows the new shoe makes you 0.0001 seconds faster. p &lt; 0.0001. But who cares?</p>
+  <p>Always ask: <strong>does the effect matter in the real world?</strong></p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Statistical significance</strong>: \(p &lt; \alpha\). Probability-based.</li>
+    <li><strong>Practical significance</strong>: the effect is large enough to matter in context. Domain-based.</li>
+    <li><strong>Effect size</strong>: \(\delta\), Cohen's d, raw difference, etc. Always report alongside p.</li>
+    <li><strong>Confidence interval</strong>: gives RANGE of plausible effects — better than just p-value when n is huge.</li>
+    <li><strong>Power inflation</strong>: as \(n \to \infty\), even \(\delta \to 0\) gives power → 1.</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Simple</th><th>Math</th></tr>
+    <tr><td>"Tiny but real difference"</td><td>Small δ, p &lt; α at huge n</td></tr>
+    <tr><td>"Real and meaningful"</td><td>Big δ, narrow CI excludes 0 by a lot</td></tr>
+    <tr><td>"Real but irrelevant"</td><td>p &lt; 0.001, effect size = 0.0001</td></tr>
+    <tr><td>"CI narrow and away from 0"</td><td>Effect is precisely estimated AND practically important</td></tr>
+    <tr><td>"With huge n, all effects detectable"</td><td>\(n \to \infty\) ⇒ power → 1 for any \(\delta &gt; 0\)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Bacon and Cancer</div>
+  <p>News headline: "Bacon increases cancer risk by 18%!" Sounds scary.</p>
+  <p>The actual numbers: baseline colon cancer risk = 5%. Eating bacon daily: 5% × 1.18 = <strong>5.9%</strong> — an absolute increase of 0.9 percentage points.</p>
+  <p>Statistically: p &lt; 0.001. Practically: most people might prefer the bacon.</p>
+  <p><strong>Always show absolute and relative effects together.</strong></p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Big-N Demo</div>
+<pre class="r-code"><span class="cm"># Tiny effect, huge sample</span>
+<span class="fn">set.seed</span>(<span class="nb">42</span>)
+n &lt;- <span class="nb">50000</span>; mu_true &lt;- <span class="nb">5.01</span>; mu_0 &lt;- <span class="nb">5.00</span>; sigma &lt;- <span class="nb">1</span>
+x &lt;- <span class="fn">rnorm</span>(n, mean=mu_true, sd=sigma)
+<span class="fn">t.test</span>(x, mu=mu_0)$p.value
+<span class="cm"># [1] 0.025  ← "significant"</span>
+
+<span class="fn">t.test</span>(x, mu=mu_0)$conf.int
+<span class="cm"># [1] 5.001 5.018  ← effect is real but TINY (0.01 to 0.018)</span>
+<span class="cm"># Practical importance? Probably none.</span>
+</pre>
+  <p>The takeaway: <strong>always check the CI, not just p</strong>.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What does "statistically significant" mean?</li>
+    <li>What does "practically significant" mean?</li>
+    <li>True or false: a smaller p-value means a bigger effect.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>n = 10 million, p &lt; 0.0001, mean difference = $0.002. Should we report this as a big finding?</li>
+    <li>Why is reporting the CI alongside the p-value better at large n?</li>
+    <li>Two studies: A has p = 0.04, n = 30. B has p = 0.04, n = 30,000. Which has larger effect, roughly?</li>
+    <li>What's the "Big Data Trap"?</li>
+    <li>If you get a "significant" result and the CI is (0.001, 0.999), what should you say?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Significant or Important?</div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">A weight-loss study (n = 5000): mean loss = 0.3 lbs over 6 months, p = 0.001. Conclusion?</div>
+    <div class="quiz-opt" data-i="0">"Strong evidence the diet works — recommend it widely."</div>
+    <div class="quiz-opt" data-i="1">"Statistically significant but practically tiny (0.3 lbs in 6 months). Not clinically meaningful."</div>
+    <div class="quiz-opt" data-i="2">"Reject; not significant."</div>
+    <div class="quiz-result" data-explain="Statistical significance ≠ clinical/practical significance. 0.3 lbs is a rounding error in body weight."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">Drug for high blood pressure (n = 200): mean BP reduction = 12 mmHg, p = 0.04. Conclusion?</div>
+    <div class="quiz-opt" data-i="0">"Statistically significant AND clinically meaningful (12 mmHg is large enough to lower stroke risk)."</div>
+    <div class="quiz-opt" data-i="1">"Not enough sample size."</div>
+    <div class="quiz-opt" data-i="2">"Always report only the CI, never p."</div>
+    <div class="quiz-result" data-explain="Combine statistical evidence (p &lt; 0.05) with clinical context (12 mmHg matters). This is the right combo to recommend the drug."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (8 questions)</div>
+  <ol start="9">
+    <li><strong>(Distinguish)</strong> In 2 sentences, distinguish "statistical significance" from "practical importance."</li>
+    <li><strong>(Conditional)</strong> True or false: "A study with p &lt; 0.001 is more important than one with p = 0.04." Explain.</li>
+    <li><strong>(R)</strong> Write the R command to extract just the 95% CI from a t-test.</li>
+    <li><strong>(Wording)</strong> Rewrite this conclusion correctly: "p &lt; 0.05 proves the new drug works." (Use proper terminology.)</li>
+    <li><strong>(Big Data)</strong> Why does the Big Data Trap make CIs more useful than p-values when n is large?</li>
+    <li><strong>(Real)</strong> A poker site analyzes 10,000 hands to test whether a "tip jar" prompt makes people tip more. Mean increase = $0.02 per hand, p &lt; 0.001. Should they roll out the prompt company-wide?</li>
+    <li><strong>(Effect size)</strong> Why does Cohen's d (a STANDARDIZED effect size) help avoid the Big Data Trap?</li>
+    <li><strong>(News literacy)</strong> A media headline says "ICE CREAM CAUSES DROWNING — STUDY SHOWS p &lt; 0.001." How do you respond? (3 things to point out.)</li>
+    <li><strong>(Reporting)</strong> What 3 numbers should ALWAYS appear in a study's main result statement?</li>
+    <li><strong>(Trap)</strong> A drug trial: \(\bar x_1 - \bar x_2 = 0.5\) units, p = 0.06, n = 50 per group. Headline: "Drug fails!" Justify why this conclusion may be premature.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>p &lt; α; the data is unlikely under \(H_0\).</li>
+    <li>The effect is large enough to matter in real-world context.</li>
+    <li>FALSE. Smaller p depends on both effect size AND sample size — large n can push p down for tiny effects.</li>
+    <li>NO. The effect ($0.002) is practically zero. p &lt; 0.001 reflects sample size, not importance.</li>
+    <li>CIs show the RANGE of plausible effects, telling you whether the real-world impact is meaningful — even when p is tiny.</li>
+    <li>B (larger n means same p reflects a smaller effect — A's effect must be larger to reach same p).</li>
+    <li>The phenomenon where huge sample sizes turn trivially small effects into "significant" results.</li>
+    <li>"The effect is real (CI excludes 0), but very small in magnitude — possibly anywhere from 0.001 to 0.999. The wide CI suggests we don't know the true size."</li>
+    <li>Statistical significance = a probability claim about chance. Practical importance = whether the effect matters in real-world terms.</li>
+    <li>FALSE. p tells you about evidence against \(H_0\), not effect size or importance. Two studies with different p can have wildly different real-world impact.</li>
+    <li><code>t.test(x, mu = mu0)$conf.int</code></li>
+    <li>"There is statistically significant evidence at the α = 0.05 level that the drug is associated with [outcome] (β̂ = X, 95% CI = [a, b], p &lt; 0.05). The CI suggests the practical effect is …"</li>
+    <li>At large n, p almost certainly is &lt; α for any non-zero effect. CIs distinguish "tiny but precise" from "large and impactful" effects.</li>
+    <li>NO. $0.02 per hand at scale might add up, but the per-user effect is trivial — and CI almost certainly excludes large effects. Pilot first.</li>
+    <li>Cohen's d normalizes by SD, so it doesn't grow with n. d = 0.8 is "large" regardless of whether n = 10 or 10 million.</li>
+    <li>(a) Correlation ≠ causation. (b) Confounder: hot weather → both more ice cream AND more swimming/drowning. (c) Tiny p with huge n is normal — what's the EFFECT SIZE?</li>
+    <li>(1) Effect size estimate (β̂ or mean diff). (2) 95% CI. (3) p-value. All three together.</li>
+    <li>n = 50/group is small (low power). Effect of 0.5 units could be real but undetectable here. "Drug fails" requires high-powered test ruling out the effect; this study is just inconclusive.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>"p &lt; 0.001 means HUGE effect."</strong> Wrong — n inflates p downward. Always check CI.</li>
+    <li><strong>Ignoring CI.</strong> p without CI hides the real-world effect range.</li>
+    <li><strong>Conflating "fail to reject" with "no effect."</strong> Low power can hide real effects (Lec 5 / Big Data Trap reverse).</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(55)">Mark Level 55 Complete — ESL Bank Done!</button>
+</div></div>
+
+</div> <!-- end phase-11 -->
+
 </div> <!-- end main -->
 
 
@@ -6938,7 +7863,7 @@ let completedLevels = new Set();
 let totalQuizzes = 0;
 let correctQuizzes = 0;
 const XP_PER_LEVEL = 100;
-const TOTAL_LEVELS = 49;
+const TOTAL_LEVELS = 55;
 
 // ===== PHASE TABS =====
 document.querySelectorAll('.phase-tab').forEach(tab => {
@@ -7082,6 +8007,11 @@ function checkAchievements() {
   if (completedLevels.size === 49 && !window._ach49) {
     window._ach49 = true;
     showAchievement('LAB MASTER!', 'All 4 Lab Deep Dives complete. Quiz 2 + labs locked in.');
+    launchConfetti();
+  }
+  if (completedLevels.size === 55 && !window._ach55) {
+    window._ach55 = true;
+    showAchievement('ESL PRACTICE BANK COMPLETE!', 'Simple language + math language + 90+ practice Qs all done.');
     launchConfetti();
   }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
