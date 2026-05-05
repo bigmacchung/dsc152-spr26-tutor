@@ -317,6 +317,97 @@ strong { color: #e2e8f0; }
   margin-top: 12px;
 }
 .complete-btn:hover { filter: brightness(1.1); }
+
+/* ===== STICKY LEVEL SIDEBAR ===== */
+.sidebar-toggle {
+  position: fixed; right: 0; top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #22d3ee, #818cf8);
+  color: #0b0e14; padding: 14px 10px;
+  border-radius: 10px 0 0 10px; cursor: pointer;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  font-weight: 700; font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  z-index: 90; border: none;
+  box-shadow: -4px 4px 14px rgba(0,0,0,0.5);
+  transition: padding 0.2s;
+}
+.sidebar-toggle:hover { padding-right: 14px; filter: brightness(1.1); }
+.sidebar-toggle.hidden { right: -50px; }
+
+.sidebar {
+  position: fixed; right: -360px; top: 0;
+  width: 340px; height: 100vh;
+  background: #0f1219; border-left: 2px solid #22d3ee;
+  z-index: 95; overflow-y: auto;
+  transition: right 0.3s ease;
+  padding: 20px 18px;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.6);
+}
+.sidebar.open { right: 0; }
+.sidebar-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 92; opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.sidebar-close {
+  position: absolute; top: 14px; right: 14px;
+  background: transparent; border: 1px solid #475569;
+  border-radius: 6px; color: #94a3b8;
+  width: 32px; height: 32px; cursor: pointer;
+  font-size: 1rem; line-height: 1;
+}
+.sidebar-close:hover { background: #1c2030; color: #e2e8f0; }
+.sidebar h2 {
+  color: #22d3ee; font-size: 1.05rem; font-weight: 700;
+  margin-bottom: 6px; padding-right: 40px;
+}
+.sidebar .sidebar-tip {
+  color: #64748b; font-size: 0.75rem;
+  margin-bottom: 16px; line-height: 1.4;
+}
+.sidebar-phase {
+  margin-bottom: 8px;
+  border: 1px solid #1e293b; border-radius: 6px;
+  overflow: hidden;
+}
+.sidebar-phase-header {
+  padding: 9px 12px; background: #1c2030;
+  cursor: pointer; font-weight: 600;
+  font-size: 0.82rem; color: #e2e8f0;
+  display: flex; justify-content: space-between;
+  align-items: center; user-select: none;
+}
+.sidebar-phase-header:hover { background: #242a3d; color: #22d3ee; }
+.sidebar-phase-header::after { content: '▶'; color: #64748b; font-size: 0.65rem; transition: transform 0.2s; }
+.sidebar-phase.open .sidebar-phase-header::after { transform: rotate(90deg); }
+.sidebar-phase-list { display: none; }
+.sidebar-phase.open .sidebar-phase-list { display: block; }
+.sidebar-level {
+  padding: 7px 14px; cursor: pointer;
+  font-size: 0.8rem; color: #94a3b8;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  display: flex; align-items: baseline; gap: 6px;
+}
+.sidebar-level:hover {
+  background: #1c2030; color: #e2e8f0;
+  border-left-color: #22d3ee;
+}
+.sidebar-level .lev-num {
+  color: #fbbf24; font-weight: 700;
+  font-size: 0.72rem; min-width: 28px;
+}
+.sidebar-level.completed .lev-num { color: #4ade80; }
+.sidebar-level.completed .lev-num::after { content: ' ✓'; }
+
+@media (max-width: 768px) {
+  .sidebar { width: 85vw; right: -90vw; }
+  .sidebar-toggle { font-size: 0.75rem; padding: 10px 8px; }
+}
 </style>
 </head>
 <body>
@@ -326,6 +417,16 @@ strong { color: #e2e8f0; }
   <div class="ach-title" id="ach-title"></div>
   <div class="ach-desc" id="ach-desc"></div>
 </div>
+
+<!-- ===== STICKY SIDEBAR (Levels navigation) ===== -->
+<button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">📖 Levels</button>
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+<aside class="sidebar" id="sidebar" aria-label="Levels navigation">
+  <button class="sidebar-close" onclick="toggleSidebar(false)" aria-label="Close sidebar">✕</button>
+  <h2>📖 All Levels</h2>
+  <div class="sidebar-tip">Click any level to jump there. Phase headers expand. ✓ = completed.</div>
+  <div id="sidebar-content"></div>
+</aside>
 
 <!-- ===== HEADER ===== -->
 <div class="header">
@@ -9336,6 +9437,96 @@ diagInit();
 // Close buttons on every level + search index
 addCloseButtons();
 buildSearchIndex();
+
+// =================================================================
+// =====     STICKY LEVEL SIDEBAR                              =====
+// =================================================================
+
+function toggleSidebar(forceState) {
+  const sb = document.getElementById('sidebar');
+  const tg = document.getElementById('sidebar-toggle');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (!sb) return;
+  let open;
+  if (forceState === true) open = true;
+  else if (forceState === false) open = false;
+  else open = !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  bd.classList.toggle('open', open);
+  tg.classList.toggle('hidden', open);
+}
+
+function toggleSidebarPhase(p) {
+  document.querySelectorAll('.sidebar-phase').forEach(el => {
+    if (el.getAttribute('data-phase') === p) {
+      el.classList.toggle('open');
+    } else {
+      el.classList.remove('open');
+    }
+  });
+}
+
+function buildSidebar() {
+  const container = document.getElementById('sidebar-content');
+  if (!container) return;
+  const phases = {};
+  document.querySelectorAll('.level-card').forEach(card => {
+    const m = card.id.match(/level-(.+)/);
+    if (!m) return;
+    const num = m[1];
+    const phaseEl = card.closest('.phase-content');
+    if (!phaseEl) return;
+    const p = phaseEl.id.replace('phase-', '');
+    const titleEl = card.querySelector('.level-title');
+    const title = titleEl ? titleEl.textContent.trim() : 'Level ' + num;
+    (phases[p] = phases[p] || []).push({ num, title });
+  });
+  const labels = {};
+  document.querySelectorAll('.phase-tab').forEach(tab => {
+    labels[tab.getAttribute('data-phase')] = tab.textContent.trim();
+  });
+  let html = '';
+  Object.keys(phases).sort((a, b) => parseInt(a) - parseInt(b)).forEach(p => {
+    const label = labels[p] || 'Phase ' + p;
+    const isOpen = (p === '1') ? ' open' : '';
+    html += '<div class="sidebar-phase' + isOpen + '" data-phase="' + p + '">';
+    html += '<div class="sidebar-phase-header" onclick="toggleSidebarPhase(\'' + p + '\')">' + escapeHtml(label) + ' <span style="color:#64748b;font-size:0.7rem;font-weight:400;">(' + phases[p].length + ')</span></div>';
+    html += '<div class="sidebar-phase-list">';
+    phases[p].forEach(lv => {
+      // Strip "Level N — " prefix if present
+      const cleanTitle = lv.title.replace(/^Level\s+\S+\s*[—-]\s*/, '').replace(/^\s*Level\s+\S+\s*/, '');
+      html += '<div class="sidebar-level" data-level="' + lv.num + '" onclick="goToLevel(\'' + p + '\',\'' + lv.num + '\'); toggleSidebar(false);">';
+      html += '<span class="lev-num">L' + lv.num + '</span>';
+      html += '<span>' + escapeHtml(cleanTitle) + '</span>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+  refreshSidebarCompletion();
+}
+
+function refreshSidebarCompletion() {
+  document.querySelectorAll('.sidebar-level').forEach(el => {
+    const num = el.getAttribute('data-level');
+    // Treat both numeric and alphanumeric IDs
+    const numKey = isNaN(parseInt(num)) ? num : parseInt(num);
+    if (completedLevels.has(numKey)) {
+      el.classList.add('completed');
+    } else {
+      el.classList.remove('completed');
+    }
+  });
+}
+
+// Wrap addXP to refresh completion status on the sidebar
+const _origAddXP = addXP;
+addXP = function(amount) {
+  _origAddXP(amount);
+  refreshSidebarCompletion();
+};
+
+buildSidebar();
 </script>
 
 </body>

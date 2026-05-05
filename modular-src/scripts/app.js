@@ -14,6 +14,7 @@ pengGenerate(); pengUpdate();
 fwUpdate();
 diagInit();
 
-// Close buttons on every level + global search index
+// Close buttons on every level + global search index + sticky sidebar
 addCloseButtons();
 buildSearchIndex();
+buildSidebar();
