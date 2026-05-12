@@ -247,6 +247,69 @@ strong { color: #e2e8f0; }
 .four-outcome-table th { background: #1c2030; color: #c084fc; }
 .four-outcome-table td { background: #141821; }
 
+/* ===== LEFT SIDEBAR (always visible, sticky) ===== */
+.left-sidebar {
+  position: fixed; left: 0; top: 0;
+  width: 260px; height: 100vh;
+  background: #0a0d14;
+  border-right: 1px solid #1e293b;
+  overflow-y: auto;
+  z-index: 88;
+  padding: 18px 14px 32px;
+  font-size: 0.85rem;
+}
+.left-sidebar h2 {
+  color: #22d3ee; font-size: 0.95rem; font-weight: 700;
+  margin: 0 0 6px 0;
+}
+.left-sidebar .ls-tip {
+  color: #64748b; font-size: 0.72rem; margin-bottom: 14px;
+  line-height: 1.4;
+}
+.ls-phase { margin-bottom: 4px; border-radius: 6px; }
+.ls-phase-header {
+  padding: 7px 10px; background: transparent;
+  cursor: pointer; font-weight: 600;
+  font-size: 0.78rem; color: #c084fc;
+  display: flex; justify-content: space-between;
+  align-items: center; user-select: none;
+  border-radius: 5px;
+}
+.ls-phase-header:hover { background: #1c2030; color: #22d3ee; }
+.ls-phase-header::after { content: '▶'; color: #64748b; font-size: 0.6rem; transition: transform 0.2s; margin-left: 6px; }
+.ls-phase.open .ls-phase-header::after { transform: rotate(90deg); }
+.ls-phase.open .ls-phase-header { color: #22d3ee; background: #1c2030; }
+.ls-phase-list { display: none; padding-left: 6px; padding-top: 2px; }
+.ls-phase.open .ls-phase-list { display: block; }
+.ls-level {
+  padding: 4px 10px 4px 16px; cursor: pointer;
+  font-size: 0.74rem; color: #94a3b8;
+  border-left: 2px solid #1e293b;
+  margin-left: 6px;
+  display: flex; gap: 5px; align-items: baseline;
+  border-radius: 0 4px 4px 0;
+  line-height: 1.35;
+}
+.ls-level:hover { background: #1c2030; color: #e2e8f0; border-left-color: #818cf8; }
+.ls-level.completed { color: #4ade80; }
+.ls-level .ls-lev-num {
+  color: #fbbf24; font-weight: 700; font-size: 0.7rem;
+  min-width: 26px; flex-shrink: 0;
+}
+.ls-level.completed .ls-lev-num::after { content: ' ✓'; }
+
+/* When the left sidebar is active, shift all top-level layout right */
+@media (min-width: 1000px) {
+  body.has-left-sidebar .header,
+  body.has-left-sidebar .phase-tabs,
+  body.has-left-sidebar .main { margin-left: 260px; }
+  body.has-left-sidebar .achievement-popup { right: 20px; }
+  body.has-left-sidebar .sidebar-toggle { display: none; }
+}
+@media (max-width: 999px) {
+  .left-sidebar { display: none; }
+}
+
 /* ===== SEARCH BAR ===== */
 .search-bar {
   position: relative; flex: 1 1 280px; max-width: 360px;
@@ -418,7 +481,14 @@ strong { color: #e2e8f0; }
   <div class="ach-desc" id="ach-desc"></div>
 </div>
 
-<!-- ===== STICKY SIDEBAR (Levels navigation) ===== -->
+<!-- ===== LEFT SIDEBAR (always visible on desktop) ===== -->
+<aside class="left-sidebar" id="left-sidebar" aria-label="Levels navigation">
+  <h2>📖 All Levels</h2>
+  <div class="ls-tip">Always visible. Click a phase to expand. ✓ = completed. Hidden on mobile — use the floating button instead.</div>
+  <div id="left-sidebar-content"></div>
+</aside>
+
+<!-- ===== STICKY SIDEBAR (Levels navigation — for mobile + extra access) ===== -->
 <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">📖 Levels</button>
 <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
 <aside class="sidebar" id="sidebar" aria-label="Levels navigation">
@@ -9527,6 +9597,90 @@ addXP = function(amount) {
 };
 
 buildSidebar();
+
+// =================================================================
+// =====   LEFT SIDEBAR (always visible on desktop)            =====
+// =================================================================
+function buildLeftSidebar() {
+  const container = document.getElementById('left-sidebar-content');
+  if (!container) return;
+  const phases = {};
+  document.querySelectorAll('.level-card').forEach(card => {
+    const m = card.id.match(/level-(.+)/);
+    if (!m) return;
+    const num = m[1];
+    const phaseEl = card.closest('.phase-content');
+    if (!phaseEl) return;
+    const p = phaseEl.id.replace('phase-', '');
+    const titleEl = card.querySelector('.level-title');
+    const title = titleEl ? titleEl.textContent.trim() : 'Level ' + num;
+    (phases[p] = phases[p] || []).push({ num, title });
+  });
+  const labels = {};
+  document.querySelectorAll('.phase-tab').forEach(tab => {
+    labels[tab.getAttribute('data-phase')] = tab.textContent.trim();
+  });
+  let html = '';
+  Object.keys(phases).sort((a, b) => parseInt(a) - parseInt(b)).forEach(p => {
+    const label = labels[p] || 'Phase ' + p;
+    const isOpen = (p === '1') ? ' open' : '';
+    html += '<div class="ls-phase' + isOpen + '" data-phase="' + p + '">';
+    html += '<div class="ls-phase-header" onclick="toggleLeftSidebarPhase(\'' + p + '\')">' + escapeHtml(label) + '</div>';
+    html += '<div class="ls-phase-list">';
+    phases[p].forEach(lv => {
+      const cleanTitle = lv.title.replace(/^Level\s+\S+\s*[—-]\s*/, '').replace(/^\s*Level\s+\S+\s*/, '');
+      html += '<div class="ls-level" data-level="' + lv.num + '" onclick="goToLevel(\'' + p + '\',\'' + lv.num + '\')">';
+      html += '<span class="ls-lev-num">L' + lv.num + '</span>';
+      html += '<span>' + escapeHtml(cleanTitle) + '</span>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+  refreshLeftSidebarCompletion();
+  if (window.innerWidth >= 1000) document.body.classList.add('has-left-sidebar');
+}
+
+function toggleLeftSidebarPhase(p) {
+  document.querySelectorAll('.ls-phase').forEach(el => {
+    if (el.getAttribute('data-phase') === p) el.classList.toggle('open');
+  });
+}
+
+function refreshLeftSidebarCompletion() {
+  document.querySelectorAll('.ls-level').forEach(el => {
+    const num = el.getAttribute('data-level');
+    const numKey = isNaN(parseInt(num)) ? num : parseInt(num);
+    if (completedLevels.has(numKey)) el.classList.add('completed');
+    else el.classList.remove('completed');
+  });
+}
+
+function syncLeftSidebarActivePhase() {
+  const activeTab = document.querySelector('.phase-tab.active');
+  if (!activeTab) return;
+  const ap = activeTab.getAttribute('data-phase');
+  const target = document.querySelector('.ls-phase[data-phase="' + ap + '"]');
+  if (target) target.classList.add('open');
+}
+
+document.querySelectorAll('.phase-tab').forEach(tab => {
+  tab.addEventListener('click', () => setTimeout(syncLeftSidebarActivePhase, 10));
+});
+
+const _origAddXP2 = addXP;
+addXP = function(amount) {
+  _origAddXP2(amount);
+  refreshLeftSidebarCompletion();
+};
+
+// Toggle on window resize (e.g. rotate mobile to desktop)
+window.addEventListener('resize', () => {
+  if (window.innerWidth >= 1000) document.body.classList.add('has-left-sidebar');
+  else document.body.classList.remove('has-left-sidebar');
+});
+
+buildLeftSidebar();
 </script>
 
 </body>
