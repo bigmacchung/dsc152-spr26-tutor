@@ -533,6 +533,7 @@ strong { color: #e2e8f0; }
   <div class="phase-tab" data-phase="10">Phase 10: Lab Deep Dives (Lab 4-5)</div>
   <div class="phase-tab" data-phase="11">Phase 11: ESL Practice Bank 🌍</div>
   <div class="phase-tab" data-phase="12">Phase 12: ESL Bank Quiz 2 🌍</div>
+  <div class="phase-tab" data-phase="13">Phase 13: Lab 6 Deep Dive (Interactions) 🌍</div>
 </div>
 
 <!-- ============================= MAIN CONTENT ============================= -->
@@ -8716,6 +8717,734 @@ fit &lt;- model$fitted.values
 
 </div> <!-- end phase-12 -->
 
+<!-- ============================================================ -->
+<!-- PHASE 13: LAB 6 ESL WALKTHROUGH (Levels 60-64) — Interactions -->
+<!-- ============================================================ -->
+<div class="phase-content" id="phase-13">
+
+<div class="box box-story" style="margin-bottom:24px;">
+  <div class="box-label">About this phase</div>
+  <p><strong>Lab 6 is about INTERACTIONS.</strong> Very important for Quiz 2.</p>
+  <p>An interaction means: <em>two things change something TOGETHER in a different way than they change it alone</em>. We will use very simple English. Every level has 8 parts: simple idea → math words → connection → example → game → practice → answers → common mistakes.</p>
+  <p>Lab 6 uses a sleep study: people get a blue light filter (yes/no) AND a caffeine cutoff (yes/no). We want to know: does the filter only help when there is also a caffeine cutoff? That is the interaction question.</p>
+</div>
+
+<!-- ==================== LEVEL 60 — What is an Interaction? ==================== -->
+<div class="level-card" id="level-60">
+<div class="level-header" onclick="toggleLevel(60)">
+  <span class="level-title"><span class="num">Level 60</span> — What is an Interaction? (Lab 6 Part 1 setup)</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-60">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation (very easy English)</div>
+  <p>Imagine you are baking. Sugar makes the cake sweet. Butter makes the cake soft.</p>
+  <p>But if you add MORE butter WHEN you also add MORE sugar, the cake gets EXTRA soft. The butter "helps more" when sugar is there too.</p>
+  <p>That extra effect — the part that only shows up when TWO things happen together — is an <strong>interaction</strong>.</p>
+  <p>In Lab 6: blue light filter alone helps sleep a little. Caffeine cutoff alone helps sleep a little. But do they together help EXTRA? That's the interaction question.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language (for exam)</div>
+  <ul>
+    <li><strong>Main effect</strong>: how much one thing (say, blue light) changes the outcome by itself.</li>
+    <li><strong>Interaction effect</strong>: extra change that happens only when two things are present together.</li>
+    <li><strong>Interaction model</strong> (2 binary predictors \(x_1, x_2\)):
+      \[\hat y = \hat\beta_0 + \hat\beta_1 x_1 + \hat\beta_2 x_2 + \hat\beta_3 (x_1 \cdot x_2)\]</li>
+    <li>\(x_1 \cdot x_2\) is the <strong>interaction term</strong> (just the two columns multiplied).</li>
+    <li><strong>R syntax</strong>: <code>lm(y ~ x1 * x2)</code> — the <code>*</code> means "include x1, x2, AND their interaction." Same as <code>lm(y ~ x1 + x2 + x1:x2)</code>.</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection (simple ↔ math)</div>
+  <table class="cmp-table">
+    <tr><th>Simple Idea</th><th>Math Language</th></tr>
+    <tr><td>"Blue light alone helps a little"</td><td>Main effect \(\hat\beta_1\) (when caffeine_cutoff = no)</td></tr>
+    <tr><td>"Caffeine cutoff alone helps a little"</td><td>Main effect \(\hat\beta_2\) (when blue_light = no)</td></tr>
+    <tr><td>"Extra help when BOTH happen"</td><td>Interaction \(\hat\beta_3\)</td></tr>
+    <tr><td>"Baseline when NEITHER happens"</td><td>Intercept \(\hat\beta_0\)</td></tr>
+    <tr><td>"Filter only works WHEN you also cut caffeine"</td><td>\(\hat\beta_3 \neq 0\) (interaction exists)</td></tr>
+    <tr><td>"Filter works the same no matter caffeine"</td><td>\(\hat\beta_3 \approx 0\) (no interaction)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Lab 6 sleep study (small numbers)</div>
+  <p>Imagine 4 groups of people:</p>
+  <ul>
+    <li>Group A: NO filter, NO caffeine cutoff. Mean sleep score = 5.</li>
+    <li>Group B: NO filter, YES caffeine cutoff. Mean sleep score = 6 (cutoff helps +1).</li>
+    <li>Group C: YES filter, NO caffeine cutoff. Mean sleep score = 6 (filter helps +1).</li>
+    <li>Group D: YES filter, YES caffeine cutoff. Mean sleep score = <strong>9</strong> (not 7 — way better!).</li>
+  </ul>
+  <p>If there was NO interaction, Group D should be about 5 + 1 + 1 = 7. But it's 9. The "extra 2" is the interaction effect.</p>
+  <p>Math: \(\hat\beta_0 = 5\), \(\hat\beta_1 = 1\), \(\hat\beta_2 = 1\), \(\hat\beta_3 = 2\). The filter is much more powerful when caffeine is also cut.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — R fits the interaction model</div>
+<pre class="r-code"><span class="cm"># Lab 6: fit the sleep model with interaction</span>
+sleep_model &lt;- <span class="fn">lm</span>(sleep_score ~ blue_light * caffeine_cutoff, data=sleep_df)
+<span class="fn">summary</span>(sleep_model)$coefficients
+<span class="cm"># Output shows 4 rows:</span>
+<span class="cm"># (Intercept)                         β̂₀</span>
+<span class="cm"># blue_lightyes                       β̂₁</span>
+<span class="cm"># caffeine_cutoffyes                  β̂₂</span>
+<span class="cm"># blue_lightyes:caffeine_cutoffyes    β̂₃   ← the interaction!</span>
+
+<span class="cm"># Same model, written long-form (identical result):</span>
+<span class="fn">lm</span>(sleep_score ~ blue_light + caffeine_cutoff + blue_light:caffeine_cutoff, data=sleep_df)
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><code>blue_light * caffeine_cutoff</code> — the <code>*</code> tells R: include both alone AND their interaction. 1 short symbol = 4 coefficients in the model.</div>
+    <div class="line-exp"><code>blue_lightyes:caffeine_cutoffyes</code> — R names the interaction row by joining the two variables with a colon.</div>
+    <div class="line-exp">The "yes" suffix comes from R using "no" as the reference level (alphabetical).</div>
+  </div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic (3 questions)</div>
+  <ol>
+    <li>An interaction means: (a) two things added together; (b) two things multiplied with EXTRA effect when both happen; (c) two p-values.</li>
+    <li>In R, what does the <code>*</code> in <code>lm(y ~ x1 * x2)</code> include in the model?</li>
+    <li>True/false: if interaction effect \(\hat\beta_3 = 0\), then the two treatments work independently.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium (5 questions)</div>
+  <ol start="4">
+    <li>You see \(\hat\beta_3 = -1.5\) with p &lt; 0.05. What does this mean in plain English?</li>
+    <li>If 4 groups have means 5, 6, 6, 9, compute \(\hat\beta_3\) (the interaction).</li>
+    <li>Write the R command to fit Y ~ A * B and pull out the interaction p-value.</li>
+    <li>Why might we write it as <code>x1*x2</code> instead of <code>x1 + x2 + x1:x2</code>?</li>
+    <li>The R output row is labeled <code>blue_lightyes:caffeine_cutoffyes</code>. Why "yes:yes"?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Spot the Interaction</div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">4 groups means: no/no = 50; no/yes = 60; yes/no = 65; yes/yes = 75. Interaction or no?</div>
+    <div class="quiz-opt" data-i="0">No interaction (effects just add: 50 + 10 + 15 = 75)</div>
+    <div class="quiz-opt" data-i="1">No interaction (50 + 10 + 15 = 75 matches yes/yes exactly)</div>
+    <div class="quiz-opt" data-i="2">Interaction exists (yes/yes is much higher than expected)</div>
+    <div class="quiz-result" data-explain="If yes/yes (75) = baseline + main effect 1 + main effect 2, then no interaction. Here 50 + (60-50) + (65-50) = 75 exactly. So β₃ = 0."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">4 groups means: no/no = 20; no/yes = 25; yes/no = 22; yes/yes = 40. Interaction?</div>
+    <div class="quiz-opt" data-i="0">Yes — yes/yes is much higher than 20+5+2 = 27. Extra 13 is interaction.</div>
+    <div class="quiz-opt" data-i="1">No interaction</div>
+    <div class="quiz-opt" data-i="2">Cannot tell</div>
+    <div class="quiz-result" data-explain="Without interaction, yes/yes ≈ 27 (sum of effects). Actual 40 is way higher. β̂₃ ≈ 13. Big interaction."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (5 questions, heavy)</div>
+  <ol start="9">
+    <li><strong>(Definition)</strong> Define "interaction" in 1 sentence using the words "effect" and "depends on."</li>
+    <li><strong>(R syntax)</strong> Write 2 R commands that fit the SAME model: one using <code>*</code> and one using <code>+</code> and <code>:</code>.</li>
+    <li><strong>(Formula)</strong> Write the interaction model for 2 binary predictors \(x_1, x_2\) using \(\beta\) notation.</li>
+    <li><strong>(Interpretation)</strong> R prints <code>blue_lightyes:caffeine_cutoffyes = 2.5 (SE 0.8, t = 3.1, p = 0.002)</code>. What does the 2.5 mean in plain English?</li>
+    <li><strong>(Conceptual)</strong> Why is it WRONG to add 2 separate t-tests (one for blue light, one for caffeine cutoff) instead of fitting an interaction model?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers + Explanations</div>
+  <ol>
+    <li>(b) Extra effect when both happen.</li>
+    <li>It includes BOTH main effects (x1, x2) AND their interaction (x1:x2).</li>
+    <li>True. β₃ = 0 means treatments are additive.</li>
+    <li>"Blue light is 1.5 units LESS helpful when caffeine cutoff is also done. They cancel a bit." (Or equivalently: caffeine cutoff is 1.5 less helpful when blue light is done.)</li>
+    <li>β̂₃ = (yes/yes − no/yes) − (yes/no − no/no) = (9 − 6) − (6 − 5) = 3 − 1 = 2.</li>
+    <li><code>summary(lm(y ~ A * B, data=df))$coefficients["A:B","Pr(&gt;|t|)"]</code> (column index may vary by exact level names)</li>
+    <li>Less typing, same model. Same coefficients, same p-values.</li>
+    <li>R uses "no" as the reference (alphabetical), so the "active" level appears in row names. "yes:yes" = the interaction term column where both indicators = 1.</li>
+    <li>"An interaction is when the effect of one variable DEPENDS ON the level of another variable."</li>
+    <li><code>lm(y ~ x1 * x2)</code> and <code>lm(y ~ x1 + x2 + x1:x2)</code> — identical.</li>
+    <li>\(y_i = \beta_0 + \beta_1 x_{1i} + \beta_2 x_{2i} + \beta_3 (x_{1i} \cdot x_{2i}) + \epsilon_i\)</li>
+    <li>"The boost from the blue light filter is 2.5 sleep points BIGGER when the caffeine cutoff is also done, compared to when it is not done. (p = 0.002 → highly significant.)"</li>
+    <li>Separate tests cannot detect an interaction. Each only sees one factor at a time. The interaction needs both variables and their product in ONE model.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>"Main effect" ≠ "average effect over both groups."</strong> The main effect coefficient \(\hat\beta_1\) is the effect of \(x_1\) <em>when \(x_2 = 0\)</em>, not averaged. The interaction \(\hat\beta_3\) tells you how much extra to add when \(x_2 = 1\).</li>
+    <li><strong>Reading the main-effect p-value as "this variable matters."</strong> With interactions, this is misleading. See Level 63.</li>
+    <li><strong>Forgetting the <code>*</code> creates 3 things, not 1.</strong> Always count: 4 coefficients for 2 binary predictors with interaction (intercept + 2 mains + 1 interaction).</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(60)">Mark Level 60 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 61 — Reading Interaction Plots ==================== -->
+<div class="level-card" id="level-61">
+<div class="level-header" onclick="toggleLevel(61)">
+  <span class="level-title"><span class="num">Level 61</span> — Reading Interaction Plots (parallel or not?)</span>
+  <span class="level-xp">+85 XP</span>
+</div>
+<div class="level-body" id="level-body-61">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>You plot two lines on a chart. One line shows what happens with treatment A. The other line shows what happens without treatment A.</p>
+  <p><strong>Two lines parallel</strong> = lines stay at the same distance everywhere = treatments work independently = NO interaction.</p>
+  <p><strong>Lines NOT parallel</strong> (they spread or cross) = the gap changes = INTERACTION exists.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Interaction plot</strong>: x-axis = one categorical predictor; y-axis = mean outcome; one line per level of the OTHER predictor.</li>
+    <li><strong>Geometric meaning</strong>: parallel ↔ \(\hat\beta_3 \approx 0\). Not parallel ↔ \(\hat\beta_3 \neq 0\).</li>
+    <li><strong>Slope difference</strong> = \(\hat\beta_3\) when both predictors are binary (0/1). The bigger the slope difference, the stronger the interaction.</li>
+    <li><strong>Difference-in-differences</strong>: \(\delta_{cf} = (\bar y_\text{yes,yes} - \bar y_\text{no,yes}) - (\bar y_\text{yes,no} - \bar y_\text{no,no})\). Informal measure of interaction. Equals \(\hat\beta_3\) in a saturated 2×2 model.</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection</div>
+  <table class="cmp-table">
+    <tr><th>Plot you see</th><th>What it means</th></tr>
+    <tr><td>Two parallel lines</td><td>No interaction → \(\hat\beta_3 \approx 0\)</td></tr>
+    <tr><td>Lines spread further apart on right</td><td>Positive interaction → \(\hat\beta_3 &gt; 0\)</td></tr>
+    <tr><td>Lines come closer together on right</td><td>Negative interaction → \(\hat\beta_3 &lt; 0\)</td></tr>
+    <tr><td>Lines CROSS (X shape)</td><td>Strong interaction; effect reverses</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Lab 6 sleep plot</div>
+  <p>x-axis: blue_light (no, yes). Two lines: one for caffeine_cutoff=no, one for caffeine_cutoff=yes.</p>
+  <p>If the line "with caffeine cutoff" goes UP much more from no → yes than the "without" line, the lines are NOT parallel → interaction.</p>
+  <p>If both lines rise by the same amount, parallel → no interaction.</p>
+  <p>For our 5/6/6/9 example: "no cutoff" line: 5 → 6 (rise of 1). "yes cutoff" line: 6 → 9 (rise of 3). Different slopes → interaction.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Make the interaction plot in R</div>
+<pre class="r-code"><span class="fn">library</span>(ggplot2); <span class="fn">library</span>(dplyr)
+
+group_means &lt;- sleep_df %&gt;%
+  <span class="fn">group_by</span>(blue_light, caffeine_cutoff) %&gt;%
+  <span class="fn">summarize</span>(mean_sleep = <span class="fn">mean</span>(sleep_score))
+
+<span class="fn">ggplot</span>(group_means,
+       <span class="fn">aes</span>(x=blue_light, y=mean_sleep,
+           color=caffeine_cutoff, group=caffeine_cutoff)) +
+  <span class="fn">geom_line</span>(size=<span class="nb">1.2</span>) +
+  <span class="fn">geom_point</span>(size=<span class="nb">3</span>) +
+  <span class="fn">labs</span>(title=<span class="st">"Interaction Plot"</span>)
+
+<span class="cm"># Look at the lines:</span>
+<span class="cm">#   parallel  → no interaction</span>
+<span class="cm">#   not parallel → interaction (the bigger the angle, the stronger)</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>Parallel lines on an interaction plot mean: (a) interaction; (b) no interaction; (c) need more data.</li>
+    <li>What is on the x-axis of an interaction plot for 2 binary predictors?</li>
+    <li>True/false: lines that cross indicate a very strong interaction.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>Group means: A_no = 10, A_yes = 14; B_no = 10, B_yes = 18. Compute \(\delta\) for the interaction.</li>
+    <li>If lines are parallel but BOTH have slope 0, what does this mean about the predictor on the x-axis?</li>
+    <li>You see lines with slopes +2 and −2. Strong, weak, or no interaction?</li>
+    <li>What's the difference between the line plot for "no interaction" model vs "with interaction" model?</li>
+    <li>If \(\hat\beta_3 = 0.1\) but p = 0.4, what does the plot probably look like?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Read the Plot</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">On a 2×2 interaction plot, both lines go from y=5 to y=8 as x changes from "no" to "yes." What is happening?</div>
+    <div class="quiz-opt" data-i="0">Strong positive interaction</div>
+    <div class="quiz-opt" data-i="1">Strong negative interaction</div>
+    <div class="quiz-opt" data-i="2">No interaction — both lines have the same slope. Effect of x is +3 for both groups.</div>
+    <div class="quiz-result" data-explain="Same slope means parallel lines means no interaction. The +3 effect of x is constant regardless of the other predictor."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (5 questions)</div>
+  <ol start="9">
+    <li><strong>(Geometric)</strong> What does it mean GEOMETRICALLY if two lines on an interaction plot are NOT parallel?</li>
+    <li><strong>(Formula)</strong> Write the formula for the difference-in-differences \(\delta\).</li>
+    <li><strong>(Math)</strong> Show that in a saturated 2×2 model, \(\delta = \hat\beta_3\).</li>
+    <li><strong>(R)</strong> What does <code>group_by(x1, x2) %&gt;% summarize(mean_y = mean(y))</code> compute?</li>
+    <li><strong>(Reading)</strong> If \(\hat\beta_3 \approx 0\) but you SEE a small visual gap, why might the test still fail to reject?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>(b) No interaction.</li>
+    <li>One categorical predictor (e.g., blue_light: no/yes).</li>
+    <li>True. Crossing = effect direction reverses = strong interaction.</li>
+    <li>\(\delta = (18 − 10) − (14 − 10) = 8 − 4 = 4\)</li>
+    <li>The predictor on the x-axis has NO effect (slopes are zero); but if the OTHER predictor's line is at a different level, that one has an effect.</li>
+    <li>Strong interaction (opposite slopes). Lines cross.</li>
+    <li>No-interaction model: lines are ALWAYS parallel (same slope). With-interaction model: lines can have different slopes.</li>
+    <li>Nearly parallel lines, very small gap difference. Visual interaction is small or absent.</li>
+    <li>The slopes of the two lines differ; the effect of the x-axis variable depends on which group (line) you are looking at.</li>
+    <li>\(\delta = (\bar y_\text{1,1} − \bar y_\text{0,1}) − (\bar y_\text{1,0} − \bar y_\text{0,0})\)</li>
+    <li>Group means in a 2×2 design are: \(\bar y_\text{0,0} = \beta_0\); \(\bar y_\text{1,0} = \beta_0 + \beta_1\); \(\bar y_\text{0,1} = \beta_0 + \beta_2\); \(\bar y_\text{1,1} = \beta_0 + \beta_1 + \beta_2 + \beta_3\). Plug into δ formula → all βs cancel except \(\beta_3\).</li>
+    <li>It computes the mean of y for every combination of x1 and x2 — exactly the 4 group means you need for an interaction plot.</li>
+    <li>Low power. The sample is too small or noise is too big to detect the small visual gap as statistically significant.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Confusing parallel lines with a flat line.</strong> Parallel just means same slope — could be both flat OR both going up at the same angle.</li>
+    <li><strong>Eyeballing a "big" visual gap as significant.</strong> Always check the p-value for \(\hat\beta_3\). Small samples can have wide CIs.</li>
+    <li><strong>Reading interaction plot but using only main effects in model.</strong> If you SEE non-parallel lines, you NEED an interaction term in the model.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(61)">Mark Level 61 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 62 — Interpreting Each β Coefficient ==================== -->
+<div class="level-card" id="level-62">
+<div class="level-header" onclick="toggleLevel(62)">
+  <span class="level-title"><span class="num">Level 62</span> — Interpreting Each β in an Interaction Model</span>
+  <span class="level-xp">+90 XP</span>
+</div>
+<div class="level-body" id="level-body-62">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>The interaction model has 4 numbers (β₀, β₁, β₂, β₃). Each tells you a different story.</p>
+  <ul>
+    <li>β₀ = baseline (when nothing is on)</li>
+    <li>β₁ = effect of treatment 1, BUT ONLY WHEN treatment 2 is off</li>
+    <li>β₂ = effect of treatment 2, BUT ONLY WHEN treatment 1 is off</li>
+    <li>β₃ = EXTRA effect when both are on together</li>
+  </ul>
+  <p>The "only when" part is the most important. Many students forget this.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language (Lab 6 Q1.5 exact)</div>
+  <p>Model: \(\hat y = \hat\beta_0 + \hat\beta_1 x_1 + \hat\beta_2 x_2 + \hat\beta_3 x_1 x_2\)</p>
+  <ul>
+    <li>\(\hat\beta_0\): predicted y when \(x_1 = 0\) AND \(x_2 = 0\) (both treatments OFF).</li>
+    <li>\(\hat\beta_1\): change in predicted y when \(x_1 = 1\) but \(x_2 = 0\). NOT "the average effect of x1."</li>
+    <li>\(\hat\beta_2\): change in predicted y when \(x_2 = 1\) but \(x_1 = 0\).</li>
+    <li>\(\hat\beta_3\): EXTRA change in predicted y when BOTH \(x_1 = 1\) AND \(x_2 = 1\), beyond \(\hat\beta_1 + \hat\beta_2\).</li>
+    <li>Effect of \(x_1\) when \(x_2 = 1\): \(\hat\beta_1 + \hat\beta_3\).</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection — Plug-In Table</div>
+  <table class="cmp-table">
+    <tr><th>Group</th><th>\(x_1\)</th><th>\(x_2\)</th><th>Predicted \(\hat y\)</th></tr>
+    <tr><td>Nothing on (baseline)</td><td>0</td><td>0</td><td>\(\hat\beta_0\)</td></tr>
+    <tr><td>Only Treatment 1</td><td>1</td><td>0</td><td>\(\hat\beta_0 + \hat\beta_1\)</td></tr>
+    <tr><td>Only Treatment 2</td><td>0</td><td>1</td><td>\(\hat\beta_0 + \hat\beta_2\)</td></tr>
+    <tr><td>Both treatments</td><td>1</td><td>1</td><td>\(\hat\beta_0 + \hat\beta_1 + \hat\beta_2 + \hat\beta_3\)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Lab 6 numeric (Q1.6)</div>
+  <p>Suppose R fits: \(\hat\beta_0 = 4.5\), \(\hat\beta_1 = 0.8\) (blue_light), \(\hat\beta_2 = 1.1\) (caffeine_cutoff), \(\hat\beta_3 = 1.4\) (interaction).</p>
+  <ul>
+    <li>Predicted sleep with nothing: 4.5</li>
+    <li>Predicted sleep with ONLY blue light: 4.5 + 0.8 = 5.3</li>
+    <li>Predicted sleep with ONLY caffeine cutoff: 4.5 + 1.1 = 5.6</li>
+    <li>Predicted sleep with BOTH: 4.5 + 0.8 + 1.1 + 1.4 = 7.8</li>
+  </ul>
+  <p><strong>Effect of blue light WHEN caffeine cutoff is on</strong>: \(\hat\beta_1 + \hat\beta_3 = 0.8 + 1.4 = 2.2\). Much bigger than the "alone" effect of 0.8.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — Pull each coefficient by name</div>
+<pre class="r-code">m &lt;- <span class="fn">lm</span>(sleep_score ~ blue_light * caffeine_cutoff, data=sleep_df)
+coef &lt;- <span class="fn">coef</span>(m)
+<span class="cm"># Use names so you don't depend on row order:</span>
+beta0 &lt;- coef[<span class="st">"(Intercept)"</span>]
+beta1 &lt;- coef[<span class="st">"blue_lightyes"</span>]
+beta2 &lt;- coef[<span class="st">"caffeine_cutoffyes"</span>]
+beta3 &lt;- coef[<span class="st">"blue_lightyes:caffeine_cutoffyes"</span>]
+
+<span class="cm"># Effect of blue light WITH caffeine cutoff:</span>
+bl_effect_with_cc &lt;- beta1 + beta3
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What does \(\hat\beta_0\) represent in an interaction model?</li>
+    <li>True/false: \(\hat\beta_1\) tells you the effect of \(x_1\) ON AVERAGE, regardless of \(x_2\).</li>
+    <li>The effect of \(x_1\) when \(x_2 = 1\) is: (a) \(\hat\beta_1\); (b) \(\hat\beta_1 + \hat\beta_3\); (c) \(\hat\beta_3\).</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>Given \(\hat\beta_0 = 10, \hat\beta_1 = 3, \hat\beta_2 = 4, \hat\beta_3 = 2\), what is \(\hat y\) when \(x_1 = 1, x_2 = 1\)?</li>
+    <li>What does \(\hat\beta_3 = 0\) imply geometrically about the interaction plot?</li>
+    <li>If \(\hat\beta_1 = 0.5\) and \(\hat\beta_3 = -0.4\), what is the effect of \(x_1\) when \(x_2 = 1\)?</li>
+    <li>How do you compute the predicted mean for the "no, no" group in R after fitting the model?</li>
+    <li>Why is "main effect of \(x_1\)" potentially misleading when an interaction is present?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Pick the Right Interpretation</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">R prints β̂₁ = 0.8 for blue_lightyes (with interaction in model). Best interpretation?</div>
+    <div class="quiz-opt" data-i="0">"Blue light increases sleep score by 0.8 on average."</div>
+    <div class="quiz-opt" data-i="1">"Blue light increases sleep score by 0.8 for everyone."</div>
+    <div class="quiz-opt" data-i="2">"Blue light increases sleep score by 0.8 WHEN caffeine_cutoff = no (the reference level). The effect is different when caffeine_cutoff = yes."</div>
+    <div class="quiz-opt" data-i="3">"Blue light decreases sleep score by 0.8."</div>
+    <div class="quiz-result" data-explain="In an interaction model, the main-effect coefficient β̂₁ is conditional on the other variable being at its reference (0). It's NOT the average or universal effect."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (5 questions)</div>
+  <ol start="9">
+    <li><strong>(Interpretation)</strong> Lab 6 Q1.5.1 exam: given the interaction model, write the correct interpretation of \(\hat\beta_1\) in 1-2 sentences.</li>
+    <li><strong>(Interpretation)</strong> Lab 6 Q1.5.2 exam: write the correct interpretation of \(\hat\beta_3\) in 1-2 sentences.</li>
+    <li><strong>(R code)</strong> Write the R code to compute the predicted mean sleep score for someone with both blue_light and caffeine_cutoff.</li>
+    <li><strong>(Math)</strong> Show algebraically that bl_effect_with_cc (=\(\hat\beta_1 + \hat\beta_3\)) equals the difference (\(\bar y_\text{yes,yes} - \bar y_\text{no,yes}\)) in the saturated 2×2 model.</li>
+    <li><strong>(Conceptual)</strong> Why must you ALWAYS report the interaction along with the main effects when interpreting results?</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>The predicted outcome when ALL predictors are at their reference (0) level. Also called the "baseline" or "control" mean.</li>
+    <li>FALSE. It's the effect only WHEN \(x_2 = 0\).</li>
+    <li>(b) \(\hat\beta_1 + \hat\beta_3\)</li>
+    <li>\(\hat y = 10 + 3 + 4 + 2 = 19\)</li>
+    <li>Parallel lines on the interaction plot — same slope for both groups.</li>
+    <li>Effect = \(0.5 + (-0.4) = 0.1\). Much smaller than the "alone" effect of 0.5.</li>
+    <li><code>predict(m, newdata=data.frame(blue_light="no", caffeine_cutoff="no"))</code> or just <code>coef(m)["(Intercept)"]</code>.</li>
+    <li>It depends on the OTHER variable. Saying "the effect of x1 is 0.8" without specifying x2 is misleading.</li>
+    <li>"\(\hat\beta_1\) is the change in predicted sleep score when the blue light filter is used, holding the caffeine cutoff at the reference level (no). It does NOT describe the effect when the caffeine cutoff is also used; for that, you must add \(\hat\beta_3\)."</li>
+    <li>"\(\hat\beta_3\) is the EXTRA change in predicted sleep score when BOTH the blue light filter AND the caffeine cutoff are used, beyond the sum of their individual main effects. Equivalently, it tells you how the blue light effect changes when the caffeine cutoff is also done."</li>
+    <li><code>predict(m, newdata=data.frame(blue_light="yes", caffeine_cutoff="yes"))</code> or <code>sum(coef(m))</code> (sums all 4 coefficients).</li>
+    <li>\(\bar y_\text{yes,yes} = \beta_0 + \beta_1 + \beta_2 + \beta_3\). \(\bar y_\text{no,yes} = \beta_0 + \beta_2\). Subtracting: \(\beta_1 + \beta_3\).</li>
+    <li>Because the main-effect coefficients are CONDITIONAL on the reference level of the other variable. Without the interaction, you misrepresent the effect.</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>Forgetting "when x₂ = reference."</strong> The main effects in an interaction model are conditional.</li>
+    <li><strong>Confusing \(\hat\beta_3\) with \(\delta\).</strong> They are equal in a saturated 2×2, but \(\delta\) is the descriptive difference-in-differences; \(\hat\beta_3\) is the model coefficient with a SE and p-value.</li>
+    <li><strong>Computing the "yes/yes" mean by adding only β₀ + β₁ + β₂.</strong> Forgetting β₃ undercounts (or overcounts) by exactly the interaction.</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(62)">Mark Level 62 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 63 — When individual t-test ≠ partial F ==================== -->
+<div class="level-card" id="level-63">
+<div class="level-header" onclick="toggleLevel(63)">
+  <span class="level-title"><span class="num">Level 63</span> — When the Individual t-test Lies: Partial F vs t (Lab 6 Part 2)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-63">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Explanation</div>
+  <p>R's <code>summary(model)</code> gives you a row for each coefficient with a p-value. Easy to read those p-values one by one. But...</p>
+  <p>If a variable appears in BOTH a main effect AND an interaction, looking at only ONE row LIES to you about whether that variable matters.</p>
+  <p>Example: if blue light helps only WHEN caffeine cutoff is done, the individual t-test for \(\hat\beta_1\) might say "p = 0.40, not significant." But blue light DOES matter — just not by itself. The right test combines β₁ AND β₃ together.</p>
+  <p>That combined test is the <strong>partial F-test</strong>. It asks: "is this variable USEFUL anywhere in the model?"</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📐 Math Language</div>
+  <ul>
+    <li><strong>Individual t-test for β₁</strong>: tests \(H_0: \beta_1 = 0\) while holding the rest of the model FIXED. Only tests the main effect at reference level of x₂.</li>
+    <li><strong>Partial F-test for "does x₁ contribute at all?"</strong>: tests \(H_0: \beta_1 = 0 \text{ AND } \beta_3 = 0\) jointly. Drops BOTH the main and interaction terms.</li>
+    <li><strong>Partial F formula</strong>: \(F = \dfrac{(RSS_\text{reduced} - RSS_\text{full})/p}{RSS_\text{full}/(n-k)}\) where \(p\) = number of dropped coefficients (here 2).</li>
+    <li><strong>R</strong>: <code>anova(reduced_model, full_model)</code> — same as Lec 9.</li>
+    <li><strong>R for interaction only</strong>: drop only β₃ → compare <code>lm(y ~ x1 + x2)</code> vs <code>lm(y ~ x1 * x2)</code>.</li>
+  </ul>
+</div>
+
+<div class="box box-rpython">
+  <div class="box-label">🔗 Connection — Two Different Tests</div>
+  <table class="cmp-table">
+    <tr><th>Question</th><th>What you test</th><th>How</th></tr>
+    <tr><td>"Does x₁ matter, holding everything else fixed?"</td><td>\(H_0: \beta_1 = 0\) (one coefficient)</td><td>Individual t in <code>summary()</code></td></tr>
+    <tr><td>"Does x₁ matter ANYWHERE in the model?"</td><td>\(H_0: \beta_1 = \beta_3 = 0\) (joint)</td><td>Partial F via <code>anova(red, full)</code></td></tr>
+    <tr><td>"Is there an interaction?"</td><td>\(H_0: \beta_3 = 0\)</td><td>Partial F dropping only β₃</td></tr>
+    <tr><td>"Does ANY predictor matter?"</td><td>\(H_0: \beta_1 = \beta_2 = \beta_3 = 0\)</td><td>Overall F (at bottom of <code>summary()</code>)</td></tr>
+  </table>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">🍎 Intuitive Example — Lab 6 Scenario B (Q2.3.2)</div>
+  <p>Scenario B: blue light only helps when caffeine cutoff is on. \(\beta_1 = 0, \beta_3 = 3\).</p>
+  <ul>
+    <li>Individual t-test for \(\hat\beta_1\): p = 0.40 → "fails to reject." Looks like blue light doesn't matter.</li>
+    <li>BUT: \(\hat\beta_3\) is large with p = 0.001. The interaction is significant.</li>
+    <li>Partial F for both (\(H_0: \beta_1 = \beta_3 = 0\)): p &lt; 0.001. STRONGLY reject. Blue light DOES matter — through its interaction with caffeine cutoff.</li>
+  </ul>
+  <p><strong>Lesson</strong>: don't trust a single t-test row when interactions are in the model.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Interactive — All 3 tests in R</div>
+<pre class="r-code">full     &lt;- <span class="fn">lm</span>(sleep_score ~ blue_light * caffeine_cutoff, data=sleep_df)
+
+<span class="cm"># Test 1: individual t for β̂₁</span>
+<span class="fn">summary</span>(full)$coefficients[<span class="st">"blue_lightyes"</span>, <span class="st">"Pr(&gt;|t|)"</span>]
+
+<span class="cm"># Test 2: partial F — "does blue_light contribute AT ALL?"</span>
+no_blue &lt;- <span class="fn">lm</span>(sleep_score ~ caffeine_cutoff, data=sleep_df)
+<span class="fn">anova</span>(no_blue, full)
+<span class="cm"># p-value here tests H₀: β₁ = β₃ = 0</span>
+
+<span class="cm"># Test 3: partial F — "is there an INTERACTION?"</span>
+no_interaction &lt;- <span class="fn">lm</span>(sleep_score ~ blue_light + caffeine_cutoff, data=sleep_df)
+<span class="fn">anova</span>(no_interaction, full)
+<span class="cm"># p-value here tests H₀: β₃ = 0 only</span>
+<span class="cm"># NOTE: this p-value should match the individual t for β₃ in summary().</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>What null hypothesis does the individual t-test for β̂₁ test?</li>
+    <li>What null does the partial F test in <code>anova(no_blue, full)</code> test?</li>
+    <li>True/false: if individual t for β̂₁ fails to reject, blue_light has no effect.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>In Scenario B, why does the individual t for β̂₁ fail while the partial F for β₁ = β₃ = 0 succeeds?</li>
+    <li>For a 2-coefficient drop in partial F, what is df₁ (numerator df)?</li>
+    <li>If the partial F-test p-value for β₃ alone equals the individual t-test p-value for β₃, why?</li>
+    <li>Write the R command to test the joint hypothesis \(H_0: \beta_2 = \beta_3 = 0\).</li>
+    <li>Why is the overall F-test at the bottom of summary() NOT a substitute for partial F when checking ONE variable's role?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Practice — Game: Pick the Right Test</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">You want to know: "Does the blue light filter contribute meaningfully to the sleep model, given the caffeine cutoff is already there?" Best test?</div>
+    <div class="quiz-opt" data-i="0">Look at individual t for β̂₁ only</div>
+    <div class="quiz-opt" data-i="1">Look at individual t for β̂₃ only</div>
+    <div class="quiz-opt" data-i="2">Partial F comparing model WITH blue_light terms vs model WITHOUT (drops both β₁ and β₃)</div>
+    <div class="quiz-opt" data-i="3">Look at the R² values</div>
+    <div class="quiz-result" data-explain="The right question 'does X contribute at all' compares two models — one with X (and its interactions), one without. The partial F-test does exactly that."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (5 questions)</div>
+  <ol start="9">
+    <li><strong>(Conceptual)</strong> Why is the individual p-value for β̂₁ alone NOT enough to decide whether blue_light matters in an interaction model?</li>
+    <li><strong>(R)</strong> Write the R code to test \(H_0: \beta_1 = \beta_3 = 0\) using <code>anova()</code>.</li>
+    <li><strong>(Math)</strong> Lab 6 Q2.5.2 — for a 2-coefficient drop, what is df₁? What is df₂ if n = 200 and the full model has 4 coefficients?</li>
+    <li><strong>(Equivalence)</strong> Why does dropping ONLY β₃ in a partial F-test give the same p-value as the individual t-test for β̂₃?</li>
+    <li><strong>(Reporting)</strong> Write a one-sentence conclusion if your partial F for \(H_0: \beta_1 = \beta_3 = 0\) gives F = 8.4, p = 0.0003.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Answers</div>
+  <ol>
+    <li>\(H_0: \beta_1 = 0\), holding everything else (β₀, β₂, β₃) fixed.</li>
+    <li>\(H_0: \beta_1 = 0\) AND \(\beta_3 = 0\) (both blue_light-related terms are zero).</li>
+    <li>FALSE. β₁ might be 0 BUT β₃ ≠ 0 — blue light helps via its interaction.</li>
+    <li>Because β̂₁ ≈ 0 in Scenario B (no main effect), so its individual t-test cannot reject. But β₃ ≠ 0; the joint test catches it via the second term.</li>
+    <li>df₁ = 2 (number of coefficients being tested = dropped).</li>
+    <li>They test the same null hypothesis (\(H_0: \beta_3 = 0\) with 1 df). The two are algebraically equivalent (F = t²).</li>
+    <li><code>anova(lm(y ~ x1, data=df), lm(y ~ x1 * x2, data=df))</code> — reduced first, full second.</li>
+    <li>It tests "do ANY of the predictors matter" jointly, which is too broad. Partial F isolates one variable's contribution.</li>
+    <li>Because in an interaction model, the variable appears in MULTIPLE terms (main + interaction). The individual t for β̂₁ tests one slice (at reference of x₂); the variable's full contribution is tested via the joint partial F that drops both terms.</li>
+    <li><code>anova(lm(sleep_score ~ caffeine_cutoff, data=sleep_df), lm(sleep_score ~ blue_light * caffeine_cutoff, data=sleep_df))</code></li>
+    <li>df₁ = 2; df₂ = n − k = 200 − 4 = 196.</li>
+    <li>The partial F with df₁ = 1 follows F(1, df₂), and F(1, ν) = t(ν)². So the F p-value (upper tail) equals the two-sided t p-value (squared / equivalent area).</li>
+    <li>"Reject \(H_0\) at α = 0.05; statistically significant evidence that blue_light (main effect and/or interaction) contributes to predicting sleep score (F = 8.4, df = (2, n−k), p = 0.0003)."</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common Mistakes</div>
+  <ol>
+    <li><strong>"Variable not significant in summary() → drop it from model."</strong> Wrong if the variable also appears in an interaction. Use partial F first.</li>
+    <li><strong>Confusing overall F (bottom of summary) with partial F.</strong> Overall F tests EVERY predictor jointly vs intercept-only. Partial F isolates a subset.</li>
+    <li><strong>Forgetting the right test name.</strong> "I ran anova" doesn't specify the comparison. Always say "partial F comparing X to Y."</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(63)">Mark Level 63 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 64 — Lab 6 Cheat Sheet + Practice ==================== -->
+<div class="level-card" id="level-64">
+<div class="level-header" onclick="toggleLevel(64)">
+  <span class="level-title"><span class="num">Level 64</span> — Lab 6 Cheat Sheet + Power Simulation + Final Practice</span>
+  <span class="level-xp">+110 XP</span>
+</div>
+<div class="level-body" id="level-body-64">
+
+<div class="box box-story">
+  <div class="box-label">🧠 Simple Recap — The Whole Lab in One Story</div>
+  <p>1. <strong>Interaction</strong> = "two treatments work differently when used together."</p>
+  <p>2. We measure it with a model: <code>lm(y ~ x1 * x2)</code>. The product term \(x_1 x_2\) carries the interaction.</p>
+  <p>3. We SEE interaction on a plot — parallel lines = no, non-parallel = yes.</p>
+  <p>4. The 4 coefficients have specific meanings; main effects are CONDITIONAL on the other being at reference.</p>
+  <p>5. Individual t-tests can MISS a variable's importance. Use partial F-test to ask "does this variable matter at all?"</p>
+  <p>6. Lab 6 also runs a power simulation: comparing the rejection rate of individual t vs partial F across scenarios.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">📋 Lab 6 Master Cheat Sheet</div>
+  <table class="cmp-table">
+    <tr><th>Concept</th><th>Quick fact</th><th>R</th></tr>
+    <tr><td>Interaction model</td><td>4 coefs for 2 binary predictors</td><td><code>lm(y ~ x1 * x2)</code></td></tr>
+    <tr><td>Diff-in-diff δ</td><td>Equals β̂₃ in saturated 2×2</td><td>compute group means, then subtract</td></tr>
+    <tr><td>Interaction plot lines</td><td>Parallel = no interaction</td><td><code>ggplot + geom_line(group=x2)</code></td></tr>
+    <tr><td>β̂₁ alone</td><td>Effect of x₁ WHEN x₂ = reference</td><td><code>coef(m)["x1yes"]</code></td></tr>
+    <tr><td>Effect of x₁ when x₂ = 1</td><td>β̂₁ + β̂₃</td><td>add manually</td></tr>
+    <tr><td>"Does x₁ matter at all?"</td><td>Partial F on β₁ AND β₃</td><td><code>anova(lm(y~x2), lm(y~x1*x2))</code></td></tr>
+    <tr><td>"Is there an interaction?"</td><td>Partial F on β₃ only</td><td><code>anova(lm(y~x1+x2), lm(y~x1*x2))</code></td></tr>
+    <tr><td>F p-value (1 df) = t² p-value</td><td>Algebraic equivalence</td><td><code>pf(t^2, 1, df, lower.tail=F)</code></td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">🎮 Lab 6 Power Simulation (Q2.7-2.9)</div>
+<pre class="r-code"><span class="cm"># Simulate power of partial F-test vs individual t-test under 3 scenarios:</span>
+<span class="cm"># Scenario 1: β₁ = 2, β₃ = 0  (only main effect)</span>
+<span class="cm"># Scenario 2: β₁ = 1, β₃ = 1  (both effects)</span>
+<span class="cm"># Scenario 3: β₁ = 0, β₃ = 3  (only interaction)</span>
+
+sim_ftest_power &lt;- <span class="kw">function</span>(beta1, beta3, n, n_sim=<span class="nb">1000</span>) {
+  rejections &lt;- <span class="fn">replicate</span>(n_sim, {
+    x1 &lt;- <span class="fn">rbinom</span>(n, <span class="nb">1</span>, <span class="nb">0.5</span>)
+    x2 &lt;- <span class="fn">rbinom</span>(n, <span class="nb">1</span>, <span class="nb">0.5</span>)
+    y  &lt;- beta1*x1 + <span class="nb">0.5</span>*x2 + beta3*x1*x2 + <span class="fn">rnorm</span>(n)
+    full &lt;- <span class="fn">lm</span>(y ~ x1 * x2)
+    red  &lt;- <span class="fn">lm</span>(y ~ x2)
+    <span class="fn">anova</span>(red, full)$<span class="st">`Pr(&gt;F)`</span>[<span class="nb">2</span>] &lt; <span class="nb">0.05</span>
+  })
+  <span class="fn">mean</span>(rejections)
+}
+
+<span class="cm"># Q2.9 lesson: partial F has good power in ALL 3 scenarios.</span>
+<span class="cm"># Individual t-test for β̂₁ only has power in Scenario 1 — misses the</span>
+<span class="cm"># interaction-only effect in Scenario 3 entirely.</span>
+</pre>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Basic</div>
+  <ol>
+    <li>In Lab 6 Scenario 3 (only interaction, β₁ = 0), which test has more power: individual t for β̂₁ or partial F?</li>
+    <li>What does the simulation result tell us about which test to default to?</li>
+    <li>Why is power simulation important here?</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">❓ Practice — Medium</div>
+  <ol start="4">
+    <li>Lab 6 Q2.9 essence: when should you ALWAYS use partial F instead of individual t?</li>
+    <li>What is <code>replicate(n_sim, {...})</code> doing in the simulation function?</li>
+    <li>Sketch what the bar plot from Q2.9 would look like for individual t (3 bars: Scen 1, 2, 3).</li>
+    <li>How does <code>rbinom(n, 1, 0.5)</code> generate the predictor values?</li>
+    <li>Why is <code>x1 * x2</code> in the data-generation but x1*x2 ALSO in the model formula not double-counting?</li>
+  </ol>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">❓ Final Game — When does Partial F win?</div>
+  <div class="quiz-box" data-answer="3">
+    <div class="quiz-q">Across Lab 6 Scenarios 1, 2, 3, when does partial F MOST clearly outperform individual t?</div>
+    <div class="quiz-opt" data-i="0">Scenario 1 (β₁ = 2, β₃ = 0)</div>
+    <div class="quiz-opt" data-i="1">Scenario 2 (β₁ = 1, β₃ = 1)</div>
+    <div class="quiz-opt" data-i="2">Both 1 and 2</div>
+    <div class="quiz-opt" data-i="3">Scenario 3 (β₁ = 0, β₃ = 3) — individual t completely misses the effect; partial F catches it.</div>
+    <div class="quiz-result" data-explain="When β₁ = 0 but β₃ is large, blue light only matters via interaction. Individual t for β̂₁ has power ≈ α = 0.05 (nothing to detect). Partial F catches the joint effect."></div>
+  </div>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">❓ Practice — Exam-style (Final 5)</div>
+  <ol start="9">
+    <li><strong>(Synthesis)</strong> A friend says: "My summary() shows blue_light has p = 0.40, so I'll drop it from my interaction model." What's your response? (3 sentences max.)</li>
+    <li><strong>(R)</strong> Write the R command to compute the difference-in-differences δ from a fitted model using <code>coef()</code>.</li>
+    <li><strong>(Lab 6 Q2.5.1)</strong> Test \(H_0: \beta_1 = \beta_3 = 0\) for the sleep model. Show the R code.</li>
+    <li><strong>(Sentence)</strong> Conclusion sentence if partial F for the interaction (β₃ only) gives F = 12.1, p = 0.0006.</li>
+    <li><strong>(Lab 6 big picture)</strong> In 1 paragraph (3-4 sentences), summarize when individual t-tests are misleading and what partial F-tests fix.</li>
+  </ol>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">✅ Final Answers</div>
+  <ol>
+    <li>Partial F.</li>
+    <li>When there's an interaction term involving the variable of interest, default to partial F. Use individual t only when you have a clean "is THIS specific slice zero" question.</li>
+    <li>Because power depends on the true data-generating process. Simulation lets you compare tests under known truth.</li>
+    <li>Whenever the variable of interest appears in MORE than one term in the model (main + interaction). Partial F handles the joint contribution.</li>
+    <li>It runs the inner block n_sim times and collects the results as a vector. <code>mean()</code> on a logical vector counts the proportion of TRUE = rejection rate = empirical power.</li>
+    <li>Bar 1: tall (high power; main effect detected). Bar 2: medium (β̂₁ ≈ 1, detectable). Bar 3: ~5% (individual t completely misses; only catches by chance).</li>
+    <li>It draws n independent Bernoulli(0.5) values — 0s and 1s with equal probability. Like coin flips for the binary predictor.</li>
+    <li>The data IS generated WITH an interaction (truth). The model FITS the data and ESTIMATES the interaction. Different steps; no double-counting.</li>
+    <li>"Looking at one row's p-value is misleading when blue_light appears in BOTH the main effect AND the interaction. The right question is 'does blue_light contribute at all?' — answered by a partial F-test comparing the full model (with main + interaction) to a reduced model (without ANY blue_light terms)."</li>
+    <li><code>coef &lt;- coef(model); delta &lt;- coef["x1yes:x2yes"]</code> — equals β̂₃ in saturated 2×2.</li>
+    <li><code>anova(lm(sleep_score ~ caffeine_cutoff, data=sleep_df), lm(sleep_score ~ blue_light * caffeine_cutoff, data=sleep_df))</code></li>
+    <li>"Reject \(H_0\) at α = 0.05; statistically significant evidence that there is an interaction between blue_light and caffeine_cutoff (F = 12.1, df = (1, n−k), p = 0.0006)."</li>
+    <li>"Individual t-tests in <code>summary()</code> test each coefficient SEPARATELY, holding everything else fixed. When a variable enters the model through MULTIPLE terms (main effect AND interaction), the single-row t may fail to reject even when the variable matters via the interaction. Partial F-tests fix this by comparing nested models, jointly testing all coefficients linked to the variable. As a rule: whenever an interaction is in the model, always default to partial F over per-row t for the variables involved."</li>
+  </ol>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Top 5 Lab 6 / Quiz 2 Traps</div>
+  <ol>
+    <li>Reading the main-effect p-value as "is this variable significant" when interactions exist.</li>
+    <li>Forgetting the "yes/yes" group prediction includes β̂₃ (not just main effects).</li>
+    <li>Misinterpreting non-parallel interaction plot lines as a measurement error instead of a real interaction.</li>
+    <li>Using <code>x1 + x2</code> instead of <code>x1 * x2</code> when an interaction is theoretically possible.</li>
+    <li>Comparing models with anova() but reading the WRONG row of the output (it's row 2 — the "addition" row).</li>
+  </ol>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(64)">Mark Level 64 Complete — Lab 6 Done!</button>
+</div></div>
+
+</div> <!-- end phase-13 -->
+
 </div> <!-- end main -->
 
 
@@ -8729,7 +9458,7 @@ let completedLevels = new Set();
 let totalQuizzes = 0;
 let correctQuizzes = 0;
 const XP_PER_LEVEL = 100;
-const TOTAL_LEVELS = 59;
+const TOTAL_LEVELS = 64;
 
 // ===== PHASE TABS =====
 document.querySelectorAll('.phase-tab').forEach(tab => {
@@ -8883,6 +9612,11 @@ function checkAchievements() {
   if (completedLevels.size === 59 && !window._ach59) {
     window._ach59 = true;
     showAchievement('FULL GUIDE MASTERED!', 'Quiz 1 + Quiz 2 ESL banks done. You have seen every concept twice.');
+    launchConfetti();
+  }
+  if (completedLevels.size === 64 && !window._ach64) {
+    window._ach64 = true;
+    showAchievement('LAB 6 MASTER!', 'Interactions + partial F — fully understood. You are ready for Quiz 2.');
     launchConfetti();
   }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {

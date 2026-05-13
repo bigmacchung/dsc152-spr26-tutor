@@ -69,6 +69,11 @@ function checkAchievements() {
     showAchievement('FULL GUIDE MASTERED!', 'Quiz 1 + Quiz 2 ESL banks done. You have seen every concept twice.');
     launchConfetti();
   }
+  if (completedLevels.size === 64 && !window._ach64) {
+    window._ach64 = true;
+    showAchievement('LAB 6 MASTER!', 'Interactions + partial F — fully understood. You are ready for Quiz 2.');
+    launchConfetti();
+  }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
     window._achAll = true;
     showAchievement('MIDTERM READY!', 'You completed everything. Go crush it Maxime!');
