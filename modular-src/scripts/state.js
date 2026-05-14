@@ -9,4 +9,4 @@ let completedLevels = new Set();
 let totalQuizzes = 0;
 let correctQuizzes = 0;
 const XP_PER_LEVEL = 100;
-const TOTAL_LEVELS = 64;
+const TOTAL_LEVELS = 68;

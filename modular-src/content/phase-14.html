@@ -1,0 +1,405 @@
+<div class="phase-content" id="phase-14">
+
+<div class="box box-story" style="margin-bottom:24px;">
+  <div class="box-label">🧒 Why this phase exists</div>
+  <p>If you are NEW to R and statistics, the Quiz 2 levels (Phases 6–10) move fast. This phase is your <strong>reference book</strong>. Keep it open beside you while you read other levels.</p>
+  <p>Every R syntax pattern and every stats vocabulary word that appears in Quiz 2 is decoded here in simple English with "read it out loud" examples. Use the side panel (📋 Jump to Level) to bounce here whenever a word is confusing.</p>
+</div>
+
+<!-- ==================== LEVEL 65 — R Syntax Basics ==================== -->
+<div class="level-card" id="level-65">
+<div class="level-header" onclick="toggleLevel(65)">
+  <span class="level-title"><span class="num">Level 65</span> — 🧒 R Syntax Basics (vectors, dataframes, $, ==, [], &lt;-)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-65">
+
+<div class="box box-concept">
+  <div class="box-label">The 8 symbols/words you'll meet over and over</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Symbol/word</th><th>What to say out loud</th><th>What it does</th></tr>
+    <tr><td><code>&lt;-</code></td><td>"gets" or "is assigned"</td><td>Puts a value INTO a name. <code>x &lt;- 5</code> = "x gets 5."</td></tr>
+    <tr><td><code>c( )</code></td><td>"combine"</td><td>Makes a list (vector) of items. <code>c(1, 2, 3)</code> = a vector of 3 numbers.</td></tr>
+    <tr><td><code>$</code></td><td>"dollar" or "of"</td><td>Pulls one column out of a table. <code>df$age</code> = the age column.</td></tr>
+    <tr><td><code>==</code></td><td>"is equal to"</td><td>Comparison question. Returns TRUE or FALSE. NOT the same as single <code>=</code>.</td></tr>
+    <tr><td><code>[ ]</code></td><td>"position" or "where"</td><td>Picks specific items: by number <code>x[3]</code> or by TRUE/FALSE filter.</td></tr>
+    <tr><td><code>!=</code></td><td>"not equal to"</td><td>Opposite of <code>==</code>.</td></tr>
+    <tr><td><code>%&gt;%</code></td><td>"pipe" or "then"</td><td>Sends the left side as the first input to the right side. <code>x %&gt;% mean()</code> = <code>mean(x)</code>.</td></tr>
+    <tr><td><code>~</code></td><td>"by" or "as a function of"</td><td>Used in formulas. <code>y ~ x</code> = "y by x" — y is outcome, x is predictor.</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Practice — read each line out loud</div>
+<pre class="r-code">x &lt;- <span class="fn">c</span>(<span class="nb">10</span>, <span class="nb">20</span>, <span class="nb">30</span>, <span class="nb">40</span>)
+<span class="cm"># "x GETS combine 10, 20, 30, 40"</span>
+<span class="cm"># Result: a vector with 4 slots → [10, 20, 30, 40]</span>
+
+<span class="fn">length</span>(x)
+<span class="cm"># "length of x" → 4 (the count of items)</span>
+
+x[<span class="nb">2</span>]
+<span class="cm"># "x at position 2" → 20</span>
+
+x &gt;= <span class="nb">25</span>
+<span class="cm"># "x greater than or equal to 25"</span>
+<span class="cm"># Result: FALSE FALSE TRUE TRUE  (one TRUE/FALSE per slot)</span>
+
+x[x &gt;= <span class="nb">25</span>]
+<span class="cm"># "x at positions where x is &gt;= 25"</span>
+<span class="cm"># Result: 30 40  (keeps only the slots where TRUE)</span>
+
+<span class="fn">sum</span>(x &gt;= <span class="nb">25</span>)
+<span class="cm"># "sum of x &gt;= 25"</span>
+<span class="cm"># TRUE = 1, FALSE = 0, so sum = 0 + 0 + 1 + 1 = 2 (count of TRUEs)</span>
+
+<span class="fn">mean</span>(x &gt;= <span class="nb">25</span>)
+<span class="cm"># "mean of x &gt;= 25"</span>
+<span class="cm"># = 2 TRUEs / 4 total = 0.5 (PROPORTION of TRUEs)</span>
+</pre>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">Dataframes — your R version of Excel</div>
+<pre class="r-code">df &lt;- <span class="fn">data.frame</span>(
+  name = <span class="fn">c</span>(<span class="st">"Ana"</span>, <span class="st">"Ben"</span>, <span class="st">"Cara"</span>),
+  age  = <span class="fn">c</span>(<span class="nb">21</span>, <span class="nb">25</span>, <span class="nb">19</span>)
+)
+<span class="cm"># df is now a 3-row, 2-column table:</span>
+<span class="cm">#   name   age</span>
+<span class="cm">#   Ana    21</span>
+<span class="cm">#   Ben    25</span>
+<span class="cm">#   Cara   19</span>
+
+df$age
+<span class="cm"># Pull out the age column → c(21, 25, 19)</span>
+
+df[df$age &gt;= <span class="nb">20</span>, ]
+<span class="cm"># Keep rows where age &gt;= 20</span>
+<span class="cm"># The comma + nothing-after = "all columns"</span>
+<span class="cm"># Result: Ana 21, Ben 25  (Cara dropped — she's under 20)</span>
+
+df$age[df$name == <span class="st">"Ben"</span>]
+<span class="cm"># "Give me the ages from the rows where name is Ben"</span>
+<span class="cm"># Result: 25</span>
+</pre>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Common confusion: <code>=</code> vs <code>==</code> vs <code>&lt;-</code></div>
+  <ul>
+    <li><code>&lt;-</code> = "gets" (assignment). Stores a value: <code>x &lt;- 5</code>.</li>
+    <li><code>=</code> = also assignment, but inside function calls it means "named argument": <code>mean(x = my_data)</code>. Most R style guides prefer <code>&lt;-</code> for top-level assignment.</li>
+    <li><code>==</code> = "is equal to?" (a TRUE/FALSE question). NEVER use for assignment.</li>
+  </ul>
+  <p>If you type <code>x = 5</code> on a top line, R will assign. But if you type <code>x == 5</code>, R asks "does x equal 5?" and returns TRUE/FALSE.</p>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-q">What does <code>df$score[df$group == "A"]</code> return?</div>
+  <div class="quiz-opt" data-i="0">The whole dataframe</div>
+  <div class="quiz-opt" data-i="1">A single number</div>
+  <div class="quiz-opt" data-i="2">A vector of score values, only from rows where group equals "A"</div>
+  <div class="quiz-opt" data-i="3">TRUE or FALSE</div>
+  <div class="quiz-result" data-explain="Step 1: df$group == 'A' returns a TRUE/FALSE vector. Step 2: df$score[TRUE/FALSE vector] keeps only the positions where TRUE → a vector of scores from group A rows."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(65)">Mark Level 65 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 66 — Functions, Loops, Simulation Tools ==================== -->
+<div class="level-card" id="level-66">
+<div class="level-header" onclick="toggleLevel(66)">
+  <span class="level-title"><span class="num">Level 66</span> — 🧒 Functions, Loops & Simulation Tools (numeric, for, sample, replicate)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-66">
+
+<div class="box box-concept">
+  <div class="box-label">Functions — recipes you write yourself</div>
+<pre class="r-code">add_one &lt;- <span class="kw">function</span>(x) {
+  x + <span class="nb">1</span>
+}
+<span class="cm"># Read out loud: "add_one GETS a function that takes an input called x.</span>
+<span class="cm">#                 It returns x + 1."</span>
+
+<span class="fn">add_one</span>(<span class="nb">5</span>)
+<span class="cm"># Output: 6</span>
+</pre>
+  <ul>
+    <li>The word <code>function</code> tells R "I'm defining a recipe."</li>
+    <li>The thing in parentheses (here <code>x</code>) is a placeholder name. It only exists INSIDE the function. You can name it anything.</li>
+    <li>R returns the LAST line automatically. You don't need to write <code>return(...)</code>.</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">The <code>numeric()</code> function — empty containers</div>
+<pre class="r-code"><span class="fn">numeric</span>(<span class="nb">5</span>)
+<span class="cm"># Output: 0 0 0 0 0  (a vector of 5 zeros)</span>
+
+<span class="fn">numeric</span>(<span class="nb">1000</span>)
+<span class="cm"># Output: 0 0 0 ... 0  (one thousand zeros)</span>
+</pre>
+  <p><strong>Why pre-create zeros?</strong> Because we know we will fill them with results from a loop. Pre-allocating is faster than growing a vector one item at a time.</p>
+  <p><strong>Visual:</strong> imagine N empty boxes lined up, each labeled "0." Later, we replace each "0" with our real result.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">The <code>for</code> loop — repeat a block N times</div>
+<pre class="r-code"><span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">5</span>) {
+  <span class="fn">print</span>(i * <span class="nb">10</span>)
+}
+<span class="cm"># Prints:</span>
+<span class="cm"># 10  (round 1, i=1)</span>
+<span class="cm"># 20  (round 2, i=2)</span>
+<span class="cm"># 30  (round 3, i=3)</span>
+<span class="cm"># 40  (round 4, i=4)</span>
+<span class="cm"># 50  (round 5, i=5)</span>
+</pre>
+  <ul>
+    <li><code>1:5</code> = a shortcut for <code>c(1, 2, 3, 4, 5)</code>.</li>
+    <li><code>i</code> is just a counter — a variable that takes each value of 1:5 in turn.</li>
+    <li>Use <code>i</code> as your slot pointer: <code>my_vec[i]</code> means "the i-th slot of my_vec."</li>
+  </ul>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Loop + container pattern (the simulation skeleton)</div>
+<pre class="r-code">results &lt;- <span class="fn">numeric</span>(<span class="nb">3</span>)        <span class="cm"># empty: [0, 0, 0]</span>
+
+<span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:<span class="nb">3</span>) {
+  results[i] &lt;- i * i      <span class="cm"># on round i, store i*i in slot i</span>
+}
+
+<span class="fn">print</span>(results)
+<span class="cm"># Output: 1 4 9</span>
+<span class="cm"># After round 1: [1, 0, 0]</span>
+<span class="cm"># After round 2: [1, 4, 0]</span>
+<span class="cm"># After round 3: [1, 4, 9]</span>
+</pre>
+  <p>This is the SAME pattern used by permutation tests, power simulations, and bootstrap.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">The <code>sample()</code> function — shuffle or draw</div>
+<pre class="r-code">x &lt;- <span class="fn">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"E"</span>)
+
+<span class="fn">sample</span>(x)
+<span class="cm"># Output: e.g. "C" "A" "E" "B" "D"</span>
+<span class="cm"># With no size argument, default is length(x), and default replace=FALSE.</span>
+<span class="cm"># This is a TRUE SHUFFLE: every item used once, just in a new order.</span>
+
+<span class="fn">sample</span>(x, size = <span class="nb">3</span>, replace = <span class="kw">FALSE</span>)
+<span class="cm"># Output: e.g. "B" "D" "A"  (3 items, no repeats)</span>
+
+<span class="fn">sample</span>(x, size = <span class="nb">5</span>, replace = <span class="kw">TRUE</span>)
+<span class="cm"># Output: e.g. "A" "A" "C" "E" "A"  (5 items, repeats allowed)</span>
+<span class="cm"># This is what bootstrap uses.</span>
+</pre>
+  <table class="cmp-table" style="font-size:0.85rem; margin-top:8px;">
+    <tr><th>Setting</th><th>Meaning</th><th>Used by</th></tr>
+    <tr><td><code>replace = FALSE</code> (default)</td><td>Pick from a finite pool; each item used at most once</td><td>Permutation, simple random sampling</td></tr>
+    <tr><td><code>replace = TRUE</code></td><td>Pretend the pool is infinite; same item can repeat</td><td>Bootstrap</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">The <code>replicate()</code> function — repeat without writing a loop</div>
+<pre class="r-code">three_rolls &lt;- <span class="fn">replicate</span>(<span class="nb">3</span>, {
+  <span class="fn">sample</span>(<span class="nb">1</span>:<span class="nb">6</span>, <span class="nb">1</span>)         <span class="cm"># roll one die</span>
+})
+<span class="cm"># Output: e.g. c(4, 2, 6) — a vector of 3 dice rolls</span>
+</pre>
+  <p><code>replicate(n, expr)</code> = run <code>expr</code> n times, collect results into a vector. Equivalent to writing a for-loop with a pre-allocated numeric vector, just shorter.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">⚠️ Off-by-one trap</div>
+  <p>R is 1-indexed: the first slot is <code>x[1]</code>, NOT <code>x[0]</code>. Python is 0-indexed (first is <code>x[0]</code>). Mixing these up is the #1 R bug for Python users.</p>
+</div>
+
+<div class="quiz-box" data-answer="1">
+  <div class="quiz-q">What does <code>replicate(100, mean(sample(x, replace=TRUE)))</code> compute?</div>
+  <div class="quiz-opt" data-i="0">A permutation test</div>
+  <div class="quiz-opt" data-i="1">100 bootstrap means of the vector x — useful for a bootstrap CI</div>
+  <div class="quiz-opt" data-i="2">100 dice rolls</div>
+  <div class="quiz-opt" data-i="3">The sample mean of x, repeated 100 times</div>
+  <div class="quiz-result" data-explain="sample(x, replace=TRUE) draws a bootstrap resample. mean() of it = one bootstrap mean. replicate(100, ...) runs this 100 times → a vector of 100 bootstrap means. quantile() on this vector gives a bootstrap CI."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(66)">Mark Level 66 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 67 — Stats Vocabulary in Simple Words ==================== -->
+<div class="level-card" id="level-67">
+<div class="level-header" onclick="toggleLevel(67)">
+  <span class="level-title"><span class="num">Level 67</span> — 🧒 Stats Vocabulary in Plain English (define-on-the-spot)</span>
+  <span class="level-xp">+95 XP</span>
+</div>
+<div class="level-body" id="level-body-67">
+
+<div class="box box-concept">
+  <div class="box-label">Every word that scared you in Quiz 2, defined simply</div>
+  <table class="cmp-table" style="font-size:0.82rem;">
+    <tr><th>Big word</th><th>Plain English</th></tr>
+    <tr><td>Statistic</td><td>A number computed from your data sample. Example: the sample mean.</td></tr>
+    <tr><td>Parameter</td><td>The true population number you wish you knew. Example: the population mean μ.</td></tr>
+    <tr><td>Observed statistic</td><td>The statistic you actually computed from your real data. The number you saw.</td></tr>
+    <tr><td>Sampling distribution</td><td>"What would the statistic look like if I redid the study 1000 times?" A made-up histogram of possible statistic values.</td></tr>
+    <tr><td>Null hypothesis (H₀)</td><td>The boring claim. Usually "no effect" or "two things equal." This is what we ASSUME to compute p-values.</td></tr>
+    <tr><td>Alternative hypothesis (H_A)</td><td>The interesting claim. The thing you hope is true.</td></tr>
+    <tr><td>Null distribution</td><td>The shape of the statistic IF the null hypothesis were true. In permutation tests, this is the histogram of 1000 shuffles.</td></tr>
+    <tr><td>p-value</td><td>"How weird is my observed statistic, ASSUMING H₀ is true?" Small p = very weird = evidence against H₀.</td></tr>
+    <tr><td>Reject H₀</td><td>"My data is too weird for H₀ to be plausible. I'll believe H_A."</td></tr>
+    <tr><td>Fail to reject H₀</td><td>"My data isn't strange enough. I can't disprove H₀ (but I also haven't proven it)."</td></tr>
+    <tr><td>α (alpha)</td><td>The cutoff for "weird enough." Usually 0.05. If p &lt; α, reject H₀.</td></tr>
+    <tr><td>Type I error</td><td>False alarm. You rejected H₀ when H₀ was actually true.</td></tr>
+    <tr><td>Type II error</td><td>Miss. You failed to reject H₀ when H_A was actually true.</td></tr>
+    <tr><td>Power</td><td>The probability of correctly catching a real effect. = 1 − P(Type II).</td></tr>
+    <tr><td>Confidence interval (CI)</td><td>A plausible range for the true population value. 95% CI = "if we repeated the study many times, 95% of these intervals would contain the true value."</td></tr>
+    <tr><td>Standard error (SE)</td><td>How "wobbly" your estimate is. Like the spread of the sampling distribution.</td></tr>
+    <tr><td>Index</td><td>A position number. <code>x[3]</code> = "the value at index 3."</td></tr>
+    <tr><td>Logical vector</td><td>A list of TRUE/FALSE values. Like <code>c(TRUE, FALSE, TRUE)</code>.</td></tr>
+    <tr><td>Replacement</td><td>Whether items can be picked again. WITH replacement = each pick is independent, repeats allowed.</td></tr>
+    <tr><td>Permutation</td><td>A rearrangement of items. In a 2-group permutation test, you reshuffle the GROUP LABELS while keeping the VALUES fixed.</td></tr>
+    <tr><td>Bootstrap</td><td>Sampling WITH replacement from your data to estimate uncertainty (e.g., compute a CI for the mean).</td></tr>
+    <tr><td>Residual</td><td>The "leftover" after the model predicts y. = actual y − predicted y.</td></tr>
+    <tr><td>Slope</td><td>How much y changes when x goes up by 1. In <code>lm</code>, it's the coefficient on x.</td></tr>
+    <tr><td>Coefficient</td><td>One number in a fitted model. β̂₁ is "the coefficient on x₁." Each row of <code>summary()</code>'s table is a coefficient.</td></tr>
+    <tr><td>Interaction</td><td>When the effect of x₁ DEPENDS ON the value of x₂. In R, written <code>x1:x2</code> or <code>x1*x2</code>.</td></tr>
+    <tr><td>Main effect</td><td>The effect of one predictor, at the reference level of all others.</td></tr>
+    <tr><td>Confounder</td><td>A third variable that affects both your predictor and your outcome. Ignoring it biases the estimate.</td></tr>
+    <tr><td>Partial F-test</td><td>Test that compares two nested models. Asks "do the extra coefficients in the bigger model help?"</td></tr>
+    <tr><td>Reference level</td><td>The "baseline" category for a factor. By default R uses the alphabetically-first level. All other levels are compared TO this one.</td></tr>
+    <tr><td>LINE conditions</td><td>4 assumptions for the t-test on a slope: Linearity, Independence, Normality (of residuals), Equal variance.</td></tr>
+    <tr><td>Heteroskedasticity</td><td>Big word for "the spread of residuals changes with x." Breaks the E condition.</td></tr>
+  </table>
+</div>
+
+<div class="quiz-box" data-answer="2">
+  <div class="quiz-q">A "null distribution" is essentially...</div>
+  <div class="quiz-opt" data-i="0">A list of all observed values in your data</div>
+  <div class="quiz-opt" data-i="1">The distribution of y in your data</div>
+  <div class="quiz-opt" data-i="2">The shape (histogram) of your test statistic if H₀ were true — built either from theory or by simulation/shuffling</div>
+  <div class="quiz-opt" data-i="3">A standard normal distribution</div>
+  <div class="quiz-result" data-explain="The null distribution is a 'what-if' shape — it answers 'what would my test statistic look like if H₀ were true?' For permutation tests, you build it by shuffling. For a t-test, theory tells you it's a t-distribution."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(67)">Mark Level 67 Complete</button>
+</div></div>
+
+<!-- ==================== LEVEL 68 — Reading R Output ==================== -->
+<div class="level-card" id="level-68">
+<div class="level-header" onclick="toggleLevel(68)">
+  <span class="level-title"><span class="num">Level 68</span> — 🧒 Reading R Output (summary, anova, t.test) like a pro</span>
+  <span class="level-xp">+100 XP</span>
+</div>
+<div class="level-body" id="level-body-68">
+
+<div class="box box-rcode">
+  <div class="box-label">summary(lm(...)) — what every line means</div>
+<pre class="r-code">summary(lm(y ~ x, data=df))
+</pre>
+<pre style="background:#080b12; padding:12px; border-radius:6px; color:#e2e8f0; font-family:'SF Mono',monospace; font-size:0.78rem;">
+Call:
+lm(formula = y ~ x, data = df)        <span style="color:#64748b;"># ← which model you fit</span>
+
+Residuals:                            <span style="color:#64748b;"># ← summary of y - y_hat</span>
+    Min      1Q  Median      3Q     Max
+-2.013  -0.587   0.014   0.612   1.985
+
+Coefficients:                         <span style="color:#fbbf24;"># ← the most important table!</span>
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)   1.520      0.314    4.84  &lt;0.001 ***
+x             0.832      0.102    8.16  &lt;0.001 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.91 on 48 degrees of freedom
+Multiple R-squared:  0.581,	Adjusted R-squared:  0.572
+F-statistic: 66.5 on 1 and 48 DF,  p-value: &lt;0.001
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>Coefficients table (the heart):</strong> one row per coefficient. Columns are: Estimate (β̂), Std. Error (SE of β̂), t value (β̂ / SE), Pr(&gt;|t|) (the p-value for H₀: β = 0).</div>
+    <div class="line-exp"><strong>The stars</strong> next to the p-value are R's way of saying "this is very/medium/slightly significant." Three stars = p &lt; 0.001. One star = p &lt; 0.05.</div>
+    <div class="line-exp"><strong>Residuals</strong>: shows the spread of (actual − predicted) values. Median near 0 and quartiles roughly symmetric = healthy fit.</div>
+    <div class="line-exp"><strong>R-squared</strong>: fraction of variance in y explained by the model. 0.58 means "the model explains 58% of the variability in y."</div>
+    <div class="line-exp"><strong>F-statistic + its p-value</strong>: tests "do ALL the predictors jointly help?" Different from per-row t-tests.</div>
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">Extracting one number from summary()</div>
+<pre class="r-code">model &lt;- <span class="fn">lm</span>(y ~ x, data=df)
+<span class="fn">summary</span>(model)$coefficients
+<span class="cm"># Returns the coefficient table as a matrix:</span>
+<span class="cm">#               Estimate  Std. Error  t value  Pr(&gt;|t|)</span>
+<span class="cm"># (Intercept)   1.520     0.314       4.84     0.00001</span>
+<span class="cm"># x             0.832     0.102       8.16     0.00000</span>
+
+<span class="fn">summary</span>(model)$coefficients[<span class="nb">2</span>, <span class="nb">1</span>]
+<span class="cm"># "row 2, column 1" = the slope estimate β̂₁ = 0.832</span>
+
+<span class="fn">summary</span>(model)$coefficients[<span class="nb">2</span>, <span class="nb">4</span>]
+<span class="cm"># "row 2, column 4" = the slope's p-value</span>
+
+<span class="fn">summary</span>(model)$coefficients[<span class="st">"x"</span>, <span class="st">"Pr(&gt;|t|)"</span>]
+<span class="cm"># Same thing, but using row + column NAMES (safer than numbers)</span>
+</pre>
+  <p>Rule: <code>[row, column]</code>. For a coefficients table: rows = predictors, columns = (Estimate, SE, t, p).</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">anova(reduced, full) — partial F-test output</div>
+<pre class="r-code"><span class="fn">anova</span>(reduced, full)
+</pre>
+<pre style="background:#080b12; padding:12px; border-radius:6px; color:#e2e8f0; font-family:'SF Mono',monospace; font-size:0.78rem;">
+Analysis of Variance Table
+
+Model 1: y ~ x2                        <span style="color:#64748b;"># reduced</span>
+Model 2: y ~ x1 + x2                   <span style="color:#64748b;"># full</span>
+  Res.Df    RSS  Df  Sum of Sq      F    Pr(>F)
+1     48  72.13                                  <span style="color:#64748b;"># reduced</span>
+2     47  62.45   1     9.68     7.29   0.0096   <span style="color:#fbbf24;"># ← read THIS row</span>
+</pre>
+  <div class="code-explain">
+    <div class="line-exp"><strong>Always read row 2.</strong> Row 1 is just info about the reduced model. Row 2 is the actual TEST result.</div>
+    <div class="line-exp"><strong>Df = 1</strong> means we added 1 coefficient going from reduced to full.</div>
+    <div class="line-exp"><strong>F = 7.29, Pr(&gt;F) = 0.0096</strong>: the F-statistic and its p-value. Here p &lt; 0.05 → reject H₀: extra coefficient = 0.</div>
+    <div class="line-exp"><strong>RSS</strong> = residual sum of squares. Smaller RSS = better fit. The drop from 72.13 to 62.45 measures how much the extra term improved the fit.</div>
+  </div>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">t.test() output</div>
+<pre class="r-code"><span class="fn">t.test</span>(x, mu = <span class="nb">5</span>)
+</pre>
+<pre style="background:#080b12; padding:12px; border-radius:6px; color:#e2e8f0; font-family:'SF Mono',monospace; font-size:0.78rem;">
+	One Sample t-test
+
+data:  x
+t = -2.65, df = 19, p-value = 0.016    <span style="color:#fbbf24;"># ← test result</span>
+alternative hypothesis: true mean is not equal to 5
+95 percent confidence interval:
+ 3.421  4.779                           <span style="color:#64748b;"># ← CI for μ</span>
+sample estimates:
+mean of x
+   4.100
+</pre>
+  <p>To grab just one piece: <code>t.test(x, mu=5)$p.value</code>, <code>$conf.int</code>, or <code>$statistic</code>.</p>
+</div>
+
+<div class="quiz-box" data-answer="0">
+  <div class="quiz-q">R prints <code>summary(model)$coefficients</code> with row labels "(Intercept)" and "x". Which entry is the SLOPE's p-value?</div>
+  <div class="quiz-opt" data-i="0"><code>[2, 4]</code> — row 2 (x), column 4 (Pr&gt;|t|)</div>
+  <div class="quiz-opt" data-i="1"><code>[1, 4]</code> — row 1 (Intercept), column 4</div>
+  <div class="quiz-opt" data-i="2"><code>[2, 1]</code> — row 2, column 1</div>
+  <div class="quiz-opt" data-i="3"><code>[4, 2]</code></div>
+  <div class="quiz-result" data-explain="The slope is on row 2 (Intercept is row 1, predictors follow). p-value column is the 4th (Estimate, SE, t, p)."></div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(68)">Mark Level 68 Complete — Survival Kit Done!</button>
+</div></div>
+
+</div> <!-- end phase-14 -->

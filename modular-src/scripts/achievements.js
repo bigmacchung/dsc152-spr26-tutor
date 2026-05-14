@@ -74,6 +74,11 @@ function checkAchievements() {
     showAchievement('LAB 6 MASTER!', 'Interactions + partial F — fully understood. You are ready for Quiz 2.');
     launchConfetti();
   }
+  if (completedLevels.size === 68 && !window._ach68) {
+    window._ach68 = true;
+    showAchievement('SURVIVAL KIT COMPLETE!', 'You can now read any R line in this guide. Beginner mode mastered.');
+    launchConfetti();
+  }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
     window._achAll = true;
     showAchievement('MIDTERM READY!', 'You completed everything. Go crush it Maxime!');
