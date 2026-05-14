@@ -6577,6 +6577,196 @@ fit &lt;- model1$fitted.values
   <div class="quiz-result" data-explain="A fan shape (variance growing with x or fitted value) is the textbook diagnostic for heteroskedasticity (broken E). Curvature in the band would suggest broken L; cyclical patterns would suggest broken I; skewed histogram of residuals would suggest broken N."></div>
 </div>
 
+<!-- ============================================================ -->
+<!-- 🧒 BEGINNER REWRITE (A–I FORMAT) — Level 31 -->
+<!-- ============================================================ -->
+
+<div class="box box-story" style="border-color:#4ade80; background:#0a1f12;">
+  <div class="box-label" style="color:#4ade80;">🧒 BEGINNER REWRITE — A through I format</div>
+  <p>LINE = 4 conditions that must hold so your slope p-value can be trusted. Decoded one letter at a time.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">A. Big idea</div>
+  <p>You ran <code>lm()</code>. You got a slope p-value. But can you TRUST that p-value?</p>
+  <p>Only if 4 conditions hold. The conditions spell <strong>LINE</strong>: <strong>L</strong>inear, <strong>I</strong>ndependent, <strong>N</strong>ormal, <strong>E</strong>qual variance.</p>
+  <p>If even one condition breaks, your p-value might be a lie.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. Vocabulary I need first</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Word</th><th>Plain meaning</th></tr>
+    <tr><td><strong>Condition / assumption</strong></td><td>"Something we PRETEND is true so the math works." If it's actually false, the math gives wrong answers.</td></tr>
+    <tr><td><strong>Valid</strong></td><td>"The test's p-value is trustworthy." Validity = conditions met.</td></tr>
+    <tr><td><strong>Residual (ε_i)</strong></td><td>The gap between the real y and the predicted y. The "miss" for each point.</td></tr>
+    <tr><td><strong>Variance</strong></td><td>How spread out numbers are. Big variance = wide spread. Small variance = bunched up.</td></tr>
+    <tr><td><strong>Homoskedastic</strong></td><td>Big word for "the spread is constant." All residuals roughly equally wobbly.</td></tr>
+    <tr><td><strong>Heteroskedastic</strong></td><td>"The spread CHANGES with x." Bad — breaks the E condition.</td></tr>
+    <tr><td><strong>Independent</strong></td><td>"One row's value does NOT depend on another row's value." Each observation is its own.</td></tr>
+    <tr><td><strong>CLT (Central Limit Theorem)</strong></td><td>"For LARGE n, averages start to look bell-shaped even if individual values aren't." Saves us when N condition is mildly broken.</td></tr>
+  </table>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. LINE — the 4 letters in plain English</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Letter</th><th>What it asks</th><th>Simple version</th></tr>
+    <tr><td><strong>L</strong>inear</td><td>Is the real relationship a straight line?</td><td>Not a curve, not exponential.</td></tr>
+    <tr><td><strong>I</strong>ndependent</td><td>Are the data points unrelated to each other?</td><td>No copying. No same person measured twice.</td></tr>
+    <tr><td><strong>N</strong>ormal</td><td>Are the residuals roughly bell-shaped?</td><td>(Or n large enough for CLT to save us.)</td></tr>
+    <tr><td><strong>E</strong>qual variance</td><td>Is the residual wobble the same for all x?</td><td>Not "fan-shaped" (small spread on left, big on right).</td></tr>
+  </table>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. The model formula, symbol by symbol</div>
+  <p>$$ y_i = \beta_0 + \beta_1 x_i + \epsilon_i, \quad \epsilon_i \sim N(0, \sigma^2) $$</p>
+  <ul style="font-size:0.85rem;">
+    <li><strong>\(y_i\)</strong> — the OUTCOME for person i (e.g. the i-th student's bracket score).</li>
+    <li><strong>\(\beta_0\)</strong> — the TRUE intercept (unknown).</li>
+    <li><strong>\(\beta_1\)</strong> — the TRUE slope (unknown).</li>
+    <li><strong>\(x_i\)</strong> — the PREDICTOR for person i (e.g. their knowledge score).</li>
+    <li><strong>\(\epsilon_i\)</strong> — the noise for person i. The "wobble" beyond what the line predicts. Read aloud as "epsilon i."</li>
+    <li><strong>\(\sim\)</strong> — "is distributed as." Read aloud as "follows."</li>
+    <li><strong>\(N(0, \sigma^2)\)</strong> — "a normal (bell) distribution with mean 0 and variance σ²."</li>
+    <li><strong>\(\sigma^2\)</strong> — Greek sigma squared. The variance of the noise. One single number that's the same for everyone — that's the E condition encoded right in the formula.</li>
+  </ul>
+  <p><strong>What this means in plain English:</strong> "Each person's y is the true line plus some random bell-shaped noise. All the noises have mean zero and the SAME spread."</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Line-by-line — checking LINE in R</div>
+<pre class="r-code">model1 &lt;- <span class="fn">lm</span>(bracket_score ~ knowledge, data = march_madness)
+res &lt;- model1$residuals
+fit &lt;- model1$fitted.values
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>model1</code> — your fitted line (from earlier).</li>
+    <li><code>model1$residuals</code> — pull out the vector of residuals (one per data point).</li>
+    <li><code>res &lt;- ...</code> — store the residuals in a name called <code>res</code>.</li>
+    <li><code>model1$fitted.values</code> — pull out the predicted y values from the line.</li>
+    <li><code>fit &lt;- ...</code> — store them under <code>fit</code>.</li>
+  </ul>
+  <p><strong>What this means in plain English:</strong> "Grab the residuals and predicted values out of my fitted model so I can plot them."</p>
+<pre class="r-code"><span class="fn">plot</span>(res ~ fit)
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>plot(res ~ fit)</code> — make a scatter plot with fitted values on the x-axis, residuals on the y-axis.</li>
+  </ul>
+  <p><strong>What to look for:</strong></p>
+  <ul style="font-size:0.85rem;">
+    <li>Flat band around 0 → L and E are happy ✓</li>
+    <li>Curve / U-shape → L (linearity) is broken ✗</li>
+    <li>Fan shape (small left, big right) → E (equal variance) is broken ✗</li>
+  </ul>
+<pre class="r-code"><span class="fn">hist</span>(res)
+<span class="fn">qqnorm</span>(res); <span class="fn">qqline</span>(res)
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>hist(res)</code> — histogram of residuals. Should look bell-shaped (for the N condition).</li>
+    <li><code>qqnorm(res)</code> — Q-Q plot. If dots fall on a straight diagonal line, residuals are normal.</li>
+    <li><code>qqline(res)</code> — adds the diagonal reference line. The semicolon <code>;</code> just means "next R command on the same line."</li>
+  </ul>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">D. Tiny example with fake data</div>
+  <p>Imagine you fit a line to 6 data points and get these residuals:</p>
+  <table class="four-outcome-table" style="font-size:0.85rem;">
+    <tr><th>fitted y</th><th>residual</th></tr>
+    <tr><td>10</td><td>0.3</td></tr>
+    <tr><td>20</td><td>−0.4</td></tr>
+    <tr><td>30</td><td>0.2</td></tr>
+    <tr><td>40</td><td>−0.3</td></tr>
+    <tr><td>50</td><td>0.4</td></tr>
+    <tr><td>60</td><td>−0.2</td></tr>
+  </table>
+  <p>This looks like a flat band around 0 with about the same spread everywhere. ✓ L is happy. ✓ E is happy.</p>
+  <p>Now imagine these residuals instead:</p>
+  <table class="four-outcome-table" style="font-size:0.85rem;">
+    <tr><th>fitted y</th><th>residual</th></tr>
+    <tr><td>10</td><td>0.1</td></tr>
+    <tr><td>20</td><td>−0.2</td></tr>
+    <tr><td>30</td><td>0.3</td></tr>
+    <tr><td>40</td><td>−2.0</td></tr>
+    <tr><td>50</td><td>3.5</td></tr>
+    <tr><td>60</td><td>−4.0</td></tr>
+  </table>
+  <p>The residuals grow with x. That's a fan. ✗ E is broken (heteroskedasticity). Your slope p-value may be too small or too big.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">E. What the R plot shows (what to look for)</div>
+  <ul style="font-size:0.85rem;">
+    <li><strong>Residuals vs fitted, flat band:</strong> ✓ L and E OK.</li>
+    <li><strong>Residuals vs fitted, curve/U:</strong> ✗ L broken — relationship isn't linear.</li>
+    <li><strong>Residuals vs fitted, fan/megaphone:</strong> ✗ E broken — variance grows with x.</li>
+    <li><strong>Q-Q plot, dots on diagonal:</strong> ✓ N OK.</li>
+    <li><strong>Q-Q plot, dots curving off:</strong> ✗ N broken (or weak).</li>
+    <li><strong>Residuals vs order, random cloud:</strong> ✓ I OK.</li>
+    <li><strong>Residuals vs order, trend/cycle:</strong> ✗ I broken.</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">F. What to memorize</div>
+  <p><strong>MEMORIZE:</strong></p>
+  <ul>
+    <li>LINE = Linear, Independent, Normal, Equal variance.</li>
+    <li>Each letter tied to ONE diagnostic plot: L→residuals vs fitted, I→residuals vs order, N→Q-Q plot, E→residuals vs fitted.</li>
+    <li>"Fan shape = E broken." "Curve = L broken." "S-curve in Q-Q = N broken."</li>
+    <li>For large n, CLT helps — N can be slightly broken without disaster.</li>
+  </ul>
+  <p><strong>DO NOT memorize:</strong></p>
+  <ul>
+    <li>The full Gauss-Markov theorem.</li>
+    <li>The math for why each violation biases SE.</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">G. Common mistakes</div>
+  <ol>
+    <li><strong>Skipping diagnostics</strong> and trusting the p-value blindly.</li>
+    <li><strong>Mixing up which letter</strong> goes with which plot.</li>
+    <li><strong>Saying "L broken means β₁ ≠ 0."</strong> No — L is about SHAPE, not about whether a relationship exists.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">H. 3-sentence summary</div>
+  <p>1. The slope's p-value from <code>lm()</code> is only trustworthy when LINE conditions hold: Linear, Independent, Normal, Equal variance. 2. Check by plotting residuals vs fitted (catches L and E), a Q-Q plot (catches N), and residuals vs order (catches I). 3. If a letter is broken, your reported p-value can lie — flag it and try a robust alternative (e.g., bootstrap CI, permutation, or robust SE).</p>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">I. Mini quiz</div>
+  <div class="quiz-box" data-answer="3">
+    <div class="quiz-q">Q1. Residuals-vs-fitted plot shows a clear fan (small spread on the left, big spread on the right). Which letter broke?</div>
+    <div class="quiz-opt" data-i="0">L</div>
+    <div class="quiz-opt" data-i="1">I</div>
+    <div class="quiz-opt" data-i="2">N</div>
+    <div class="quiz-opt" data-i="3">E (Equal variance)</div>
+    <div class="quiz-result" data-explain="A fan/megaphone means the residual spread CHANGES with x — that's heteroskedasticity, which breaks the E condition."></div>
+  </div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">Q2. Q-Q plot is for checking which letter?</div>
+    <div class="quiz-opt" data-i="0">L</div>
+    <div class="quiz-opt" data-i="1">I</div>
+    <div class="quiz-opt" data-i="2">N (Normality)</div>
+    <div class="quiz-opt" data-i="3">E</div>
+    <div class="quiz-result" data-explain="Q-Q plot specifically tests normality of residuals. Dots on the diagonal = bell-shaped; curving off = not normal."></div>
+  </div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">Q3. Your data is n = 2000 and residuals are mildly skewed. Should you panic about the N condition?</div>
+    <div class="quiz-opt" data-i="0">Yes, throw out the model</div>
+    <div class="quiz-opt" data-i="1">No — at large n, the Central Limit Theorem makes the slope estimate approximately normal anyway</div>
+    <div class="quiz-opt" data-i="2">Switch to a permutation test immediately</div>
+    <div class="quiz-opt" data-i="3">Increase α to 0.10</div>
+    <div class="quiz-result" data-explain="CLT is your friend at large n. Mild non-normality in residuals matters much less when n is big because β̂₁'s sampling distribution becomes approximately normal anyway."></div>
+  </div>
+</div>
+
 <button class="complete-btn" onclick="completeLevel(31)">Mark Level 31 Complete</button>
 </div></div>
 
@@ -6639,6 +6829,157 @@ sim_slope_power(n=<span class="nb">50</span>, beta1=<span class="nb">20</span>, 
   <div class="quiz-opt" data-i="2">"If the true effect really is β₁=20 with σ=150, then with n=50 students we have an 82% chance of correctly rejecting H₀."</div>
   <div class="quiz-opt" data-i="3">"There's an 82% chance the alternative hypothesis is true."</div>
   <div class="quiz-result" data-explain="Power is conditional on H_A being true. It's NOT a probability about which hypothesis is true (option 4 is a Bayesian misreading). It's NOT R² (option 1). And it depends on the assumed effect size — under H₀ the rejection rate would be α=0.05, not 0.82."></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 🧒 BEGINNER REWRITE (A–I FORMAT) — Level 32 -->
+<!-- ============================================================ -->
+
+<div class="box box-story" style="border-color:#4ade80; background:#0a1f12;">
+  <div class="box-label" style="color:#4ade80;">🧒 BEGINNER REWRITE — A through I format</div>
+  <p>"Power" is the test's ability to find a real effect. Here we compute it by SIMULATION (faking data 1000 times).</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">A. Big idea</div>
+  <p>You want to detect a slope using <code>lm()</code>. But maybe your sample is too small or too noisy, and you'll MISS the real slope even though it exists.</p>
+  <p><strong>Power</strong> = "probability that I'll correctly find a real effect."</p>
+  <p>We compute it by FAKING data 1000 times under "the true slope IS this big," running our test on each, and counting how often we reject H₀.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. Vocabulary I need first</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Word</th><th>Plain meaning</th></tr>
+    <tr><td><strong>Power</strong></td><td>P(reject H₀ | H_A is true). The "hit rate" of finding real effects. Want it ≥ 0.80.</td></tr>
+    <tr><td><strong>Effect size</strong></td><td>How BIG the real effect is. For regression: the true slope β₁.</td></tr>
+    <tr><td><strong>Sample size (n)</strong></td><td>How many data points you have. Bigger n → more power.</td></tr>
+    <tr><td><strong>Noise (σ)</strong></td><td>How wobbly the data is around the line. More noise → less power.</td></tr>
+    <tr><td><strong>Simulation</strong></td><td>Fake data using a known truth, run the test, see what happens.</td></tr>
+    <tr><td><strong>Replicate</strong></td><td>Do something many times.</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Line-by-line — the simulation function</div>
+<pre class="r-code">sim_slope_power &lt;- <span class="kw">function</span>(n, beta1, sigma, reps = <span class="nb">1000</span>, alpha = <span class="nb">0.05</span>) {
+  rejects &lt;- <span class="fn">numeric</span>(reps)
+  <span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:reps) {
+    x &lt;- <span class="fn">runif</span>(n, <span class="nb">0</span>, <span class="nb">10</span>)
+    y &lt;- <span class="nb">623</span> + beta1 * x + <span class="fn">rnorm</span>(n, <span class="nb">0</span>, sigma)
+    fit &lt;- <span class="fn">lm</span>(y ~ x)
+    p &lt;- <span class="fn">summary</span>(fit)$coefficients[<span class="nb">2</span>, <span class="nb">4</span>]
+    rejects[i] &lt;- (p &lt; alpha)
+  }
+  <span class="fn">mean</span>(rejects)
+}
+</pre>
+  <p><strong>Decode each line:</strong></p>
+  <ul style="font-size:0.85rem;">
+    <li><code>sim_slope_power &lt;- function(n, beta1, sigma, reps = 1000, alpha = 0.05)</code> — Define a function with 5 inputs. <code>reps</code> and <code>alpha</code> have default values; you only need to pass <code>n</code>, <code>beta1</code>, <code>sigma</code>.</li>
+    <li><code>rejects &lt;- numeric(reps)</code> — pre-make an empty vector of 1000 zeros to store reject/no-reject results.</li>
+    <li><code>for (i in 1:reps) {</code> — repeat the inner block 1000 times. <code>i</code> goes 1, 2, 3, ..., 1000.</li>
+    <li><code>x &lt;- runif(n, 0, 10)</code> — make <code>n</code> random predictor values, uniformly between 0 and 10. <code>runif</code> = "random uniform."</li>
+    <li><code>y &lt;- 623 + beta1 * x + rnorm(n, 0, sigma)</code> — make the outcome:
+      <ul>
+        <li><code>623</code> = the intercept (just a number, doesn't matter).</li>
+        <li><code>beta1 * x</code> = the true linear relationship.</li>
+        <li><code>rnorm(n, 0, sigma)</code> = random bell-shaped noise with mean 0 and SD <code>sigma</code>.</li>
+      </ul>
+    </li>
+    <li><code>fit &lt;- lm(y ~ x)</code> — fit the line to this fake data.</li>
+    <li><code>p &lt;- summary(fit)$coefficients[2, 4]</code> — pull out the slope's p-value (row 2, col 4).</li>
+    <li><code>rejects[i] &lt;- (p &lt; alpha)</code> — store TRUE/FALSE: did we reject H₀ on this fake dataset?</li>
+    <li><code>}</code> — close the loop.</li>
+    <li><code>mean(rejects)</code> — the function returns the proportion of TRUEs = empirical power.</li>
+  </ul>
+  <p><strong>What R is doing:</strong> repeat 1000 times: make fake data with known slope, run <code>lm()</code>, check if p &lt; 0.05. The fraction of TRUEs = how often the test correctly detects the slope. That's power.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Using the function</div>
+<pre class="r-code"><span class="fn">sim_slope_power</span>(n = <span class="nb">50</span>, beta1 = <span class="nb">20</span>, sigma = <span class="nb">150</span>)
+<span class="cm"># Output: e.g. 0.82</span>
+</pre>
+  <p><strong>What this means in plain English:</strong> "If the true slope is 20 and noise σ = 150, with 50 students, my test will correctly detect the slope about 82% of the time."</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">D. Tiny example with fake numbers</div>
+  <p>Suppose I want to detect a slope of β₁ = 5, with σ = 10 noise. How big should n be?</p>
+  <p>Try n = 10: power ≈ 0.40. Bad — test misses 60% of the time.</p>
+  <p>Try n = 50: power ≈ 0.93. Great — almost always catches it.</p>
+  <p>Try n = 100: power ≈ 0.99. Even better.</p>
+  <p>Power grows with n (more data), shrinks with σ (more noise), grows with β₁ (bigger effect easier to find).</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">E. What the R output means</div>
+  <p>The function returns ONE NUMBER between 0 and 1. That's the power.</p>
+  <ul style="font-size:0.85rem;">
+    <li>Power = 0.82 → "If H_A is true with the values I assumed, I'll catch it 82% of the time."</li>
+    <li>Power = 0.20 → "Test misses real effects 80% of the time. Need more data or less noise."</li>
+    <li>Power = 0.99 → "Strong test. Almost guaranteed to detect this effect."</li>
+  </ul>
+  <p>Convention: aim for power ≥ 0.80 before running your study.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">F. What to memorize</div>
+  <p><strong>MEMORIZE:</strong></p>
+  <ul>
+    <li>Power = P(reject H₀ | H_A true).</li>
+    <li>Power depends on: n (sample size), β₁ (true effect), σ (noise), α (significance level).</li>
+    <li>Simulation skeleton: <code>numeric(reps)</code> + <code>for</code> + fit + extract p + count rejects.</li>
+    <li>Want power ≥ 0.80 before collecting data.</li>
+  </ul>
+  <p><strong>DO NOT memorize:</strong></p>
+  <ul>
+    <li>The closed-form power formula (use simulation).</li>
+    <li>The non-central t-distribution.</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">G. Common mistakes</div>
+  <ol>
+    <li><strong>"Post-hoc power."</strong> Computing power AFTER seeing the data using your estimate is meaningless — power is for STUDY DESIGN.</li>
+    <li><strong>Confusing power with p-value.</strong> p is from ONE dataset. Power is a property of the TEST across many hypothetical datasets.</li>
+    <li><strong>Forgetting α matters.</strong> Bigger α → easier to reject → higher power, but more false alarms.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">H. 3-sentence summary</div>
+  <p>1. Power is the probability your test correctly rejects H₀ when there really IS an effect — you want this to be ≥ 0.80 before you collect data. 2. The simulation recipe is: fake data 1000 times under a known truth, run <code>lm()</code> each time, count the proportion of rejected p-values. 3. Power grows with sample size n and true effect β₁, and shrinks with noise σ — so the way to fix a low-power study is "more data" or "less noisy measurement."</p>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">I. Mini quiz</div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">Q1. Power = 0.30 means:</div>
+    <div class="quiz-opt" data-i="0">30% of my data is wrong</div>
+    <div class="quiz-opt" data-i="1">If the true effect is what I assumed, my test will detect it 30% of the time (and miss it 70%)</div>
+    <div class="quiz-opt" data-i="2">α = 0.30</div>
+    <div class="quiz-opt" data-i="3">30% confidence interval</div>
+    <div class="quiz-result" data-explain="Power = P(reject | H_A true). 0.30 = catches 30% of real effects. Underpowered — usually need ≥ 0.80."></div>
+  </div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">Q2. To INCREASE power, you could:</div>
+    <div class="quiz-opt" data-i="0">Decrease n</div>
+    <div class="quiz-opt" data-i="1">Increase noise σ</div>
+    <div class="quiz-opt" data-i="2">Increase n, OR reduce noise σ, OR target larger effects</div>
+    <div class="quiz-opt" data-i="3">Use a smaller α</div>
+    <div class="quiz-result" data-explain="Bigger n + smaller σ + bigger true β₁ → higher power. Smaller α actually DECREASES power (you reject less often)."></div>
+  </div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">Q3. In the simulation, what does <code>mean(rejects)</code> compute?</div>
+    <div class="quiz-opt" data-i="0">The average p-value</div>
+    <div class="quiz-opt" data-i="1">The average β̂₁</div>
+    <div class="quiz-opt" data-i="2">The proportion of TRUEs (= empirical power), because TRUE = 1 and FALSE = 0 in R</div>
+    <div class="quiz-opt" data-i="3">The variance</div>
+    <div class="quiz-result" data-explain="rejects is a logical vector. mean() of TRUE/FALSE = proportion of TRUEs = how often the test rejected H₀ = empirical power."></div>
+  </div>
 </div>
 
 <button class="complete-btn" onclick="completeLevel(32)">Mark Level 32 Complete</button>
@@ -6751,6 +7092,172 @@ sim_slope_power(n=<span class="nb">50</span>, beta1=<span class="nb">20</span>, 
   <div class="quiz-opt" data-i="2">Only the F-statistic at the bottom of summary().</div>
   <div class="quiz-opt" data-i="3">The lowest p-value among them.</div>
   <div class="quiz-result" data-explain="Decide BEFORE looking at output which coefficient your hypothesis is about, then read THAT row's p-value. Picking the lowest p across rows is data dredging. Including age in the model is for adjustment, not because we are testing a hypothesis about age."></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 🧒 BEGINNER REWRITE (A–I FORMAT) — Level 33 -->
+<!-- ============================================================ -->
+
+<div class="box box-story" style="border-color:#4ade80; background:#0a1f12;">
+  <div class="box-label" style="color:#4ade80;">🧒 BEGINNER REWRITE — A through I format</div>
+  <p>This is the most famous Quiz 2 concept: <strong>confounding</strong>. The FEV (lung function) example shows how a third hidden variable can FLIP your answer.</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">A. Big idea</div>
+  <p>You have two variables (X and Y). You see X is linked to Y. But maybe there's a SECRET third variable Z that controls BOTH X and Y. Without including Z, you get the WRONG answer.</p>
+  <p>FEV example: smokers in a kid study seem to have BIGGER lungs than non-smokers. Crazy, right? The hidden truth: smokers in the dataset are mostly TEENAGERS, and teenagers have big lungs because they're older. Once you add AGE to the model, smoking's effect flips to NEGATIVE (the truth).</p>
+  <p>The third variable that fools you is called a <strong>confounder</strong>.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. Vocabulary I need first</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Word</th><th>Plain meaning</th></tr>
+    <tr><td><strong>Confounder</strong></td><td>A hidden variable Z that affects BOTH the predictor (X) AND the outcome (Y). It tricks the naive analysis.</td></tr>
+    <tr><td><strong>Naive analysis</strong></td><td>Looking at X vs Y alone, ignoring possible Z.</td></tr>
+    <tr><td><strong>Adjusted analysis</strong></td><td>Including Z in the model. Compares "X effect with Z held constant."</td></tr>
+    <tr><td><strong>Holding Z constant</strong></td><td>"Comparing apples to apples." Compare smokers vs non-smokers OF THE SAME AGE.</td></tr>
+    <tr><td><strong>Multiple linear regression (MLR)</strong></td><td>Same as SLR but with MORE THAN ONE predictor. Just add a <code>+</code> in the formula.</td></tr>
+    <tr><td><strong>"associated with"</strong></td><td>Exam wording. Means "related to in the data." Does NOT mean "causes."</td></tr>
+    <tr><td><strong>"causes"</strong></td><td>Strong claim. Requires a randomized experiment (Lec 6). Avoid in observational data.</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Line-by-line — the naive vs adjusted models</div>
+<pre class="r-code">naive &lt;- <span class="fn">lm</span>(fev ~ smoke, data = FEV)
+<span class="fn">summary</span>(naive)$coefficients[<span class="st">"smoke"</span>, <span class="st">"Estimate"</span>]
+<span class="cm"># Output: +0.71  (POSITIVE — smokers seem better!)</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>naive &lt;- lm(fev ~ smoke, data = FEV)</code> — fit a model with ONE predictor (smoke). The name "naive" is just a label we chose to remind ourselves "this ignores age."</li>
+    <li><code>summary(naive)$coefficients["smoke", "Estimate"]</code> — pull out the smoke row, Estimate column. Same as <code>[2, 1]</code> but using row/column NAMES instead of numbers.</li>
+    <li>Result: +0.71. Smokers' lungs LOOK 0.71 L bigger than non-smokers. Weird.</li>
+  </ul>
+<pre class="r-code">adjusted &lt;- <span class="fn">lm</span>(fev ~ smoke + age, data = FEV)
+<span class="fn">summary</span>(adjusted)$coefficients[<span class="st">"smoke"</span>, <span class="st">"Estimate"</span>]
+<span class="cm"># Output: -0.21  (NEGATIVE — sign flipped! smokers worse.)</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>fev ~ smoke + age</code> — the <code>+</code> means "include BOTH predictors." Now the model has 3 things to estimate: intercept, smoke coefficient, age coefficient.</li>
+    <li>Result: −0.21. After adjusting for age, smokers are 0.21 L WORSE. Sign flipped.</li>
+  </ul>
+  <p><strong>What R is doing line-by-line:</strong></p>
+  <ol style="font-size:0.85rem;">
+    <li>Naive model: R fits one line through (smoke, fev). Slope = +0.71.</li>
+    <li>Adjusted model: R fits a "plane" — for each age, smoke's effect can be separated from age's effect. The smoke coefficient is now the effect of smoking among kids of the SAME AGE.</li>
+    <li>The flip happens because in the data, smokers are mostly older. Age (which increases lung size) was disguising the bad effect of smoking.</li>
+  </ol>
+  <p><strong>What this means in plain English:</strong> "When I compare smokers to non-smokers OF THE SAME AGE, smokers have smaller lungs. Without adjusting for age, age was secretly inflating smokers' average."</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Confidence interval for the smoke effect (adjusted)</div>
+<pre class="r-code"><span class="fn">confint</span>(adjusted, <span class="st">"smoke"</span>)
+<span class="cm"># Output: -0.37 to -0.05</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>confint(adjusted, "smoke")</code> — get the 95% confidence interval for the smoke coefficient in the adjusted model.</li>
+    <li>Interval is entirely negative — does NOT contain 0 → smoke effect is statistically significant.</li>
+  </ul>
+  <p><strong>What this means in plain English:</strong> "The TRUE smoke effect (after adjusting for age) is plausibly anywhere between −0.37 and −0.05 liters. We're pretty sure it's negative."</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">D. Tiny example with fake data</div>
+  <p>Let's make this VERY concrete with 8 fake kids:</p>
+  <table class="four-outcome-table" style="font-size:0.85rem;">
+    <tr><th>age</th><th>smoke</th><th>fev (L)</th></tr>
+    <tr><td>5</td><td>0 (no)</td><td>1.5</td></tr>
+    <tr><td>6</td><td>0</td><td>1.7</td></tr>
+    <tr><td>7</td><td>0</td><td>1.9</td></tr>
+    <tr><td>8</td><td>0</td><td>2.1</td></tr>
+    <tr><td>15</td><td>1 (yes)</td><td>3.0</td></tr>
+    <tr><td>16</td><td>1</td><td>3.2</td></tr>
+    <tr><td>17</td><td>1</td><td>3.4</td></tr>
+    <tr><td>18</td><td>1</td><td>3.6</td></tr>
+  </table>
+  <p><strong>Naive analysis:</strong> mean fev for non-smokers = 1.8. Mean for smokers = 3.3. Smokers look better by 1.5 L! Slope of fev ~ smoke = +1.5.</p>
+  <p><strong>But notice:</strong> non-smokers are all ages 5-8; smokers are all ages 15-18. The difference is REALLY age, not smoking.</p>
+  <p><strong>Adjusted:</strong> if we account for age, the smoke effect shrinks toward zero (or goes negative). The naive +1.5 was a LIE caused by age confounding.</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">E. What the R output means (the kable table from Lec 8)</div>
+<pre style="background:#080b12; padding:12px; border-radius:6px; color:#e2e8f0; font-family:'SF Mono',monospace; font-size:0.78rem;">
+              Estimate  Std. Error  t value  Pr(&gt;|t|)
+(Intercept)    0.367     0.081       4.51    7e-06
+smoke         -0.209     0.081      -2.59    0.010
+age            0.231     0.008      28.2     &lt;2e-16
+</pre>
+  <p>Reading row-by-row:</p>
+  <ul style="font-size:0.85rem;">
+    <li><strong>(Intercept) row:</strong> predicted FEV when smoke = 0 AND age = 0. (Doesn't make scientific sense for a 0-year-old, but R reports it.)</li>
+    <li><strong>smoke row:</strong> −0.21 = "comparing two kids of the SAME AGE, the smoker has 0.21 L LESS lung capacity." p = 0.010 → significant.</li>
+    <li><strong>age row:</strong> 0.23 = "for every +1 year of age (smoke status fixed), FEV goes up by 0.23 L." p &lt; 2e-16 → super significant.</li>
+  </ul>
+  <p><strong>Plain-English conclusion:</strong> "Smoking is associated with a 0.21 L decrease in FEV (95% CI [−0.37, −0.05], p = 0.010), while adjusting for age." NEVER say "causes" — this is observational data.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">F. What to memorize</div>
+  <p><strong>MEMORIZE:</strong></p>
+  <ul>
+    <li>Confounder = a third variable that affects BOTH x and y.</li>
+    <li>R syntax for adjustment: <code>lm(y ~ x_of_interest + confounder, data = df)</code>.</li>
+    <li>Each adjusted coefficient = "effect of that predictor, with all others held constant."</li>
+    <li>Conclusion language: "associated with… while adjusting for…" NEVER "causes" without random assignment.</li>
+    <li>If naive and adjusted coefficients differ a lot → confounding was present.</li>
+  </ul>
+  <p><strong>DO NOT memorize:</strong></p>
+  <ul>
+    <li>The exact FEV dataset numbers.</li>
+    <li>Variance inflation factors (advanced).</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">G. Common mistakes</div>
+  <ol>
+    <li><strong>Saying "smoking CAUSES" from observational data.</strong> Use "associated with" — we adjusted for age, but other unmeasured confounders may exist.</li>
+    <li><strong>Reading the naive estimate and forgetting to adjust.</strong> Always ask: "what other variable could affect BOTH x and y?"</li>
+    <li><strong>Throwing in every variable.</strong> Adjustment costs precision (larger SEs). Only adjust for true confounders, not everything.</li>
+    <li><strong>Adjusting for a MEDIATOR.</strong> If Z is BETWEEN x and y in the causal chain, adjusting for Z HIDES the effect. Different from confounder.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">H. 3-sentence summary</div>
+  <p>1. A confounder is a hidden third variable that affects both your predictor and your outcome, and ignoring it makes the naive slope misleading or even reversed. 2. In R, you adjust by adding the confounder to the formula: <code>lm(y ~ x + z, data = df)</code> — and the new x coefficient is the effect "holding z constant." 3. Even after adjustment, use the cautious language "associated with… while adjusting for…" — only random assignment licenses causal claims.</p>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">I. Mini quiz</div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">Q1. A confounder must:</div>
+    <div class="quiz-opt" data-i="0">Be a binary variable</div>
+    <div class="quiz-opt" data-i="1">Be the outcome</div>
+    <div class="quiz-opt" data-i="2">Affect BOTH the predictor and the outcome</div>
+    <div class="quiz-opt" data-i="3">Have a negative slope</div>
+    <div class="quiz-result" data-explain="A confounder is a third variable that influences BOTH x and y. That's why it tricks the naive analysis — it creates a fake link between x and y."></div>
+  </div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">Q2. In <code>lm(fev ~ smoke + age, data = FEV)</code>, the smoke coefficient is:</div>
+    <div class="quiz-opt" data-i="0">The total effect of smoke, including age</div>
+    <div class="quiz-opt" data-i="1">The effect of smoke comparing kids of the SAME age</div>
+    <div class="quiz-opt" data-i="2">The same as in <code>lm(fev ~ smoke)</code></div>
+    <div class="quiz-opt" data-i="3">The slope of age</div>
+    <div class="quiz-result" data-explain="Adjusted coefficients are 'effect of that predictor, holding all others constant.' So smoke coef = effect of smoke among kids OF THE SAME AGE."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">Q3. Best conclusion sentence after adjustment:</div>
+    <div class="quiz-opt" data-i="0">"Smoking is associated with a 0.21 L decrease in FEV, while adjusting for age (p = 0.010)."</div>
+    <div class="quiz-opt" data-i="1">"Smoking causes a 0.21 L decrease in FEV."</div>
+    <div class="quiz-opt" data-i="2">"Smoking has no effect."</div>
+    <div class="quiz-opt" data-i="3">"Age is the real cause."</div>
+    <div class="quiz-result" data-explain="Observational data → 'associated with… while adjusting for…' Never 'causes' without random assignment. The proper exam wording matters."></div>
+  </div>
 </div>
 
 <button class="complete-btn" onclick="completeLevel(33)">Mark Level 33 Complete</button>
