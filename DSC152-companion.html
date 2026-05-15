@@ -536,6 +536,7 @@ strong { color: #e2e8f0; }
   <div class="phase-tab" data-phase="13">Phase 13: Lab 6 Deep Dive (Interactions) 🌍</div>
   <div class="phase-tab" data-phase="14">Phase 14: 🧒 Beginner R + Stats Survival Kit</div>
   <div class="phase-tab" data-phase="15">Phase 15: Lec 14 — Transformations 🌍</div>
+  <div class="phase-tab" data-phase="16">Phase 16: Lec 13 — Model Selection Pitfall 🌍</div>
 </div>
 
 <!-- ============================= MAIN CONTENT ============================= -->
@@ -11379,6 +11380,188 @@ Multiple R-squared: 0.9435
 
 </div> <!-- end phase-15 -->
 
+<!-- ============================================================ -->
+<!-- PHASE 16: LECTURE 13 — MODEL SELECTION PITFALL (Level 70) -->
+<!-- ============================================================ -->
+<div class="phase-content" id="phase-16">
+
+<div class="box box-story" style="margin-bottom:24px;">
+  <div class="box-label">About this phase</div>
+  <p>Lecture 13 is a WARNING. It teaches what NOT to do. The flawed workflow looks reasonable but secretly inflates your false-positive rate above 5%. Read this carefully — exam loves to test it.</p>
+</div>
+
+<!-- ==================== LEVEL 70 — Model Selection Pitfall ==================== -->
+<div class="level-card" id="level-70">
+<div class="level-header" onclick="toggleLevel(70)">
+  <span class="level-title"><span class="num">Level 70</span> — 🧒 Lec 13: Why You Can't "Drop Non-Significant Predictors Then Re-Test"</span>
+  <span class="level-xp">+100 XP</span>
+</div>
+<div class="level-body" id="level-body-70">
+
+<div class="box box-story" style="border-color:#4ade80; background:#0a1f12;">
+  <div class="box-label" style="color:#4ade80;">🧒 A through I format</div>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">A. Big idea</div>
+  <p>You have one main predictor (x₁) and some maybe-confounders (x₂, x₃, ...). A tempting workflow:</p>
+  <ol>
+    <li>Fit the full model with all predictors.</li>
+    <li>Look at each predictor's p-value. Drop the non-significant ones.</li>
+    <li>Re-fit a smaller model. Use ITS p-value for x₁ to answer your question.</li>
+  </ol>
+  <p><strong>This is WRONG.</strong> Your reported "p &lt; 0.05" is a LIE — your real Type I error rate (false alarm rate) is much higher than 5%.</p>
+  <p>Why? Because you used the data TWICE — once to pick the model, once to test. That's "p-hacking" in disguise.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. Vocabulary I need first</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Word</th><th>Plain meaning</th></tr>
+    <tr><td><strong>Model selection</strong></td><td>Choosing which predictors to include in the final model.</td></tr>
+    <tr><td><strong>Inference</strong></td><td>Drawing a conclusion from a p-value or confidence interval.</td></tr>
+    <tr><td><strong>Type I error rate</strong></td><td>"False alarm rate." If H₀ is really true, how often does the test wrongly reject? Should equal α = 0.05.</td></tr>
+    <tr><td><strong>Inflated Type I rate</strong></td><td>"Test rejects MORE than 5% of the time even when H₀ is true." The test is lying about α.</td></tr>
+    <tr><td><strong>Pre-specify</strong></td><td>"Decide your model BEFORE looking at the data." The safe approach.</td></tr>
+    <tr><td><strong>p-hacking</strong></td><td>Using data choices (which predictors to include, which test to use) to make p-values smaller.</td></tr>
+    <tr><td><strong>Simulation under H₀</strong></td><td>Fake data with NO real effect. Run the workflow many times. Count how often it (wrongly) rejects. That's the empirical Type I rate.</td></tr>
+  </table>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Line-by-line — the FLAWED workflow simulation</div>
+<pre class="r-code">count1 &lt;- <span class="nb">0</span>
+count2 &lt;- <span class="nb">0</span>
+reps &lt;- <span class="nb">10000</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>count1</code> — tally of times the FLAWED workflow gave p &lt; 0.05.</li>
+    <li><code>count2</code> — tally for the "always use full model" workflow.</li>
+    <li><code>reps</code> — repeat 10,000 times.</li>
+  </ul>
+<pre class="r-code"><span class="kw">for</span> (i <span class="kw">in</span> <span class="nb">1</span>:reps) {
+  x1 &lt;- <span class="fn">round</span>(<span class="fn">rnorm</span>(<span class="nb">100</span>, mean = <span class="nb">14</span>, sd = <span class="nb">2.5</span>), <span class="nb">0</span>)
+  x2 &lt;- <span class="fn">round</span>(<span class="fn">rnorm</span>(<span class="nb">100</span>, mean = (x1/<span class="nb">3</span>), sd = <span class="nb">0.5</span>), <span class="nb">2</span>)
+  x2 &lt;- <span class="fn">ifelse</span>(x2 &gt; <span class="nb">0</span>, x2, <span class="nb">0</span>)
+  y  &lt;- <span class="fn">round</span>(<span class="nb">70</span> + x2 + <span class="fn">rnorm</span>(<span class="nb">100</span>, sd = <span class="nb">10</span>), <span class="nb">0</span>)
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>x1</code> — fake "education years" (mean 14, SD 2.5).</li>
+    <li><code>x2</code> — fake "exercise hours," <strong>correlated with x1</strong> (its mean depends on x1/3).</li>
+    <li><code>ifelse(x2 &gt; 0, x2, 0)</code> — clip negative exercise hours to 0. Read out loud: "if x2 &gt; 0 keep x2, else use 0."</li>
+    <li><code>y</code> — fake "age at death" = 70 + x2 + noise. <strong>x1 has NO direct effect on y</strong> (this is H₀ for x1).</li>
+  </ul>
+<pre class="r-code">  model &lt;- <span class="fn">lm</span>(y ~ x1 + x2)
+  <span class="kw">if</span> (<span class="fn">summary</span>(model)$coefficient[<span class="nb">3</span>, <span class="nb">4</span>] &lt; <span class="nb">0.05</span>) {
+    pval1 &lt;- <span class="fn">summary</span>(model)$coefficient[<span class="nb">2</span>, <span class="nb">4</span>]
+  } <span class="kw">else</span> {
+    model2 &lt;- <span class="fn">lm</span>(y ~ x1)
+    pval1 &lt;- <span class="fn">summary</span>(model2)$coefficient[<span class="nb">2</span>, <span class="nb">4</span>]
+  }
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li>Fit the FULL model with both x1 and x2.</li>
+    <li>Check x2's p-value (row 3, col 4). <strong>If significant → keep x2, use x1's p-value from this model.</strong> <strong>If not → drop x2, refit without x2, use x1's p-value from the SMALLER model.</strong></li>
+    <li>This is exactly the FLAWED workflow.</li>
+  </ul>
+<pre class="r-code">  <span class="kw">if</span> (pval1 &lt; <span class="nb">0.05</span>) count1 &lt;- count1 + <span class="nb">1</span>
+  <span class="kw">if</span> (<span class="fn">summary</span>(model)$coefficient[<span class="nb">2</span>, <span class="nb">4</span>] &lt; <span class="nb">0.05</span>) count2 &lt;- count2 + <span class="nb">1</span>
+}
+
+count1 / reps   <span class="cm"># empirical Type I rate of FLAWED workflow</span>
+count2 / reps   <span class="cm"># empirical Type I rate of FULL-MODEL workflow</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>count1 / reps</code> — fraction of times the flawed workflow rejected. <strong>This is usually higher than 0.05!</strong></li>
+    <li><code>count2 / reps</code> — fraction for full-model workflow. ≈ 0.05 ✓ (matches the advertised α).</li>
+  </ul>
+  <p><strong>What R is doing:</strong> simulate 10,000 datasets where x1 has NO real effect, run BOTH workflows on each, count how often each one wrongly rejects.</p>
+  <p><strong>What this means in plain English:</strong> "Even though x1 has NO effect in the truth, the flawed workflow finds a 'significant' effect way more than 5% of the time. The full-model workflow stays at 5% as it should."</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">D. Tiny example with numbers</div>
+  <p>Simulation results (from Lec 13's setup):</p>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Workflow</th><th>Empirical Type I rate</th><th>OK?</th></tr>
+    <tr><td>Full model always (keep x2 no matter what)</td><td>≈ 0.05</td><td>✓ matches nominal α</td></tr>
+    <tr><td>Flawed: drop x2 if not significant, refit</td><td>≈ 0.08 to 0.10+</td><td>✗ inflated! Lies about α</td></tr>
+  </table>
+  <p>That's a HUGE practical difference. If you report p = 0.04 from the flawed workflow, your TRUE Type I rate is closer to 0.08–0.10, not 0.05.</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">E. What the R output means</div>
+  <ul style="font-size:0.85rem;">
+    <li>If <code>count1 / reps</code> &gt; 0.05 → the flawed workflow is INVALID. p-values cannot be trusted.</li>
+    <li>If <code>count2 / reps</code> ≈ 0.05 → using the FULL model (no dropping) gives a valid test.</li>
+    <li>The "data tells you which model to use" approach LIES because the same data is used twice.</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">F. What to memorize</div>
+  <p><strong>MEMORIZE:</strong></p>
+  <ul>
+    <li>DO NOT drop a predictor based on its p-value and then test your main variable in the smaller model.</li>
+    <li>The right approach: PRE-SPECIFY your model BEFORE looking at the data (based on subject-matter knowledge).</li>
+    <li>If you must do model selection, separate it from inference: use one dataset for selection and a DIFFERENT one for testing.</li>
+    <li>"Use the data once" — once for selection, OR once for inference. Not both.</li>
+  </ul>
+  <p><strong>DO NOT memorize:</strong></p>
+  <ul>
+    <li>Exact numbers in the Lec 13 simulation.</li>
+    <li>The Bonferroni / FDR corrections (advanced).</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">G. Common mistakes</div>
+  <ol>
+    <li><strong>"x2 wasn't significant, so it doesn't matter."</strong> Wrong. Non-significance ≠ no effect. Dropping a non-significant confounder still biases your x1 estimate.</li>
+    <li><strong>"I'll use stepwise selection then report the final p-values."</strong> Even worse — stepwise selection mixes the same data many times.</li>
+    <li><strong>Confusing "model selection invalid" with "lm is bugged."</strong> The math of lm() is fine. The PROBLEM is using the data to make decisions, then using it AGAIN for inference.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">H. 3-sentence summary</div>
+  <p>1. If you drop predictors based on their p-values and then re-fit, your final reported p-value is NOT trustworthy — the real Type I error rate can be way above 5%. 2. The safe approach is to PRE-SPECIFY which predictors to include based on scientific knowledge (before looking at the data) and use the FULL model for inference. 3. Model selection and inference are TWO different jobs; mixing them with the same data is a hidden form of p-hacking.</p>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">I. Mini quiz</div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">Q1. Why is "drop x2 if not significant, then re-test x1" invalid?</div>
+    <div class="quiz-opt" data-i="0">Because lm() can't fit small models</div>
+    <div class="quiz-opt" data-i="1">Because you used the same data twice — once to pick the model, once to test — which inflates Type I error</div>
+    <div class="quiz-opt" data-i="2">Because R² is too low</div>
+    <div class="quiz-opt" data-i="3">Because n is too small</div>
+    <div class="quiz-result" data-explain="Reusing the data for two purposes (selection + inference) inflates the false alarm rate. The reported α=0.05 becomes a lie — true rate is higher."></div>
+  </div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">Q2. The safest approach to model building for inference is:</div>
+    <div class="quiz-opt" data-i="0">Always drop non-significant predictors</div>
+    <div class="quiz-opt" data-i="1">Try every possible model and pick the one with the best R²</div>
+    <div class="quiz-opt" data-i="2">PRE-SPECIFY the predictors based on scientific knowledge before looking at the data, then fit ONCE</div>
+    <div class="quiz-opt" data-i="3">Use a different α</div>
+    <div class="quiz-result" data-explain="Pre-specification keeps the data 'fresh' for inference. The model is decided before seeing the data, so the p-value is valid."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">Q3. In the Lec 13 simulation, the FULL-model workflow gave Type I ≈ 0.05 while the FLAWED workflow gave ≈ 0.08-0.10. What does this mean?</div>
+    <div class="quiz-opt" data-i="0">The full-model workflow is VALID (true α matches nominal α). The flawed workflow LIES (real false-alarm rate is higher than advertised).</div>
+    <div class="quiz-opt" data-i="1">Both workflows are equally good</div>
+    <div class="quiz-opt" data-i="2">The flawed workflow has more power</div>
+    <div class="quiz-opt" data-i="3">Type I rates don't matter</div>
+    <div class="quiz-result" data-explain="A valid test rejects exactly α=0.05 when H₀ is true. The flawed workflow rejects more often — its reported p-values are too small, meaning false positives are inflated."></div>
+  </div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(70)">Mark Level 70 Complete — Lec 13 Done!</button>
+</div></div>
+
+</div> <!-- end phase-16 -->
+
 </div> <!-- end main -->
 
 
@@ -11392,7 +11575,7 @@ let completedLevels = new Set();
 let totalQuizzes = 0;
 let correctQuizzes = 0;
 const XP_PER_LEVEL = 100;
-const TOTAL_LEVELS = 69;
+const TOTAL_LEVELS = 70;
 
 // ===== PHASE TABS =====
 document.querySelectorAll('.phase-tab').forEach(tab => {
@@ -11561,6 +11744,11 @@ function checkAchievements() {
   if (completedLevels.size === 69 && !window._ach69) {
     window._ach69 = true;
     showAchievement('TRANSFORMATION MASTER!', 'You can now handle non-linear data with log/sqrt transformations.');
+    launchConfetti();
+  }
+  if (completedLevels.size === 70 && !window._ach70) {
+    window._ach70 = true;
+    showAchievement('SELECTION TRAP AVOIDED!', 'You will not p-hack your way through model selection.');
     launchConfetti();
   }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
