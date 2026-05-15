@@ -535,6 +535,7 @@ strong { color: #e2e8f0; }
   <div class="phase-tab" data-phase="12">Phase 12: ESL Bank Quiz 2 🌍</div>
   <div class="phase-tab" data-phase="13">Phase 13: Lab 6 Deep Dive (Interactions) 🌍</div>
   <div class="phase-tab" data-phase="14">Phase 14: 🧒 Beginner R + Stats Survival Kit</div>
+  <div class="phase-tab" data-phase="15">Phase 15: Lec 14 — Transformations 🌍</div>
 </div>
 
 <!-- ============================= MAIN CONTENT ============================= -->
@@ -11176,6 +11177,208 @@ mean of x
 
 </div> <!-- end phase-14 -->
 
+<!-- ============================================================ -->
+<!-- PHASE 15: LECTURE 14 — TRANSFORMATIONS (Level 69) -->
+<!-- ============================================================ -->
+<div class="phase-content" id="phase-15">
+
+<div class="box box-story" style="margin-bottom:24px;">
+  <div class="box-label">About this phase</div>
+  <p>Lecture 14 covers <strong>transformations</strong>: what to do when your data is curved, not a straight line. The trick is to transform x or y with a function (most commonly <code>log</code>) so the relationship BECOMES linear. Then you can use all the regression tools from before.</p>
+</div>
+
+<!-- ==================== LEVEL 69 — Transformations ==================== -->
+<div class="level-card" id="level-69">
+<div class="level-header" onclick="toggleLevel(69)">
+  <span class="level-title"><span class="num">Level 69</span> — 🧒 Transformations (Lec 14: log(x), sqrt, sensitivity analysis)</span>
+  <span class="level-xp">+100 XP</span>
+</div>
+<div class="level-body" id="level-body-69">
+
+<div class="box box-story" style="border-color:#4ade80; background:#0a1f12;">
+  <div class="box-label" style="color:#4ade80;">🧒 A through I format</div>
+  <p>Same beginner format. Decoded line-by-line. Examples from Lec 14 (hybrid car price vs MPG).</p>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">A. Big idea</div>
+  <p>The regression conditions LINE require the relationship between x and y to be LINEAR (a straight line). What if your data is CURVED?</p>
+  <p>You have two options:</p>
+  <ol>
+    <li>Try to fit a straight line anyway → bad fit, ridiculous predictions (e.g., negative car prices).</li>
+    <li>TRANSFORM x or y with a function like <code>log()</code> or <code>sqrt()</code> until the relationship becomes straight. Then fit the line on the transformed scale.</li>
+  </ol>
+  <p>Option 2 is called a <strong>transformation</strong>. After transforming, you can use <code>lm()</code> like normal — but you must interpret the slope on the new scale.</p>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. Vocabulary I need first</div>
+  <table class="cmp-table" style="font-size:0.85rem;">
+    <tr><th>Word</th><th>Plain meaning</th></tr>
+    <tr><td><strong>Transformation</strong></td><td>Replace x (or y) with a function of x. Example: replace x with log(x). The data looks different, but the truth is the same.</td></tr>
+    <tr><td><strong>log(x)</strong> in stats</td><td>The NATURAL logarithm (base e ≈ 2.718). Statisticians' default. NOT base-10.</td></tr>
+    <tr><td><strong>log₁₀(x)</strong></td><td>The base-10 logarithm. Used less often.</td></tr>
+    <tr><td><strong>Sensitivity analysis</strong></td><td>"Try several models and see how the answer changes." Once you start hunting for the best transformation, you've LEFT inference and entered exploration.</td></tr>
+    <tr><td><strong>R²</strong></td><td>"Proportion of variance in y explained by the model." Between 0 and 1. Bigger = better fit (in some sense), BUT not always meaningful by itself.</td></tr>
+    <tr><td><strong>Still linear regression</strong></td><td>Even after transforming x, the model is STILL linear (it's linear in the COEFFICIENTS, not in x). All <code>lm()</code> machinery applies.</td></tr>
+  </table>
+</div>
+
+<div class="box box-formula">
+  <div class="box-label">B. The transformed model, symbol by symbol</div>
+  <p>$$ \hat y = \hat\beta_0 + \hat\beta_1 \cdot g(x) $$</p>
+  <ul style="font-size:0.85rem;">
+    <li><strong>\(\hat y\)</strong> — predicted y (same as before).</li>
+    <li><strong>\(\hat\beta_0\)</strong> — estimated intercept (same as before).</li>
+    <li><strong>\(\hat\beta_1\)</strong> — estimated slope, but now ON THE TRANSFORMED SCALE of x.</li>
+    <li><strong>\(g(x)\)</strong> — some function of x. Often \(\log(x)\), \(\sqrt{x}\), or \(x^2\).</li>
+  </ul>
+  <p><strong>What this means in plain English:</strong> "Predicted y equals the intercept plus the slope times the TRANSFORMED x. If we picked g well, the dots will fall along a straight line on this new scale."</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Line-by-line — fitting a transformed model in R</div>
+<pre class="r-code">model1 &lt;- <span class="fn">lm</span>(price ~ mpg, data = hybrid)
+<span class="fn">summary</span>(model1)$r.squared
+<span class="cm"># Output: 0.2828</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>lm(price ~ mpg, data = hybrid)</code> — fit a NAIVE linear model. price by mpg.</li>
+    <li><code>$r.squared</code> — pull just the R² value from the summary. 0.28 means "the line explains 28% of the variability in price." Pretty bad fit.</li>
+  </ul>
+<pre class="r-code">model2 &lt;- <span class="fn">lm</span>(price ~ <span class="fn">log</span>(mpg), data = hybrid)
+<span class="fn">summary</span>(model2)$r.squared
+<span class="cm"># Output: 0.3327</span>
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>log(mpg)</code> — inside the formula, R automatically computes log of each mpg value before fitting. No need to make a new column.</li>
+    <li>Result: R² jumped from 0.28 to 0.33. Better but still not great → log of mpg helps a bit, but isn't the perfect transformation for THIS data.</li>
+  </ul>
+  <p><strong>What R is doing line-by-line:</strong></p>
+  <ol style="font-size:0.85rem;">
+    <li>For each row, R replaces mpg with log(mpg).</li>
+    <li>R fits a line: <code>price = β̂₀ + β̂₁ · log(mpg)</code>.</li>
+    <li>R reports the R² for this new transformed model.</li>
+  </ol>
+  <p><strong>What this means in plain English:</strong> "Hey R, instead of using mpg directly, use the log of mpg as my predictor."</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">C. Diagnostic plot — did the transformation help?</div>
+<pre class="r-code">res &lt;- model2$residuals
+fit &lt;- model2$fitted.values
+<span class="fn">plot</span>(res ~ fit, main = <span class="st">"Residuals vs. Fitted Values with log(mpg)"</span>)
+<span class="fn">abline</span>(h = <span class="nb">0</span>, col = <span class="st">"red"</span>)
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><code>model2$residuals</code> — the leftover gaps from the new transformed model.</li>
+    <li><code>model2$fitted.values</code> — the predicted prices from the transformed model.</li>
+    <li><code>plot(res ~ fit, main = "...")</code> — scatter plot with a title.</li>
+    <li><code>abline(h = 0, col = "red")</code> — adds a horizontal red line at 0 to compare.</li>
+  </ul>
+  <p><strong>What to look for:</strong> a FLAT, RANDOM band around 0 = good transformation. Any pattern (curve, fan) = transformation didn't fix the problem; try another.</p>
+</div>
+
+<div class="box box-analogy">
+  <div class="box-label">D. Tiny example with fake data</div>
+  <p>Imagine 5 data points where y grows in a curved way with x:</p>
+  <table class="four-outcome-table" style="font-size:0.85rem;">
+    <tr><th>x</th><th>y</th><th>log(x)</th></tr>
+    <tr><td>1</td><td>0</td><td>0</td></tr>
+    <tr><td>2</td><td>2</td><td>0.69</td></tr>
+    <tr><td>5</td><td>5</td><td>1.61</td></tr>
+    <tr><td>10</td><td>7</td><td>2.30</td></tr>
+    <tr><td>20</td><td>10</td><td>3.00</td></tr>
+  </table>
+  <p>If you plot y vs x: the curve flattens at high x. If you plot y vs log(x): the dots fall ALMOST on a straight line. Slope ≈ 3.3.</p>
+  <p>Fit: <code>lm(y ~ log(x))</code> → β̂₁ = 3.3, R² = 0.99.</p>
+  <p>Interpretation: "For each 1-unit increase in log(x), predicted y goes up by 3.3." (Equivalent: "for each DOUBLING of x, predicted y goes up by 3.3 × log(2) ≈ 2.3.")</p>
+</div>
+
+<div class="box box-rcode">
+  <div class="box-label">E. What the R output means (transformed model)</div>
+<pre style="background:#080b12; padding:12px; border-radius:6px; color:#e2e8f0; font-family:'SF Mono',monospace; font-size:0.78rem;">
+Coefficients:
+              Estimate  Std. Error  t value  Pr(&gt;|t|)
+(Intercept)    1.515     0.031       49.5    &lt;2e-16 ***
+log(x)        -0.970     0.024      -40.5    &lt;2e-16 ***
+---
+Multiple R-squared: 0.9435
+</pre>
+  <ul style="font-size:0.85rem;">
+    <li><strong>Estimate for log(x) = −0.97</strong> → "For each 1-unit increase in log(x), predicted y DECREASES by 0.97." Negative slope = y goes DOWN as log(x) goes up.</li>
+    <li><strong>R² = 0.94</strong> → "The transformed model explains 94% of variability in y." Much better than fitting straight to x.</li>
+    <li><strong>p &lt; 2e-16</strong> → super significant. The slope (on the log scale) is clearly not zero.</li>
+  </ul>
+  <p><strong>Plain-English conclusion:</strong> "There is a strong negative relationship between log(x) and y. R² jumped from 0.67 (untransformed) to 0.94 (with log) — log(x) is a much better fit."</p>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">F. What to memorize (and what not to)</div>
+  <p><strong>MEMORIZE:</strong></p>
+  <ul>
+    <li>R's <code>log()</code> is the NATURAL log (base e), not base-10.</li>
+    <li>Syntax: <code>lm(y ~ log(x), data = df)</code> — log goes INSIDE the formula.</li>
+    <li>After transformation, the slope is interpreted on the TRANSFORMED scale ("per 1-unit increase in log(x)").</li>
+    <li>Equivalent: "for each DOUBLING of x, y changes by β̂₁ × log(2) ≈ 0.693 × β̂₁."</li>
+    <li>Transformations FIX non-linearity but the model is STILL linear regression.</li>
+    <li>Once you start hunting for the best transformation, you've left inference. Acknowledge this.</li>
+  </ul>
+  <p><strong>DO NOT memorize:</strong></p>
+  <ul>
+    <li>The Box-Cox formula (advanced topic).</li>
+    <li>Every possible transformation. The big 3 are: <code>log(x)</code>, <code>sqrt(x)</code>, <code>x²</code>.</li>
+  </ul>
+</div>
+
+<div class="box box-warning">
+  <div class="box-label">G. Common mistakes</div>
+  <ol>
+    <li><strong>Saying "log" means base-10.</strong> In statistics and R, <code>log()</code> is natural log (base e). Base-10 is <code>log10()</code>.</li>
+    <li><strong>Forgetting the transformation when interpreting.</strong> β̂₁ in <code>lm(y ~ log(x))</code> is "change in y per +1 in log(x)", NOT per +1 in x.</li>
+    <li><strong>Trying many transformations and reporting only the "best" p-value.</strong> This is p-hacking. Acknowledge the search; treat it as exploration, not inference.</li>
+    <li><strong>Confusing log(x) and log(y).</strong> Transforming x changes how x is interpreted. Transforming y changes the SCALE of the outcome — much bigger change.</li>
+  </ol>
+</div>
+
+<div class="box box-concept">
+  <div class="box-label">H. 3-sentence summary</div>
+  <p>1. When the LINE conditions break because the relationship is curved, you can apply a transformation like <code>log(x)</code> inside <code>lm()</code> to make the dots fall on a straight line. 2. The model is STILL linear regression — just on the transformed scale — and <code>summary()</code>, <code>confint()</code>, and diagnostics all work as before. 3. Hunting for the right transformation is "sensitivity analysis" (exploration), not inference; once you've picked the transformation BEFORE seeing the data, you can do proper inference on that one model.</p>
+</div>
+
+<div class="box box-rcode" style="border-color:#fbbf24; background:#15110a;">
+  <div class="box-label" style="color:#fbbf24;">I. Mini quiz</div>
+  <div class="quiz-box" data-answer="1">
+    <div class="quiz-q">Q1. In R, <code>log(10)</code> gives:</div>
+    <div class="quiz-opt" data-i="0">1 (base 10)</div>
+    <div class="quiz-opt" data-i="1">2.303 (natural log of 10)</div>
+    <div class="quiz-opt" data-i="2">10</div>
+    <div class="quiz-opt" data-i="3">100</div>
+    <div class="quiz-result" data-explain="R's log() = natural log (base e). log(10) = 2.303. For base-10, use log10()."></div>
+  </div>
+  <div class="quiz-box" data-answer="2">
+    <div class="quiz-q">Q2. You fit <code>lm(y ~ log(x))</code> and get β̂₁ = 2. The correct interpretation is:</div>
+    <div class="quiz-opt" data-i="0">"For each +1 in x, y goes up by 2"</div>
+    <div class="quiz-opt" data-i="1">"For each +1 in y, x goes up by 2"</div>
+    <div class="quiz-opt" data-i="2">"For each +1 in log(x), predicted y goes up by 2"</div>
+    <div class="quiz-opt" data-i="3">"R² is 2"</div>
+    <div class="quiz-result" data-explain="After transforming x to log(x), the slope is interpreted on the log scale. A +1 in log(x) corresponds to multiplying x by e ≈ 2.718."></div>
+  </div>
+  <div class="quiz-box" data-answer="0">
+    <div class="quiz-q">Q3. R² jumps from 0.28 (untransformed) to 0.94 (log-transformed). What does this tell you?</div>
+    <div class="quiz-opt" data-i="0">The log-transformed model fits much better — the curvature in the data was real, and log(x) captured it</div>
+    <div class="quiz-opt" data-i="1">The R² values are too high; reject H₀</div>
+    <div class="quiz-opt" data-i="2">The model has overfit</div>
+    <div class="quiz-opt" data-i="3">You should use a t-test instead</div>
+    <div class="quiz-result" data-explain="Big R² jump after transforming = the original was missing the true shape. Log-transformed captures it. (Caveat: report your search as 'sensitivity analysis,' not inference.)"></div>
+  </div>
+</div>
+
+<button class="complete-btn" onclick="completeLevel(69)">Mark Level 69 Complete — Lec 14 Done!</button>
+</div></div>
+
+</div> <!-- end phase-15 -->
+
 </div> <!-- end main -->
 
 
@@ -11189,7 +11392,7 @@ let completedLevels = new Set();
 let totalQuizzes = 0;
 let correctQuizzes = 0;
 const XP_PER_LEVEL = 100;
-const TOTAL_LEVELS = 68;
+const TOTAL_LEVELS = 69;
 
 // ===== PHASE TABS =====
 document.querySelectorAll('.phase-tab').forEach(tab => {
@@ -11353,6 +11556,11 @@ function checkAchievements() {
   if (completedLevels.size === 68 && !window._ach68) {
     window._ach68 = true;
     showAchievement('SURVIVAL KIT COMPLETE!', 'You can now read any R line in this guide. Beginner mode mastered.');
+    launchConfetti();
+  }
+  if (completedLevels.size === 69 && !window._ach69) {
+    window._ach69 = true;
+    showAchievement('TRANSFORMATION MASTER!', 'You can now handle non-linear data with log/sqrt transformations.');
     launchConfetti();
   }
   if (completedLevels.size === TOTAL_LEVELS && !window._achAll) {
